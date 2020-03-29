@@ -1,53 +1,136 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
+
+
+var listas = [
+  {
+    "name": "Burguesa",
+    "picture": "images/products/bear1.jpg",
+    "price": "8,00",
+    "natural/gelada": "natural",
+    "quantidade": "2",
+  },
+  {
+    "name": "Guaraná",
+    "picture": "images/products/refri1.jpg",
+    "price": "8,00",
+    "natural/gelada": "gelada",
+    "quantidade": "3",
+  },
+  {
+    "name": "Vinho Tinto",
+    "picture": "images/products/wine1.jpg",
+    "price": "15,00",
+    "natural/gelada": "gelada",
+    "quantidade": "5",
+  },
+];
 
 class Cart_products extends StatefulWidget {
   @override
   _Cart_productsState createState() => _Cart_productsState();
 }
 
+
+
 class _Cart_productsState extends State<Cart_products> {
 
-  var Products_on_the_cart = [
-    {
-      "name": "Burguesa",
-      "picture": "images/products/bear1.jpg",
-      "price": "8,00",
-      "natural/gelada": "natural",
-      "quantidade": "2",
-    },
-    {
-      "name": "Guaraná",
-      "picture": "images/products/refri1.jpg",
-      "price": "8,00",
-      "natural/gelada": "gelada",
-      "quantidade": "3",
-    },
-    {
-      "name": "Vinho Tinto",
-      "picture": "images/products/wine1.jpg",
-      "price": "15,00",
-      "natural/gelada": "gelada",
-      "quantidade": "5",
-    },
-  ];
+
+
+  var Products_on_the_cart = listas;
 
   @override
   Widget build(BuildContext context) {
-    return new ListView.builder(
-          itemCount: Products_on_the_cart.length,
-          itemBuilder: (context, index){
-            return Single_cart_product(
-              cart_prod_name: Products_on_the_cart[index]["name"],
-              cart_prod_picture: Products_on_the_cart[index]["picture"],
-              cart_prod_natural_gelada: Products_on_the_cart[index]["natural/gelada"],
-              cart_prod_price: Products_on_the_cart[index]["price"],
-              cart_prod_quat: Products_on_the_cart[index]["quantidade"],
-            );
-          });
+
+    _onSelected(dynamic val) {
+      setState(() => listas.removeWhere((data) => data == val));
+
+    }
+
+
+    return new ListView(
+      children: listas
+          .map((data) => ListTile(
+        title: Card(
+          child: ListTile(
+            leading: new Image.asset(data["picture"],
+              width: 80.0,
+              height: 80.0,
+            ),
+            
+            title: new Text(data["name"]),
+
+            subtitle: new Column(
+              children: <Widget>[
+                // row inside of the column
+                new Row(
+                  // section the gelada ou natural
+                  children: <Widget>[
+
+                    Padding(
+                      padding: const EdgeInsets.all(0.0),
+                      child: new Text("Natura/Gelada:"),
+                    ),
+
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: new Text(data["natural/gelada"],
+                        style: TextStyle(color: Colors.deepOrange),),
+                    ),
+
+                  ],
+                ),
+
+
+
+
+                new Container(
+
+                  alignment: Alignment.topLeft,
+                  child: new Text("R\$ ${data["price"]}",
+                    style: TextStyle(
+                      fontSize: 17.0,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.deepOrange,
+                    ),),
+                ),
+                new Row(
+                  // section the gelada ou natural
+                  children: <Widget>[
+                    new IconButton(icon: Icon(Icons.arrow_drop_up, color: Colors.deepOrange), onPressed: null),
+                    new Text(data["quantidade"]),
+                    new IconButton(icon: Icon(Icons.arrow_drop_down,color: Colors.deepOrange), onPressed: null),
+                  ],
+                ),
+              ],
+            ),
+
+            trailing: PopupMenuButton(
+              padding: EdgeInsets.fromLTRB(10.0, 30.0, 10.0, 10.0),
+              onSelected: _onSelected,
+              icon: Icon(Icons.delete, color: Colors.deepOrange,),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  value: data,
+                  child: Text("Delete"),
+                ),
+              ],
+
+            ),
+          ),
+        ),
+
+      ))
+          .toList(),
+    );
   }
+
 }
 
+
+
 class Single_cart_product extends StatelessWidget {
+  
   final cart_prod_name;
   final cart_prod_picture;
   final cart_prod_price;
@@ -62,9 +145,14 @@ class Single_cart_product extends StatelessWidget {
     this.cart_prod_quat
   });
 
+
+
   @override
   Widget build(BuildContext context) {
-    return Card(
+
+
+
+    Card(
       child: ListTile(
 
         // === leading section
@@ -125,10 +213,17 @@ class Single_cart_product extends StatelessWidget {
         ),
 
         trailing: Wrap(
+
+
             spacing: -15, // to apply margin horizontally
             runSpacing: 20, // to apply margin vertically
             children: <Widget>[
-              new IconButton(icon: Icon(Icons.delete, color: Colors.deepOrange), onPressed: null),
+
+              new IconButton(icon: Icon(Icons.delete, color: Colors.deepOrange), onPressed: (){
+//                listas.removeLast();
+
+                print(cart_prod_name);
+              }),
             ]
         )
         ),

@@ -13,7 +13,7 @@ class _CartState extends State<Cart> {
       appBar: new AppBar(
         elevation: 0.0,
         backgroundColor: Colors.deepOrange,
-        title: Text('Carinho'),
+        title: Text('Carrinho'),
         actions: <Widget>[
           new IconButton(icon: Icon(
             Icons.search, color: Colors.white,), onPressed: (){}),
@@ -38,7 +38,7 @@ class _CartState extends State<Cart> {
 
             Expanded(
               child: new MaterialButton(onPressed: (){},
-              child: new Text("Chechar Saída",
+              child: new Text("Confirmar Compra",
                 style: TextStyle(color: Colors.white),),
                 color: Colors.deepOrange,
               ),

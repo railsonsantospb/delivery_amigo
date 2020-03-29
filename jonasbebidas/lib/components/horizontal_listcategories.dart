@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jonasbebidas/components/page_categories.dart';
+import 'package:jonasbebidas/components/search_teste.dart';
 
 class HorizontalList extends StatelessWidget {
   @override
@@ -40,16 +42,23 @@ class Category extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(padding: const EdgeInsets.all(2.0),
-    child: InkWell(onTap: (){},
+    child: InkWell(onTap: (){
+      Navigator.push(context, MaterialPageRoute(
+        builder: (context)=> SearchList(header: image_caption,),
+      ));
+    },
       child: Container(
         width: 100.0,
         child: ListTile(
+
           title: Image.asset(image_location,
           width: 100.0,
           height: 80.0,),
           subtitle: Container(
+
             alignment: Alignment.topCenter,
-            child: Text(image_caption, style: new TextStyle(fontSize: 12.0),),
+            child: Text(image_caption, style: new TextStyle(fontSize: 12.0,
+                fontWeight: FontWeight.bold),),
           ),
         ),
       ),

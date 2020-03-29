@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
+import 'package:flutter/services.dart';
 
 import 'package:jonasbebidas/components/horizontal_listcategories.dart';
 import 'package:jonasbebidas/components/products.dart';
@@ -99,26 +100,17 @@ class _HomePageState extends State<HomePage> {
                 leading: Icon(Icons.shopping_cart, color: Colors.deepOrange,),
               ),
             ),
-            InkWell(
-              onTap: (){},
-              child: ListTile(
-                title: Text('Favoritos'),
-                leading: Icon(Icons.favorite, color: Colors.deepOrange,),
-              ),
-            ),
+
             Divider(),
+
+
             InkWell(
-              onTap: (){},
+              onTap: (){
+                SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+              },
               child: ListTile(
-                title: Text('Configurações'),
-                leading: Icon(Icons.settings, color: Colors.blue,),
-              ),
-            ),
-            InkWell(
-              onTap: (){},
-              child: ListTile(
-                title: Text('Sobre'),
-                leading: Icon(Icons.help, color: Colors.green,),
+                title: Text('Sair'),
+                leading: Icon(Icons.close, color: Colors.green,),
               ),
             ),
           ],
@@ -130,7 +122,8 @@ class _HomePageState extends State<HomePage> {
           image_carousel,
           // padding widget
           new Padding(padding: const EdgeInsets.all(8.0),
-            child: new Text('Categorias'),
+            child: new Text('Categorias', textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange),),
           ),
 
           // Horizontal list view categories
@@ -138,7 +131,8 @@ class _HomePageState extends State<HomePage> {
 
           // padding widget
           new Padding(padding: const EdgeInsets.all(20.0),
-            child: new Text('Produtos Recentes'),
+            child: new Text('Produtos Recentes', textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange),),
           ),
 
           //grid view

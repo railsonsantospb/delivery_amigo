@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "493944536307",
+    "firebase_url": "https://jonasbebidass.firebaseio.com",
+    "project_id": "jonasbebidass",
+    "storage_bucket": "jonasbebidass.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:493944536307:android:3bd6045a42424fa4f80b86",
+        "android_client_info": {
+          "package_name": "com.jonasbebidas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "493944536307-rl3dhnslrhp92r8h7n8oporqlg5imbm3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jonasbebidas",
+            "certificate_hash": "17d19d6420d5881e665956de48ed5f0a7e4921cb"
+          }
+        },
+        {
+          "client_id": "493944536307-muuttuvsnveqka2uapa9gj7r191g0gp0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAn0SaU1rl2KUOD_3gL868nKj7KmPNhBSc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "493944536307-muuttuvsnveqka2uapa9gj7r191g0gp0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

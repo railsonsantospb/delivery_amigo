@@ -1,85 +1,89 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert' as JSON;
 
-class MyApp extends StatefulWidget {
+//void main() => runApp(new MyApp());
+
+class FMyApp extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() {
-    // TODO: implement createState
-    return _MyAppState();
-  }
+  _MyAppState createState() => new _MyAppState();
 }
 
-class _MyAppState extends State<MyApp> {
-  bool _isLoggedIn = false;
-  Map userProfile;
-  final facebookLogin = FacebookLogin();
+class _MyAppState extends State<FMyApp> {
+  static final FacebookLogin facebookSignIn = new FacebookLogin();
 
-  _loginWithFB() async {
-    final result = await facebookLogin.logInWithReadPermissions(['email']);
+  String _message = 'Log in/out by pressing the buttons below.';
+
+  Future<Null> _login() async {
+    final FacebookLoginResult result =
+    await facebookSignIn.logIn(['email']);
 
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
-        final token = result.accessToken.token;
-        final graphResponse = await http.get(
-            'https://graph.facebook.com/v2.12/me?fields=name,picture,email&access_token=${token}');
+        final FacebookAccessToken accessToken = result.accessToken;
+        final graphResponse = await http.get('https://graph.facebook.com/v2.12/me?fields=name,picture,email&access_token=${accessToken.token}');
         final profile = JSON.jsonDecode(graphResponse.body);
         print(profile);
-        setState(() {
-          userProfile = profile;
-          _isLoggedIn = true;
-        });
-        break;
 
+        _showMessage('''
+         Logged in!
+         
+         
+         
+         Token: ${accessToken.token}
+         User id: ${accessToken.userId}
+         Expires: ${accessToken.expires}
+         Permissions: ${accessToken.permissions}
+         Declined permissions: ${accessToken.declinedPermissions}
+         ''');
+        break;
       case FacebookLoginStatus.cancelledByUser:
-        setState(() => _isLoggedIn = false);
+        _showMessage('Login cancelled by the user.');
         break;
       case FacebookLoginStatus.error:
-        setState(() => _isLoggedIn = false);
+        _showMessage('Something went wrong with the login process.\n'
+            'Here\'s the error Facebook gave us: ${result.errorMessage}');
         break;
     }
   }
 
-  _logout() {
-    facebookLogin.logOut();
+  Future<Null> _logOut() async {
+    await facebookSignIn.logOut();
+    _showMessage('Logged out.');
+  }
+
+  void _showMessage(String message) {
     setState(() {
-      _isLoggedIn = false;
+      _message = message;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    return MaterialApp(
-      home: Scaffold(
-        body: Center(
-            child: _isLoggedIn
-                ? Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Image.network(
-                  userProfile["picture"]["data"]["url"],
-                  height: 50.0,
-                  width: 50.0,
-                ),
-                Text(userProfile["name"]),
-                OutlineButton(
-                  child: Text("Logout"),
-                  onPressed: () {
-                    _logout();
-                  },
-                )
-              ],
-            )
-                : Center(
-              child: OutlineButton(
-                child: Text("Login with Facebook"),
-                onPressed: () {
-                  _loginWithFB();
-                },
+    return new MaterialApp(
+      home: new Scaffold(
+        appBar: new AppBar(
+          title: new Text('Plugin example app'),
+        ),
+        body: new Center(
+          child: new Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              new Text(_message),
+              new RaisedButton(
+                onPressed: _login,
+                child: new Text('Log in'),
               ),
-            )),
+              new RaisedButton(
+                onPressed: _logOut,
+                child: new Text('Logout'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
