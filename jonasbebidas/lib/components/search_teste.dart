@@ -209,7 +209,7 @@ class _SearchListState extends State<SearchList> {
                       color: Colors.white,
                     ),
                     decoration: InputDecoration(
-                        hintText: "Procure pela marca ("+widget.header+")",
+                        hintText: "Procure pelas marcas de ("+widget.header+")",
                         hintStyle: TextStyle(color: Colors.white)),
                   );
 

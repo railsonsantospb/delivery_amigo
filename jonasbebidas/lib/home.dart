@@ -1,8 +1,10 @@
+import 'package:badges/badges.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/services.dart';
 
 import 'package:jonasbebidas/components/horizontal_listcategories.dart';
+import 'package:jonasbebidas/components/pedidos_h.dart';
 import 'package:jonasbebidas/components/products.dart';
 import 'package:jonasbebidas/pages/cart.dart';
 
@@ -15,7 +17,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Widget image_carousel = new Container(
-      height: 180.0,
+      height: 140.0,
       child: new Carousel(
         boxFit: BoxFit.cover,
         images: [
@@ -38,16 +40,21 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.deepOrange,
         title: Text('Jonas Bebidas'),
         actions: <Widget>[
-          new IconButton(icon: Icon(
-            Icons.search, color: Colors.white,), onPressed: (){}),
-          new IconButton(icon: Icon(
-            Icons.shopping_cart, color: Colors.white,), onPressed: (){
+
+          Badge(
+            position: BadgePosition.topRight(top: 2, right: 2),
+            badgeContent: Text('3', style: TextStyle(color: Colors.white),),
+            child: IconButton(icon: Icon(
+
+              Icons.shopping_cart, size: 30.0, color: Colors.white), onPressed: (){
               Navigator.push(context, MaterialPageRoute(
-                  builder:  (context)=> new Cart(),
+                builder:  (context)=> new Cart(),
               ));
-          }),
+            }),
+          ),
         ],
       ),
+
 
       drawer: new Drawer(
         child: new ListView(
@@ -68,22 +75,13 @@ class _HomePageState extends State<HomePage> {
             ),
 //            body
 
+
             InkWell(
-              onTap: (){},
-              child: ListTile(
-                title: Text('Início'),
-                leading: Icon(Icons.home, color: Colors.deepOrange,),
-              ),
-            ),
-            InkWell(
-              onTap: (){},
-              child: ListTile(
-                title: Text('Minha Conta'),
-                leading: Icon(Icons.account_circle, color: Colors.deepOrange,),
-              ),
-            ),
-            InkWell(
-              onTap: (){},
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(
+                  builder: (context)=> Pedidos(),
+                ));
+              },
               child: ListTile(
                 title: Text('Meus Pedidos'),
                 leading: Icon(Icons.shopping_basket, color: Colors.deepOrange,),
@@ -116,7 +114,11 @@ class _HomePageState extends State<HomePage> {
           ],
         ),
       ),
-      body: new ListView(
+
+
+      body: SingleChildScrollView (
+
+      child: Column(
         children: <Widget>[
           // images carousel
           image_carousel,
@@ -143,7 +145,8 @@ class _HomePageState extends State<HomePage> {
 
         ],
       ),
-    );
+
+      ));
   }
 }
 

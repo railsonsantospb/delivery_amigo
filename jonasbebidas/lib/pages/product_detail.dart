@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:jonasbebidas/home.dart';
 import 'package:jonasbebidas/main.dart';
 
+import 'cart.dart';
+
 class ProductDetails extends StatefulWidget {
   final produt_detail_name;
   final produt_detail_new_price;
@@ -30,10 +32,13 @@ class _ProductDetailsState extends State<ProductDetails> {
           ));},
           child: Text('Jonas Bebidas')),
       actions: <Widget>[
+
         new IconButton(icon: Icon(
-          Icons.search, color: Colors.white,), onPressed: (){}),
-        new IconButton(icon: Icon(
-          Icons.shopping_cart, color: Colors.white,), onPressed: (){}),
+          Icons.shopping_cart, color: Colors.white,), onPressed: (){
+          Navigator.push(context, MaterialPageRoute(
+            builder: (context)=> Cart(),
+          ));
+        }),
       ],
     ),
       body: new ListView(

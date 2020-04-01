@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/painting.dart';
 import 'package:http/http.dart';
 
 
@@ -35,16 +36,26 @@ class Cart_products extends StatefulWidget {
 
 class _Cart_productsState extends State<Cart_products> {
 
-
+  int _n = 1;
+  String teamName = '';
 
   var Products_on_the_cart = listas;
 
   @override
   Widget build(BuildContext context) {
 
-    _onSelected(dynamic val) {
-      setState(() => listas.removeWhere((data) => data == val));
 
+
+
+    void add() {
+      setState(() {
+        _n++;
+      });
+    }
+
+    _onSelected(dynamic val) {
+
+      setState(() => listas.removeWhere((data) => data == val));
     }
 
 
@@ -95,11 +106,54 @@ class _Cart_productsState extends State<Cart_products> {
                     ),),
                 ),
                 new Row(
+
                   // section the gelada ou natural
                   children: <Widget>[
-                    new IconButton(icon: Icon(Icons.arrow_drop_up, color: Colors.deepOrange), onPressed: null),
-                    new Text(data["quantidade"]),
-                    new IconButton(icon: Icon(Icons.arrow_drop_down,color: Colors.deepOrange), onPressed: null),
+
+
+                    new IconButton(icon: Icon(Icons.add, color: Colors.deepOrange, size: 30.0,), onPressed: ()=>
+                        setState(()=> data["quantidade"] = (int.parse(data["quantidade"])+1).toString()
+                        )),
+                    new InkWell(
+                      onTap: () {
+                        showDialog(context: context, child:
+                            AlertDialog(
+                            title: Text('Digite a quantidade'),
+                        content: new Row(
+                        children: <Widget>[
+                        new Expanded(
+                        child: new TextField(
+                        autofocus: true,
+                        decoration: new InputDecoration(
+                        labelText: 'Team Name', hintText: 'Quantidade do produto'),
+                        onChanged: (value) {
+                        teamName = value;
+                        },
+                        ))
+                        ],
+                        ),
+                        actions: <Widget>[
+                        FlatButton(
+                        child: Text('Ok'),
+                        onPressed: () {
+                          setState(() {
+                            data["quantidade"] = teamName;
+                          });
+
+                        Navigator.of(context).pop(teamName);
+                        },
+                        ),
+                        ],
+                        ),
+                        );
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.fromLTRB(14.0, 5.0, 14.0, 5.0),
+                        child: Text(data["quantidade"]),
+                      )
+                    ),
+
+                    new IconButton(icon: Icon(Icons.remove,color: Colors.deepOrange, size: 30.0,), onPressed: null),
                   ],
                 ),
               ],
@@ -110,9 +164,12 @@ class _Cart_productsState extends State<Cart_products> {
               onSelected: _onSelected,
               icon: Icon(Icons.delete, color: Colors.deepOrange,),
               itemBuilder: (context) => [
+
                 PopupMenuItem(
+
                   value: data,
-                  child: Text("Delete"),
+                  child: Text("Excluir"),
+
                 ),
               ],
 
@@ -205,7 +262,7 @@ class Single_cart_product extends StatelessWidget {
               // section the gelada ou natural
               children: <Widget>[
                 new IconButton(icon: Icon(Icons.arrow_drop_up, color: Colors.deepOrange), onPressed: null),
-                new Text(cart_prod_quat),
+                new Text("1"),
                 new IconButton(icon: Icon(Icons.arrow_drop_down,color: Colors.deepOrange), onPressed: null),
               ],
             ),
