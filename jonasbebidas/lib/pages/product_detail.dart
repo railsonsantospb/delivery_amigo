@@ -28,7 +28,7 @@ class _ProductDetailsState extends State<ProductDetails> {
       backgroundColor: Colors.deepOrange,
       title: InkWell(
           onTap: (){Navigator.push(context, MaterialPageRoute(
-            builder: (context)=> HomePage()
+            builder: (context)=> HomePage1()
           ));},
           child: Text('Jonas Bebidas')),
       actions: <Widget>[

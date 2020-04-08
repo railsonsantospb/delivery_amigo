@@ -60,7 +60,7 @@ class _ProductsState extends State<Products> {
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
-      shrinkWrap: true,
+        shrinkWrap: true,
         itemCount: product_list.length,
         gridDelegate: new SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2),
@@ -89,6 +89,7 @@ class Single_prod extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       child: Hero(
+
           tag: new Text("hero 1"),
           child: Material(
             child: InkWell(

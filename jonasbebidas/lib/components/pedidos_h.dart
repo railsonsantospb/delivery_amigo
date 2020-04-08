@@ -9,18 +9,13 @@ class _PedidosState extends State<Pedidos> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.deepOrange,
-        title: Text('Histórico de Pedidos'),
-
-      ),
 
       body: ListView.builder(
 
       itemCount: 2,
       itemBuilder: (BuildContext context, index){
         return Card(
+          elevation: 10.0,
 
         child: ListTile(
 

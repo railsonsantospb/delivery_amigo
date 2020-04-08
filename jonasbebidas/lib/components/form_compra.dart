@@ -1,9 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:jonasbebidas/home.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 
 //void main() => runApp(new MyApp());
-
+enum ConfirmAction { CANCEL, ACCEPT }
 class MyAppForm extends StatefulWidget {
   @override
   _MyAppFormState createState() => _MyAppFormState();
@@ -22,6 +25,8 @@ class _MyAppFormState extends State<MyAppForm> {
   var _valores = ["Cartão", "Em Dinheiro"];
   var _itemSelecionado = 'Em Dinheiro';
   var item = true;
+  ProgressDialog pr;
+
 
 //  double lat, long;
 
@@ -29,6 +34,12 @@ class _MyAppFormState extends State<MyAppForm> {
   Widget build(BuildContext context) {
     myemail.value = TextEditingValue(text: "teste@gmail.com");
     myname.value = TextEditingValue(text: "Jonas Bebidas");
+    pr = new ProgressDialog(context, showLogs: true);
+    pr.style(
+        message: "Enviando seu pedido...",
+        backgroundColor: Colors.deepOrange,
+        messageTextStyle: TextStyle(
+            color: Colors.white, fontSize: 18.0),);
 
     return  Scaffold(
         appBar: new AppBar(
@@ -45,6 +56,35 @@ class _MyAppFormState extends State<MyAppForm> {
             ),
           ),
         ),
+
+      bottomNavigationBar: new Container(
+        color: Colors.white,
+        child: Row(
+          children: <Widget>[
+
+            Expanded(
+
+              child: ListTile(
+
+                title: new Text("Total: "),
+                subtitle: new Text("R\$230"),
+              ),
+            ),
+
+            Expanded(
+              flex: 2,
+              child: new MaterialButton(onPressed: (){
+                  _sendForm();
+              },
+                child: new Text("Confirmar Pedido",
+                  style: TextStyle(color: Colors.white),),
+                color: Colors.deepOrange,
+              ),
+            ),
+
+          ],
+        ),
+      ),
       );
   }
 
@@ -53,6 +93,52 @@ class _MyAppFormState extends State<MyAppForm> {
     setState(() {
       this._itemSelecionado = novoItem;
     });
+  }
+
+
+
+  showAlertDialog2() {
+
+    Widget cancelaButton = FlatButton(
+      child: Text("Cancelar"),
+      onPressed:  () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continuaButton = FlatButton(
+      child: Text("Continuar"),
+      onPressed:  () {
+        Navigator.of(context).pop();
+        pr.show();
+        Future.delayed(Duration(seconds: 3)).then((value) {
+          pr.hide().whenComplete(() {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => SecondScreen()),
+                  (Route<dynamic> route) => false,
+            );
+          });
+        });
+      },
+    );
+
+    //configura o AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Confirmar pedido!"),
+      content: Text("Deseja continuar com a compra?"),
+      actions: [
+        cancelaButton,
+        continuaButton,
+      ],
+    );
+
+    //exibe o diálogo
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 
   Widget _formUI() {
@@ -133,7 +219,7 @@ class _MyAppFormState extends State<MyAppForm> {
           child: TextFormField(
 
               decoration: new InputDecoration(hintText: 'Digite o valor do troco'),
-              keyboardType: TextInputType.text,
+              keyboardType: TextInputType.number,
               maxLength: 40,
               validator: _validarValor,
               onSaved: (String val) {
@@ -142,40 +228,6 @@ class _MyAppFormState extends State<MyAppForm> {
 
         ),
 
-
-
-
-        new SizedBox(height: 35.0),
-        new Row(
-
-          children: <Widget>[
-
-
-            Expanded(
-
-
-              child: ListTile(
-
-                title: new Text("Total: "),
-                subtitle: new Text("R\$230"),
-              ),
-            ),
-
-
-            Expanded(
-              child: new MaterialButton(onPressed: (){
-                _sendForm();
-              },
-                child: new Text("Confirmar Pedido",
-                  style: TextStyle(color: Colors.white),),
-                color: Colors.deepOrange,
-              ),
-            ),
-
-
-
-          ],
-        ),
       ],
     );
   }
@@ -283,11 +335,92 @@ class _MyAppFormState extends State<MyAppForm> {
       print("Núm $numero");
       print("Ceclular $celular");
       print("Email $email");
+      showAlertDialog2();
     } else {
       // erro de validação
       setState(() {
         _validate = true;
       });
     }
+  }
+}
+
+class SecondScreen extends StatefulWidget {
+  @override
+  _SecondScreenState createState() => _SecondScreenState();
+}
+
+class _SecondScreenState extends State<SecondScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: Text("AGRADECEMOS PELA COMPRA!",
+                  style: TextStyle(fontWeight: FontWeight.bold),),
+
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: Text("(INÍCIO)",
+                  style: TextStyle(fontWeight: FontWeight.bold),),
+
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: Icon(Icons.arrow_downward, size: 70,)
+
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: IconButton(
+                  iconSize: 74.0,
+                  icon: Icon(Icons.check_circle, color: Colors.green,),
+                  onPressed: (){
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      CupertinoPageRoute(builder: (context) => HomePage1()),
+                          (Route<dynamic> route) => false,
+                    );
+                  },
+                ),
+
+              ),
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Center(
+                child: Text("SEU PEDIDO FOI ENVIADO COM SUCESSO!",
+                style: TextStyle(fontWeight: FontWeight.bold),),
+
+              ),
+            ],
+          ),
+
+
+        ],
+      )
+
+    );
   }
 }

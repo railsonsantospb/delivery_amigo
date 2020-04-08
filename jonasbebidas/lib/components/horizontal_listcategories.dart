@@ -15,7 +15,7 @@ class HorizontalList extends StatelessWidget {
     },
     {
       "image_location": 'images/cats/refri.jpg',
-      "image_caption": 'Refris',
+      "image_caption": 'Refrigerantes',
     },
     {
       "image_location": 'images/cats/wine.png',
@@ -55,7 +55,7 @@ class Category extends StatelessWidget {
         ));
       },
         child: Container(
-          width: 100.0,
+          width: 110.0,
           child: ListTile(
 
             title: Image.asset(image_location,
@@ -64,7 +64,7 @@ class Category extends StatelessWidget {
             subtitle: Container(
 
               alignment: Alignment.topCenter,
-              child: Text(image_caption, style: new TextStyle(fontSize: 12.0,
+              child: Text(image_caption, style: new TextStyle(fontSize: 15.0,
                   fontWeight: FontWeight.bold),),
             ),
           ),

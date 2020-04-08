@@ -44,24 +44,7 @@ class _CartState extends State<Cart> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: new AppBar(
-        elevation: 0.0,
-        backgroundColor: Colors.deepOrange,
-        title: Text('Carrinho'),
-        actions: <Widget>[
-      new PopupMenuButton(
-        padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-        onSelected: _onSelected,
-        icon: Icon(Icons.delete, color: Colors.white,),
-        itemBuilder: (context) => [
-          PopupMenuItem(
-            value: listas,
-            child: Text("Apagar Carrinho"),
-          ),
-        ],
-      ),
-        ],
-      ),
+
 
       body: new Cart_products(),
 
@@ -80,6 +63,7 @@ class _CartState extends State<Cart> {
             ),
 
             Expanded(
+              flex: 2,
               child: new MaterialButton(onPressed: (){
                 Navigator.push(context, MaterialPageRoute(
                   builder:  (context)=> new MyAppForm(),
@@ -89,6 +73,19 @@ class _CartState extends State<Cart> {
               child: new Text("Confirmar Compra",
                 style: TextStyle(color: Colors.white),),
                 color: Colors.deepOrange,
+              ),
+            ),
+            Expanded(
+              child: new PopupMenuButton(
+                padding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+                onSelected: _onSelected,
+                icon: Icon(Icons.delete, color: Colors.deepOrange,),
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: listas,
+                    child: Text("Apagar Carrinho"),
+                  ),
+                ],
               ),
             ),
 

@@ -25,6 +25,13 @@ var listas = [
     "natural/gelada": "gelada",
     "quantidade": "5",
   },
+  {
+    "name": "Vinho Tinto",
+    "picture": "images/products/wine1.jpg",
+    "price": "15,00",
+    "natural/gelada": "gelada",
+    "quantidade": "5",
+  },
 ];
 
 class Cart_products extends StatefulWidget {
@@ -125,7 +132,7 @@ class _Cart_productsState extends State<Cart_products> {
                         child: new TextField(
                         autofocus: true,
                         decoration: new InputDecoration(
-                        labelText: 'Team Name', hintText: 'Quantidade do produto'),
+                        labelText: data["name"], hintText: 'Quantidade do produto'),
                         onChanged: (value) {
                         teamName = value;
                         },

@@ -1,6 +1,24 @@
+import 'dart:async';
+import 'package:flutter/services.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:flutter/material.dart';
+import 'package:progress_dialog/progress_dialog.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as JSON;
+
+import 'package:jonasbebidas/home.dart';
+
+GoogleSignIn _googleSignIn = GoogleSignIn(
+  scopes: <String>[
+    'email',
+    'https://www.googleapis.com/auth/userinfo.profile',
+  ],
+);
 
 class LoginScreen3 extends StatefulWidget {
+
   @override
   _LoginScreen3State createState() => new _LoginScreen3State();
 }
@@ -8,14 +26,133 @@ class LoginScreen3 extends StatefulWidget {
 class _LoginScreen3State extends State<LoginScreen3>
     with TickerProviderStateMixin {
 
+  GoogleSignInAccount _currentUser;
+  String _contactText;
+
+  static final FacebookLogin facebookSignIn = new FacebookLogin();
+
+  String _message = 'Log in/out by pressing the buttons below.';
+
+  ProgressDialog pr;
+
+  Future<Null> _login() async {
+    final FacebookLoginResult result =
+    await facebookSignIn.logIn(['email']);
+    var profile;
+
+    switch (result.status) {
+      case FacebookLoginStatus.loggedIn:
+        final FacebookAccessToken accessToken = result.accessToken;
+        final graphResponse = await http.get('https://graph.facebook.com/v2.12/me?fields=name,picture,email&access_token=${accessToken.token}');
+        profile = JSON.jsonDecode(graphResponse.body);
+        print(profile["name"]);
+
+        _showMessage('''
+         Logged in!
+         
+         
+         
+         Token: ${accessToken.token}
+         User id: ${accessToken.userId}
+         Expires: ${accessToken.expires}
+         Permissions: ${accessToken.permissions}
+         Declined permissions: ${accessToken.declinedPermissions}
+         ''');
+        break;
+      case FacebookLoginStatus.cancelledByUser:
+        _showMessage('Login cancelled by the user.');
+        break;
+      case FacebookLoginStatus.error:
+        _showMessage('Something went wrong with the login process.\n'
+            'Here\'s the error Facebook gave us: ${result.errorMessage}');
+        break;
+
+    }
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      CupertinoPageRoute(builder: (context) => new HomePage1(
+          name: profile["name"],
+          email: profile["email"])),
+          (Route<dynamic> route) => false,
+    );
+
+  }
+
+  Future<Null> _logOut() async {
+    await facebookSignIn.logOut();
+    _showMessage('Logged out.');
+
+  }
+
+  void _showMessage(String message) {
+    setState(() {
+      _message = message;
+    });
+  }
+
 
 
   @override
   void initState() {
     super.initState();
+
+    _googleSignIn.onCurrentUserChanged.listen((GoogleSignInAccount account) {
+      _currentUser = account;
+      if(mounted){
+
+        setState(() {
+          _currentUser = account;
+          Navigator.pushAndRemoveUntil(
+            context,
+            CupertinoPageRoute(builder: (context) =>
+            new HomePage1(
+                name: account.displayName,
+                email: account.email)),
+                (Route<dynamic> route) => false,
+          );
+        });
+      }
+
+      if (_currentUser != null) {
+//        _handleGetContact();
+      }
+    });
+    _googleSignIn.signInSilently();
   }
 
+
+
+  Future<void> _handleSignIn() async {
+
+    try {
+
+      if(_googleSignIn.currentUser != null){
+        Navigator.pushAndRemoveUntil(
+          context,
+          CupertinoPageRoute(builder: (context) =>
+          new HomePage1(
+              name: _googleSignIn.currentUser.displayName,
+              email: _googleSignIn.currentUser.email)),
+              (Route<dynamic> route) => false,
+        );
+      }
+      await _googleSignIn.signIn();
+    } catch (error) {
+      print(error);
+    }
+  }
+
+  Future<void> _handleSignOut() => _googleSignIn.disconnect();
+
   Widget HomePage() {
+    pr = new ProgressDialog(context, showLogs: true);
+    pr.style(
+      message: "Solicitando seus dados...",
+      backgroundColor: Colors.deepOrange,
+      messageTextStyle: TextStyle(
+          color: Colors.white, fontSize: 18.0),);
+
     return new Scaffold(
         body: Container(
 
@@ -59,14 +196,19 @@ class _LoginScreen3State extends State<LoginScreen3>
             ),
           ),
           new Container(
+
             width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 150.0),
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 100.0),
             alignment: Alignment.center,
             child: new Row(
+
               children: <Widget>[
+
                 new Expanded(
                   child: new OutlineButton(
+
                     shape: new RoundedRectangleBorder(
+
                         borderRadius: new BorderRadius.circular(30.0)),
                     color: Colors.deepOrange,
                     highlightedBorderColor: Colors.white,
@@ -119,6 +261,47 @@ class _LoginScreen3State extends State<LoginScreen3>
                           new Expanded(
                             child: Text(
                               "ENTRAR",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.deepOrange,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          new Container(
+            width: MediaQuery.of(context).size.width,
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 30.0),
+            alignment: Alignment.center,
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                  child: new FlatButton(
+                    shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(30.0)),
+                    color: Colors.white,
+                    onPressed: () {
+                      _logOut();
+                      _handleSignOut();
+                      SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                    },
+                    child: new Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20.0,
+                        horizontal: 20.0,
+                      ),
+                      child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          new Expanded(
+                            child: Text(
+                              "FECHAR",
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                   color: Colors.deepOrange,
@@ -383,7 +566,14 @@ class _LoginScreen3State extends State<LoginScreen3>
                                 children: <Widget>[
                                   new Expanded(
                                     child: new FlatButton(
-                                      onPressed: ()=>{},
+                                      onPressed: (){
+                                        pr.show();
+                                        Future.delayed(Duration(seconds: 4)).then((value) {
+                                          pr.hide().whenComplete(() {
+                                            _login();
+                                          });
+                                        });
+                                      },
                                       padding: EdgeInsets.only(
                                         top: 20.0,
                                         bottom: 20.0,
@@ -392,7 +582,7 @@ class _LoginScreen3State extends State<LoginScreen3>
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceEvenly,
                                         children: <Widget>[
-                                          Icon(Icons.person, color: Colors.white,),
+                                          Icon(Icons.person, color: Colors.white),
                                           Text(
                                             "FACEBOOK",
                                             textAlign: TextAlign.center,
@@ -432,7 +622,14 @@ class _LoginScreen3State extends State<LoginScreen3>
                                 children: <Widget>[
                                   new Expanded(
                                     child: new FlatButton(
-                                      onPressed: ()=>{},
+                                      onPressed: (){
+                                        pr.show();
+                                        Future.delayed(Duration(seconds: 4)).then((value) {
+                                          pr.hide().whenComplete(() {
+                                            _handleSignIn();
+                                          });
+                                        });
+                                      },
                                       padding: EdgeInsets.only(
                                         top: 20.0,
                                         bottom: 20.0,

@@ -26,7 +26,7 @@ class _MyAppState extends State<FMyApp> {
         final FacebookAccessToken accessToken = result.accessToken;
         final graphResponse = await http.get('https://graph.facebook.com/v2.12/me?fields=name,picture,email&access_token=${accessToken.token}');
         final profile = JSON.jsonDecode(graphResponse.body);
-        print(profile);
+        print(profile["name"]);
 
         _showMessage('''
          Logged in!

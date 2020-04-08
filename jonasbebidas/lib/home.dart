@@ -1,57 +1,73 @@
 import 'package:badges/badges.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter/services.dart';
+import 'package:jonasbebidas/components/corpo.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:jonasbebidas/components/horizontal_listcategories.dart';
+import 'package:jonasbebidas/components/login_screen_3.dart';
 import 'package:jonasbebidas/components/pedidos_h.dart';
 import 'package:jonasbebidas/components/products.dart';
 import 'package:jonasbebidas/pages/cart.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage1 extends StatefulWidget {
+  final name;
+  final email;
+
+  HomePage1({this.name, this.email});
+
   @override
-  _HomePageState createState() => _HomePageState();
+  _HomePage1State createState() => _HomePage1State();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePage1State extends State<HomePage1> {
+
+  int selectedIndex = 0;
+  final widgetOptions = [
+    Corpo(),
+    Cart(),
+    Pedidos(),
+    Text("Person"),
+    Text("Conta"),
+  ];
+
+  Color getColor() {
+    if (1 == 0) {
+      return Colors.red;
+    } else {
+      return Colors.blueGrey;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    Widget image_carousel = new Container(
-      height: 140.0,
-      child: new Carousel(
-        boxFit: BoxFit.cover,
-        images: [
-          AssetImage('images/c1.jpg'),
-          AssetImage('images/m1.jpg'),
-          AssetImage('images/w1.jpg'),
-        ],
-        autoplay: true,
-        animationCurve: Curves.fastOutSlowIn,
-        animationDuration: Duration(milliseconds: 1000),
-        dotSize: 0.0,
-        indicatorBgPadding: 0.0,
-        dotColor: Colors.transparent,
-      ),
-    );
+
+
+    void onItemTapped(int index) {
+      setState(() {
+        selectedIndex = index;
+      });
+    }
 
     return Scaffold(
       appBar: new AppBar(
-        elevation: 0.0,
+        centerTitle: true,
+        elevation: 10.0,
         backgroundColor: Colors.deepOrange,
         title: Text('Jonas Bebidas'),
+
         actions: <Widget>[
+          IconButton(icon: Icon(
 
-          Badge(
-            position: BadgePosition.topRight(top: 2, right: 2),
-            badgeContent: Text('3', style: TextStyle(color: Colors.white),),
-            child: IconButton(icon: Icon(
-
-              Icons.shopping_cart, size: 30.0, color: Colors.white), onPressed: (){
-              Navigator.push(context, MaterialPageRoute(
-                builder:  (context)=> new Cart(),
-              ));
-            }),
-          ),
+              Icons.exit_to_app, size: 30.0, color: Colors.white), onPressed: (){
+            Navigator.pushAndRemoveUntil(
+              context,
+              CupertinoPageRoute(builder: (context) => LoginScreen3()),
+                  (Route<dynamic> route) => false,
+            );
+          }),
         ],
       ),
 
@@ -61,16 +77,16 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
 //            header
             new UserAccountsDrawerHeader(
-                accountName: Text('Jonas'),
-                accountEmail: Text('jonasbebidas@gmail.com'),
-            currentAccountPicture: GestureDetector(
-              child: new CircleAvatar(
-                backgroundColor: Colors.blue,
-                child: Icon(Icons.person, color: Colors.white,),
+              accountName: Text(widget.name),
+              accountEmail: Text(widget.email),
+              currentAccountPicture: GestureDetector(
+                child: new CircleAvatar(
+                  backgroundColor: Colors.blue,
+                  child: Icon(Icons.person, color: Colors.white,),
+                ),
               ),
-            ),
               decoration: new BoxDecoration(
-                color: Colors.deepOrange
+                  color: Colors.deepOrange
               ),
             ),
 //            body
@@ -104,7 +120,11 @@ class _HomePageState extends State<HomePage> {
 
             InkWell(
               onTap: (){
-                SystemChannels.platform.invokeMethod('SystemNavigator.pop');
+                Navigator.pushAndRemoveUntil(
+                  context,
+                  CupertinoPageRoute(builder: (context) => LoginScreen3()),
+                      (Route<dynamic> route) => false,
+                );
               },
               child: ListTile(
                 title: Text('Sair'),
@@ -116,37 +136,52 @@ class _HomePageState extends State<HomePage> {
       ),
 
 
-      body: SingleChildScrollView (
-
-      child: Column(
-        children: <Widget>[
-          // images carousel
-          image_carousel,
-          // padding widget
-          new Padding(padding: const EdgeInsets.all(8.0),
-            child: new Text('Categorias', textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange),),
-          ),
-
-          // Horizontal list view categories
-          HorizontalList(),
-
-          // padding widget
-          new Padding(padding: const EdgeInsets.all(20.0),
-            child: new Text('Produtos Recentes', textAlign: TextAlign.center,
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.deepOrange),),
-          ),
-
-          //grid view
-          Container(
-            height: 320.0,
-            child: Products(),
-          ),
-
-        ],
+      body: Center(
+        child: widgetOptions.elementAt(selectedIndex),
       ),
 
-      ));
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Colors.deepOrange,
+    items: <BottomNavigationBarItem>[
+
+
+      BottomNavigationBarItem(
+
+          icon: Icon(Icons.home, size: 30.0,),
+          title: Text('início')
+      ),
+
+
+      BottomNavigationBarItem(
+
+
+        icon: Badge(
+          badgeColor: getColor(),
+          position: BadgePosition.topRight(top: -10, right: -10),
+
+          badgeContent: Text('3', style: TextStyle(color: Colors.white),),
+          child: Icon(
+              Icons.shopping_cart, size: 30.0,),
+
+        ),
+        title: Text('Carrinho'),
+      ),
+      BottomNavigationBarItem(
+          icon:  Icon(Icons.shopping_basket, size: 30.0,),
+          title: Text('Pedidos')
+      ),
+      BottomNavigationBarItem(
+          icon:  Icon(Icons.info, size: 30.0,),
+          title: Text('Sobre')
+      ),
+
+    ],
+    currentIndex: selectedIndex,
+    fixedColor: Colors.white,
+    onTap: onItemTapped,
+    ),);
+
   }
 }
 

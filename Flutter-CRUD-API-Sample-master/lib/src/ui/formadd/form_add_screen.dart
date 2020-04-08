@@ -78,6 +78,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
                       if (_isFieldNameValid == null ||
                           _isFieldEmailValid == null ||
                           _isFieldAgeValid == null ||
+                          _isFieldImageValid == null ||
                           !_isFieldNameValid ||
                           !_isFieldEmailValid ||
                           !_isFieldImageValid ||

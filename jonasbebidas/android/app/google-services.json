@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "493944536307-q760nnjk73cr01r8e1dclbfd7vcso8ub.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.jonasbebidas",
+            "certificate_hash": "3fd3ab05b70708c35bc46ecd39065d61e9233ee3"
+          }
+        },
+        {
           "client_id": "493944536307-rl3dhnslrhp92r8h7n8oporqlg5imbm3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -36,7 +44,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "493944536307-muuttuvsnveqka2uapa9gj7r191g0gp0.apps.googleusercontent.com",
+              "client_id": "493944536307-6qovpsfdba0ccrg9go4jgulo3gfqs84b.apps.googleusercontent.com",
               "client_type": 3
             }
           ]
