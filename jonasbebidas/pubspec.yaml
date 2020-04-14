@@ -37,6 +37,10 @@ dependencies:
   fluttertoast: ^3.0.3
   intl:
   cloud_firestore: ^0.9.13
+  toast: ^0.1.5
+  mime: ^0.9.6+3
+  async:
+  dio: ^3.0.9
 
 
   # The following adds the Cupertino Icons font to your application.

@@ -1,305 +1,159 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:jonasbebidas/components/category.dart';
-import 'package:jonasbebidas/components/brand.dart';
+import 'dart:io';
+import 'package:dio/dio.dart';
+import 'dart:async';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 
-enum Page { dashboard, manage }
+class UploadImageDemo extends StatefulWidget {
+  UploadImageDemo() : super();
 
-class Admin extends StatefulWidget {
+  final String title = "Upload Image Demo";
+
   @override
-  _AdminState createState() => _AdminState();
+  UploadImageDemoState createState() => UploadImageDemoState();
 }
 
-class _AdminState extends State<Admin> {
-  Page _selectedPage = Page.dashboard;
-  MaterialColor active = Colors.red;
-  MaterialColor notActive = Colors.grey;
-  TextEditingController categoryController = TextEditingController();
-  TextEditingController brandController = TextEditingController();
-  GlobalKey<FormState> _categoryFormKey = GlobalKey();
-  GlobalKey<FormState> _brandFormKey = GlobalKey();
-  BrandService _brandService = BrandService();
-  CategoryService _categoryService = CategoryService();
+class UploadImageDemoState extends State<UploadImageDemo> {
+  //
+  static final String uploadEndPoint =
+      'http://127.0.0.1:5000/user';
+  Future<File> file;
+  String status = '';
+  String base64Image;
+  File tmpFile;
+  String errMessage = 'Error Uploading Image';
 
+  chooseImage() {
+    setState(() {
+      file = ImagePicker.pickImage(source: ImageSource.gallery);
+    });
+    setStatus('');
+  }
 
+  setStatus(String message) {
+    setState(() {
+      status = message;
+    });
+  }
+
+  startUpload() {
+    setStatus('Uploading Image...');
+    if (null == tmpFile) {
+      setStatus(errMessage);
+      return;
+    }
+    String fileName = tmpFile.path.split('/').last;
+    upload(fileName);
+  }
+
+  upload1() async {
+    String fileName = tmpFile.path.split('/').last;
+
+    FormData data = FormData.fromMap({
+      "image": await MultipartFile.fromFile(
+        tmpFile.path,
+        filename: fileName,
+      ),
+      "email": "qqqqqqqq",
+    });
+
+    Dio dio = new Dio();
+
+    dio.post('https://apibebidas.herokuapp.com/user', data: data)
+        .then((response) => print(response))
+        .catchError((error) => print(error));
+  }
+
+  upload(String fileName) {
+    print(tmpFile);
+    http.post(uploadEndPoint,
+        body: {
+      "email": "sssssss7",
+      "image": tmpFile,
+    }).then((result) {
+      setStatus(result.statusCode == 200 ? result.body : errMessage);
+    }).catchError((error) {
+      setStatus(error);
+    });
+  }
+
+  Widget showImage() {
+    return FutureBuilder<File>(
+      future: file,
+      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            null != snapshot.data) {
+          tmpFile = snapshot.data;
+          base64Image = base64Encode(snapshot.data.readAsBytesSync());
+
+          return Flexible(
+            child: Image.file(
+              snapshot.data,
+              fit: BoxFit.fill,
+            ),
+          );
+        } else if (null != snapshot.error) {
+          return const Text(
+            'Error Picking Image',
+            textAlign: TextAlign.center,
+          );
+        } else {
+          return const Text(
+            'No Image Selected',
+            textAlign: TextAlign.center,
+          );
+        }
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Row(
-            children: <Widget>[
-              Expanded(
-                  child: FlatButton.icon(
-                      onPressed: () {
-                        setState(() => _selectedPage = Page.dashboard);
-                      },
-                      icon: Icon(
-                        Icons.dashboard,
-                        color: _selectedPage == Page.dashboard
-                            ? active
-                            : notActive,
-                      ),
-                      label: Text('Dashboard'))),
-              Expanded(
-                  child: FlatButton.icon(
-                      onPressed: () {
-                        setState(() => _selectedPage = Page.manage);
-                      },
-                      icon: Icon(
-                        Icons.sort,
-                        color:
-                            _selectedPage == Page.manage ? active : notActive,
-                      ),
-                      label: Text('Manage'))),
-            ],
-          ),
-          elevation: 0.0,
-          backgroundColor: Colors.white,
-        ),
-        body: _loadScreen());
-  }
-
-  Widget _loadScreen() {
-    switch (_selectedPage) {
-      case Page.dashboard:
-        return Column(
+      appBar: AppBar(
+        title: Text("Upload Image Demo"),
+      ),
+      body: Container(
+        padding: EdgeInsets.all(30.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            ListTile(
-              subtitle: FlatButton.icon(
-                onPressed: null,
-                icon: Icon(
-                  Icons.attach_money,
-                  size: 30.0,
-                  color: Colors.green,
-                ),
-                label: Text('12,000',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 30.0, color: Colors.green)),
-              ),
-              title: Text(
-                'Revenue',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24.0, color: Colors.grey),
+            OutlineButton(
+              onPressed: chooseImage,
+              child: Text('Choose Image'),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            showImage(),
+            SizedBox(
+              height: 20.0,
+            ),
+            OutlineButton(
+              onPressed: upload1,
+              child: Text('Upload Image'),
+            ),
+            SizedBox(
+              height: 20.0,
+            ),
+            Text(
+              status,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Colors.green,
+                fontWeight: FontWeight.w500,
+                fontSize: 20.0,
               ),
             ),
-            Expanded(
-              child: GridView(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2),
-                children: <Widget>[
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.people_outline),
-                              label: Text("Users")),
-                          subtitle: Text(
-                            '7',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.category),
-                              label: Text("Categories")),
-                          subtitle: Text(
-                            '23',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.track_changes),
-                              label: Text("Producs")),
-                          subtitle: Text(
-                            '120',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.tag_faces),
-                              label: Text("Sold")),
-                          subtitle: Text(
-                            '13',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.shopping_cart),
-                              label: Text("Orders")),
-                          subtitle: Text(
-                            '5',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(22.0),
-                    child: Card(
-                      child: ListTile(
-                          title: FlatButton.icon(
-                              onPressed: null,
-                              icon: Icon(Icons.close),
-                              label: Text("Return")),
-                          subtitle: Text(
-                            '0',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(color: active, fontSize: 60.0),
-                          )),
-                    ),
-                  ),
-                ],
-              ),
+            SizedBox(
+              height: 20.0,
             ),
           ],
-        );
-        break;
-      case Page.manage:
-        return ListView(
-          children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.add),
-              title: Text("Add product"),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.change_history),
-              title: Text("Products list"),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_circle),
-              title: Text("Add category"),
-              onTap: () {
-                _categoryAlert();
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.category),
-              title: Text("Category list"),
-              onTap: () {},
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.add_circle_outline),
-              title: Text("Add brand"),
-              onTap: () {
-                _brandAlert();
-              },
-            ),
-            Divider(),
-            ListTile(
-              leading: Icon(Icons.library_books),
-              title: Text("brand list"),
-              onTap: () {},
-            ),
-            Divider(),
-          ],
-        );
-        break;
-      default:
-        return Container();
-    }
-  }
-
-  void _categoryAlert() {
-    var alert = new AlertDialog(
-      content: Form(
-        key: _categoryFormKey,
-        child: TextFormField(
-          controller: categoryController,
-          validator: (value){
-            if(value.isEmpty){
-              return 'category cannot be empty';
-            }
-          },
-          decoration: InputDecoration(
-            hintText: "add category"
-          ),
         ),
       ),
-      actions: <Widget>[
-        FlatButton(onPressed: (){
-          if(categoryController.text != null){
-            _categoryService.createCategory(categoryController.text);
-          }
-          Fluttertoast.showToast(msg: 'category created');
-          Navigator.pop(context);
-        }, child: Text('ADD')),
-        FlatButton(onPressed: (){
-          Navigator.pop(context);
-        }, child: Text('CANCEL')),
-
-      ],
     );
-
-    showDialog(context: context, builder: (_) => alert);
-  }
-
-  void _brandAlert() {
-    var alert = new AlertDialog(
-      content: Form(
-        key: _brandFormKey,
-        child: TextFormField(
-          controller: brandController,
-          validator: (value){
-            if(value.isEmpty){
-              return 'category cannot be empty';
-            }
-          },
-          decoration: InputDecoration(
-              hintText: "add brand"
-          ),
-        ),
-      ),
-      actions: <Widget>[
-        FlatButton(onPressed: (){
-          if(brandController.text != null){
-            _brandService.createBrand(brandController.text);
-          }
-          Fluttertoast.showToast(msg: 'brand added');
-          Navigator.pop(context);
-        }, child: Text('ADD')),
-        FlatButton(onPressed: (){
-          Navigator.pop(context);
-        }, child: Text('CANCEL')),
-
-      ],
-    );
-
-    showDialog(context: context, builder: (_) => alert);
   }
 }
