@@ -62,7 +62,7 @@ class UploadImageDemoState extends State<UploadImageDemo> {
 
     Dio dio = new Dio();
 
-    dio.post('https://apibebidas.herokuapp.com/user', data: data)
+    dio.post('http://127.0.0.1:5000/user/user', data: data)
         .then((response) => print(response))
         .catchError((error) => print(error));
   }

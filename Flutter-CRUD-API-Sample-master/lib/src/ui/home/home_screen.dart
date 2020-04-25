@@ -1,7 +1,12 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service.dart';
-import 'package:flutter_crud_api_sample_app/src/model/profile.dart';
-import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_add_screen.dart';
+import 'package:flutter_crud_api_sample_app/src/model/category.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
+import 'dart:convert';
+import 'dart:typed_data';
+import 'package:flutter/widgets.dart';
+
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -12,6 +17,8 @@ class _HomeScreenState extends State<HomeScreen> {
   BuildContext context;
   ApiService apiService;
 
+
+
   @override
   void initState() {
     super.initState();
@@ -21,18 +28,23 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     this.context = context;
+
+
     return SafeArea(
+
       child: FutureBuilder(
-        future: apiService.getProfiles(),
-        builder: (BuildContext context, AsyncSnapshot<List<Profile>> snapshot) {
+
+        future: apiService.getCategory(),
+        builder: (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
           if (snapshot.hasError) {
             return Center(
               child: Text(
                   "Something wrong with message: ${snapshot.error.toString()}"),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
-            List<Profile> profiles = snapshot.data;
-            return _buildListView(profiles);
+            List<Category> cat = snapshot.data;
+
+            return _buildListView(cat);
           } else {
             return Center(
               child: CircularProgressIndicator(),
@@ -43,12 +55,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildListView(List<Profile> profiles) {
+  Widget _buildListView(List<Category> cats) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListView.builder(
         itemBuilder: (context, index) {
-          Profile profile = profiles[index];
+          Category cat = cats[index];
+
           return Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Card(
@@ -57,49 +70,58 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Text(
-                      profile.name,
-                      style: Theme.of(context).textTheme.title,
+                    Center(
+                      child: Text(
+                        cat.name,
+                        style: Theme.of(context).textTheme.title,
+                      ),
                     ),
-                    Text(profile.email),
-                    Text(profile.age.toString()),
+
+                    Center(
+                      child: Image.memory(base64Decode(cat.image)),
+                    ),
+
+
+//                    Text(cat.image),
+
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         FlatButton(
                           onPressed: () {
                             showDialog(
                                 context: context,
                                 builder: (context) {
+
                                   return AlertDialog(
                                     title: Text("Warning"),
                                     content: Text(
-                                        "Are you sure want to delete data profile ${profile.name}?"),
+                                        "Você quer excluir a categoria ${cat.name}?"),
                                     actions: <Widget>[
                                       FlatButton(
-                                        child: Text("Yes"),
+                                        child: Text("SIM"),
                                         onPressed: () {
                                           Navigator.pop(context);
                                           apiService
-                                              .deleteProfile(profile.id)
+                                              .deleteCategory(cat.id)
                                               .then((isSuccess) {
                                             if (isSuccess) {
                                               setState(() {});
                                               Scaffold.of(this.context)
                                                   .showSnackBar(SnackBar(
                                                       content: Text(
-                                                          "Delete data success")));
+                                                          "Excluído com Sucesso")));
                                             } else {
                                               Scaffold.of(this.context)
                                                   .showSnackBar(SnackBar(
                                                       content: Text(
-                                                          "Delete data failed")));
+                                                          "Falha ao Excluir")));
                                             }
                                           });
                                         },
                                       ),
                                       FlatButton(
-                                        child: Text("No"),
+                                        child: Text("NÃO"),
                                         onPressed: () {
                                           Navigator.pop(context);
                                         },
@@ -109,19 +131,19 @@ class _HomeScreenState extends State<HomeScreen> {
                                 });
                           },
                           child: Text(
-                            "Delete",
+                            "EXCLUIR",
                             style: TextStyle(color: Colors.red),
                           ),
                         ),
                         FlatButton(
                           onPressed: () {
                             Navigator.push(context,
-                                MaterialPageRoute(builder: (context) {
-                              return FormAddScreen(profile: profile);
+                                CupertinoPageRoute(builder: (context) {
+                              return FormAddScreen(cat: cat);
                             }));
                           },
                           child: Text(
-                            "Edit",
+                            "EDITAR",
                             style: TextStyle(color: Colors.blue),
                           ),
                         ),
@@ -133,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
-        itemCount: profiles.length,
+        itemCount: cats.length,
       ),
     );
   }

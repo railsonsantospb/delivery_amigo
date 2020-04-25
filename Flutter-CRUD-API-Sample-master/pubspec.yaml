@@ -15,6 +15,13 @@ dependencies:
   cupertino_icons: ^0.1.2
 
   http: ^0.12.0+2
+  mime: ^0.9.6+3
+  async:
+  dio: ^3.0.9
+  image_picker:
+  dbcrypt: ^1.0.0
+  mobx:
+  flutter_mobx:
 
 
 dev_dependencies:
