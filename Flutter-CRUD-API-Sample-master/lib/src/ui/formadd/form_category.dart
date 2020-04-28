@@ -12,6 +12,8 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 
+import '../home/home_screen.dart';
+
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class FormAddScreen extends StatefulWidget {
@@ -51,31 +53,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
     });
   }
 
-  startUpload() {
-    setStatus('Uploading Image...');
-    if (null == tmpFile) {
-      setStatus(errMessage);
-      return;
-    }
-    upload();
-  }
 
-  upload() async {
-    String fileName = tmpFile.path.split('/').last;
-    FormData data = FormData.fromMap({
-      "image": await MultipartFile.fromFile(
-        tmpFile.path,
-        filename: fileName,
-      ),
-      "email": "qqqqqqqq",
-    });
-
-    Dio dio = new Dio();
-
-    dio.post('http://127.0.0.1:5000/user/user', data: data)
-        .then((response) => print(response))
-        .catchError((error) => print(error));
-  }
 
   @override
   void initState() {
@@ -91,20 +69,23 @@ class _FormAddScreenState extends State<FormAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldState,
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          widget.cat == null ? "Form Add" : "Change Data",
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
-      body: Stack(
+//      appBar: AppBar(
+//        iconTheme: IconThemeData(color: Colors.white),
+//        title: Text(
+//          widget.cat == null ? "Form Add" : "Change Data",
+//          style: TextStyle(color: Colors.white),
+//        ),
+//      ),
+      body:  Stack(
         children: <Widget>[
           Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
+            padding: const EdgeInsets.all(12.0),
+
+            child: Container(
+              child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
+
                 _showImage(),
 
                 _buildTextFieldName(),
@@ -113,16 +94,12 @@ class _FormAddScreenState extends State<FormAddScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
 
-                      OutlineButton(
-                        color: Colors.deepOrange,
-                        onPressed: chooseImage,
-                        child: Text('Choose Image',
-                            style: TextStyle(color: Colors.deepOrange),),
-                      ),
-
-                      SizedBox(
-                        height: 10.0,
-                      ),
+//                      OutlineButton(
+//                        color: Colors.deepOrange,
+//                        onPressed: chooseImage,
+//                        child: Text('Choose Image',
+//                            style: TextStyle(color: Colors.deepOrange),),
+//                      ),
 
                       Text(
                         status,
@@ -140,9 +117,10 @@ class _FormAddScreenState extends State<FormAddScreen> {
 
 
                 Padding(
-                  padding: const EdgeInsets.only(top: 5.0),
+                  padding: const EdgeInsets.only(top: 0.0),
                   child: RaisedButton(
-                    child: Text(
+
+                    child:  Text(
                       widget.cat == null
                           ? "Submit".toUpperCase()
                           : "Update Data".toUpperCase(),
@@ -150,6 +128,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
                         color: Colors.white,
                       ),
                     ),
+
                     onPressed: () {
                       if (_isFieldNameValid == null ||
                           base64Image == null ||
@@ -166,8 +145,6 @@ class _FormAddScreenState extends State<FormAddScreen> {
                         var hashedPassword = new DBCrypt().hashpw(plainPassword, new DBCrypt().gensalt());
                       setState(() => _isLoading = true);
                       String name = _controllerName.text.toString();
-//                      print(hashedPassword);
-
                       Category cat =
                           Category(id: hashedPassword.replaceAll('/', ''), name: name, image: base64Image);
 
@@ -175,11 +152,8 @@ class _FormAddScreenState extends State<FormAddScreen> {
 
                         _apiService.createCategory(cat).then((isSuccess) {
                           setState(() => _isLoading = false);
-                          if (isSuccess) {
 
-//                            Navigator.of(context).push(CupertinoPageRoute<void>(
-//                              builder: (BuildContext context) => App(),
-//                            ));
+                          if (isSuccess) {
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(
@@ -190,8 +164,12 @@ class _FormAddScreenState extends State<FormAddScreen> {
                       } else {
                         cat.id = widget.cat.id;
                         _apiService.updateCategory(cat).then((isSuccess) {
+
                           setState(() => _isLoading = false);
                           if (isSuccess) {
+//                            Navigator.of(context).push(CupertinoPageRoute<void>(
+//                              builder: (BuildContext context) => App(),
+//                            ));
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(
@@ -201,10 +179,12 @@ class _FormAddScreenState extends State<FormAddScreen> {
                         });
                       }
                     },
+//                    backgroundColor: ,
                     color: Colors.orange[600],
                   ),
-                )
+                ),
               ],
+            ),
             ),
           ),
           _isLoading
@@ -231,51 +211,55 @@ class _FormAddScreenState extends State<FormAddScreen> {
   Widget _showImage() {
 
     return FutureBuilder<File>(
-      future: file,
-      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-        if (snapshot.connectionState == ConnectionState.done &&
-            null != snapshot.data) {
-          tmpFile = snapshot.data;
-          base64Image = base64Encode(snapshot.data.readAsBytesSync());
-          _isFieldImageValid = true;
-
-
-
-          return Flexible(
-
-            child: Image.file(
-               snapshot.data,
-              fit: BoxFit.fill,
-            ),
-          );
-        } else if (null != snapshot.error) {
-          return const Text(
-            'Error Picking Image',
-            textAlign: TextAlign.center,
-          );
-        }  else {
-          if(widget.cat != null) {
+        future: file,
+        builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+          if (snapshot.connectionState == ConnectionState.done &&
+              null != snapshot.data) {
+            tmpFile = snapshot.data;
+            base64Image = base64Encode(snapshot.data.readAsBytesSync());
             _isFieldImageValid = true;
-            base64Image = widget.cat.image;
+
+
+
+            return Flexible(
+              child: GestureDetector(
+                onTap: chooseImage,
+              child: Image.file(
+                snapshot.data,
+
+              ),
+              ),
+            );
+
+          } else if (null != snapshot.error) {
+            return const Text(
+              'Error Picking Image',
+              textAlign: TextAlign.center,
+            );
+          }  else {
+            if(widget.cat != null) {
+              _isFieldImageValid = true;
+              base64Image = widget.cat.image;
+            }
+            return widget.cat != null ?
+            Flexible(
+
+              child: Image.memory(base64Decode(widget.cat.image)),
+
+            )
+
+
+
+                : GestureDetector(
+                  onTap: chooseImage,
+                child: Icon(Icons.photo_camera, size: 100.0, color: Colors.deepOrange,),
+            );
+
           }
-          return widget.cat != null ?
-          Flexible(
+        },
 
-            child: Image.memory(base64Decode(widget.cat.image)),
-
-          )
-
-
-
-          : Text(
-
-            'No Image Selected',
-            textAlign: TextAlign.center,
-          );
-
-        }
-      },
     );
+
   }
 
   Widget _buildTextFieldName() {

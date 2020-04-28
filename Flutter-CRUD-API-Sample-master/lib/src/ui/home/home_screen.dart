@@ -6,9 +6,13 @@ import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:mobx/mobx.dart';
 
 
 class HomeScreen extends StatefulWidget {
+
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -16,6 +20,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   BuildContext context;
   ApiService apiService;
+
 
 
 
@@ -32,6 +37,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return SafeArea(
 
+
+
       child: FutureBuilder(
 
         future: apiService.getCategory(),
@@ -42,8 +49,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   "Something wrong with message: ${snapshot.error.toString()}"),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
-            List<Category> cat = snapshot.data;
 
+//            setState(() {});
+            List<Category> cat = snapshot.data;
+//            print(cat);
             return _buildListView(cat);
           } else {
             return Center(
@@ -52,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
           }
         },
       ),
+
     );
   }
 
@@ -68,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Center(
                       child: Text(
@@ -78,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     Center(
-                      child: Image.memory(base64Decode(cat.image)),
+                      child: Image.memory(base64Decode(cat.image), ),
                     ),
 
 
@@ -155,8 +165,11 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
         },
+
         itemCount: cats.length,
+
       ),
+
     );
   }
 }

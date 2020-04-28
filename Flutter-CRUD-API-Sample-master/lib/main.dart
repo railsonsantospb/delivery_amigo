@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/app.dart';
 import 'package:dbcrypt/dbcrypt.dart';
+import 'package:flutter_crud_api_sample_app/src/home_page.dart';
+
+import 'src/api/api_service.dart';
 
 //main() {
 //  var plainPassword = "P@55w0rd";
@@ -10,10 +13,12 @@ import 'package:dbcrypt/dbcrypt.dart';
 
 
 void main(){
+
+
   runApp(
       MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: App(),
+        home: HomePage1(),
       )
   );
 }
