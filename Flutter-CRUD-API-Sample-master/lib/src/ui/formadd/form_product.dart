@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
+import 'package:flutter_crud_api_sample_app/src/api/api_service_prod.dart';
 import 'package:flutter_crud_api_sample_app/src/app.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/model/product.dart';
@@ -17,9 +17,9 @@ import '../home/home_screen.dart';
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class FormAddScreen extends StatefulWidget {
-  Category cat;
+  Product prod;
 
-  FormAddScreen({this.cat});
+  FormAddScreen({this.prod});
 
   @override
   _FormAddScreenState createState() => _FormAddScreenState();
@@ -27,12 +27,20 @@ class FormAddScreen extends StatefulWidget {
 
 class _FormAddScreenState extends State<FormAddScreen> {
   bool _isLoading = false;
-  ApiServiceCat _apiService = ApiServiceCat();
+  ApiServiceProd _apiService = ApiServiceProd();
 
   bool _isFieldNameValid;
+  bool _isFieldPriceValid;
+  bool _isFieldStateValid;
+  bool _isFieldActiveValid;
+  bool _isFieldCategoryValid;
   bool _isFieldImageValid;
 
   TextEditingController _controllerName = TextEditingController();
+  TextEditingController _controllerPrice = TextEditingController();
+  TextEditingController _controllerState = TextEditingController();
+  TextEditingController _controllerActive = TextEditingController();
+  TextEditingController _controllerCategory = TextEditingController();
 
   Future<File> file;
   String status = '';
@@ -57,9 +65,17 @@ class _FormAddScreenState extends State<FormAddScreen> {
 
   @override
   void initState() {
-    if (widget.cat != null) {
+    if (widget.prod != null) {
       _isFieldNameValid = true;
-      _controllerName.text = widget.cat.name;
+      _controllerName.text = widget.prod.name;
+      _isFieldPriceValid = true;
+      _controllerPrice.text = widget.prod.price;
+      _isFieldNameValid = true;
+      _controllerName.text = widget.prod.state;
+      _isFieldNameValid = true;
+      _controllerName.text = widget.prod.active;
+      _isFieldNameValid = true;
+      _controllerName.text = widget.prod.category;
       _isFieldImageValid = true;
     }
     super.initState();

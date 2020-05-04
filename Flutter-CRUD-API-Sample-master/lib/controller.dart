@@ -1,5 +1,5 @@
 import 'package:mobx/mobx.dart';
-import 'src/api/api_service.dart';
+import 'src/api/api_service_cat.dart';
 part 'controller.g.dart';
 
 class Controller = ControllerBase with _$Controller;

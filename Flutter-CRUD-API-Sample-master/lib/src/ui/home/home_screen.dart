@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_crud_api_sample_app/src/api/api_service.dart';
+import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
@@ -53,7 +53,13 @@ class _HomeScreenState extends State<HomeScreen> {
 //            setState(() {});
             List<Category> cat = snapshot.data;
 //            print(cat);
-            return _buildListView(cat);
+            if(cat.isEmpty == true){
+              return Center(
+                child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
+              );
+            } else {
+              return _buildListView(cat);
+            }
           } else {
             return Center(
               child: CircularProgressIndicator(),
@@ -80,15 +86,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    Center(
-                      child: Text(
-                        cat.name,
-                        style: Theme.of(context).textTheme.title,
-                      ),
+                    Padding(
+                      padding: EdgeInsets.all(2.0),
+                      child: Center(
+
+                        child: Text(
+
+                          cat.name.toUpperCase(),
+                          style: Theme.of(context).textTheme.title,
+                        ),
+                      ),  
                     ),
+                    
 
                     Center(
-                      child: Image.memory(base64Decode(cat.image), ),
+                      child: Image.memory(base64Decode(cat.image), cacheHeight: 500, cacheWidth: 500,),
                     ),
 
 
@@ -104,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 builder: (context) {
 
                                   return AlertDialog(
-                                    title: Text("Warning"),
+                                    title: Text("Aviso!"),
                                     content: Text(
                                         "Você quer excluir a categoria ${cat.name}?"),
                                     actions: <Widget>[

@@ -9,7 +9,7 @@ import '../model/category.dart';
 import '../model/category.dart';
 import '../model/category.dart';
 
-class ApiService {
+class ApiServiceCat {
   final String baseUrl = "http://192.168.1.17:5000";
   Client client = Client();
 

@@ -143,20 +143,20 @@ class _HomePage1State extends State<HomePage1> {
 
           BottomNavigationBarItem(
 
-              icon: Icon(Icons.home, size: 30.0,),
-              title: Text('início')
+              icon: Icon(Icons.menu, size: 30.0,),
+              title: Text('Categoria')
           ),
           BottomNavigationBarItem(
-              icon:  Icon(Icons.shopping_basket, size: 30.0,),
-              title: Text('Pedidos')
-          ),
-          BottomNavigationBarItem(
-              icon:  Icon(Icons.shopping_basket, size: 30.0,),
-              title: Text('Pedidos')
-          ),
-          BottomNavigationBarItem(
-              icon:  Icon(Icons.info, size: 30.0,),
+              icon:  Icon(Icons.local_drink, size: 30.0,),
               title: Text('Sobre')
+          ),
+          BottomNavigationBarItem(
+              icon:  Icon(Icons.check_circle, size: 30.0,),
+              title: Text('Pedidos ')
+          ),
+          BottomNavigationBarItem(
+              icon:  Icon(Icons.cancel, size: 30.0,),
+              title: Text('Pedidos')
           ),
 
         ],
