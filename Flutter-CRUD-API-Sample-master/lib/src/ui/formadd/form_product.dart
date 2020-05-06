@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_prod.dart';
-import 'package:flutter_crud_api_sample_app/src/app.dart';
+import 'package:flutter_crud_api_sample_app/src/app_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/model/product.dart';
 import 'package:async/async.dart';
@@ -12,34 +14,33 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 
-import '../home/home_screen.dart';
+import '../home/home_category.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
-class FormAddScreen extends StatefulWidget {
+class FormAddProduct extends StatefulWidget {
   Product prod;
 
-  FormAddScreen({this.prod});
+  FormAddProduct({this.prod});
 
   @override
-  _FormAddScreenState createState() => _FormAddScreenState();
+  _FormAddProductState createState() => _FormAddProductState();
 }
 
-class _FormAddScreenState extends State<FormAddScreen> {
+class _FormAddProductState extends State<FormAddProduct> {
   bool _isLoading = false;
-  ApiServiceProd _apiService = ApiServiceProd();
+  ApiServiceProd _apiServiceProd = ApiServiceProd();
+  ApiServiceCat _apiServiceCat = ApiServiceCat();
 
   bool _isFieldNameValid;
   bool _isFieldPriceValid;
   bool _isFieldStateValid;
-  bool _isFieldActiveValid;
   bool _isFieldCategoryValid;
   bool _isFieldImageValid;
 
   TextEditingController _controllerName = TextEditingController();
   TextEditingController _controllerPrice = TextEditingController();
   TextEditingController _controllerState = TextEditingController();
-  TextEditingController _controllerActive = TextEditingController();
   TextEditingController _controllerCategory = TextEditingController();
 
   Future<File> file;
@@ -47,18 +48,15 @@ class _FormAddScreenState extends State<FormAddScreen> {
   String base64Image;
   File tmpFile;
   String errMessage = 'Error Uploading Image';
+  int _selectedGender = 0;
+
+  List<DropdownMenuItem<int>> genderList = [];
 
   chooseImage() {
     setState(() {
       file = ImagePicker.pickImage(source: ImageSource.gallery);
     });
-    setStatus('');
-  }
 
-  setStatus(String message) {
-    setState(() {
-      status = message;
-    });
   }
 
 
@@ -70,216 +68,233 @@ class _FormAddScreenState extends State<FormAddScreen> {
       _controllerName.text = widget.prod.name;
       _isFieldPriceValid = true;
       _controllerPrice.text = widget.prod.price;
-      _isFieldNameValid = true;
+      _isFieldStateValid = true;
       _controllerName.text = widget.prod.state;
-      _isFieldNameValid = true;
-      _controllerName.text = widget.prod.active;
-      _isFieldNameValid = true;
+      _isFieldCategoryValid = true;
       _controllerName.text = widget.prod.category;
+
       _isFieldImageValid = true;
     }
     super.initState();
   }
 
+  Widget _formUI() {
+    return new Column(
+      children: <Widget>[
+        _showImage(),
+        new TextFormField(
+
+          controller: _controllerName,
+          decoration: InputDecoration(
+            labelText: "Nome",
+            errorText: _isFieldNameValid == null || _isFieldNameValid
+                ? null
+                : "Insira o Nome",
+          ),
+          onChanged: (value) {
+            bool isFieldValid = value.trim().isNotEmpty;
+            if (isFieldValid != _isFieldNameValid) {
+              setState(() => _isFieldNameValid = isFieldValid);
+            }
+          },
+        ),
+        new TextFormField(
+          controller: _controllerPrice,
+          keyboardType: TextInputType.number,
+          decoration: InputDecoration(
+            labelText: "Preço",
+            errorText: _isFieldPriceValid == null || _isFieldPriceValid
+                ? null
+                : "O preço é obtrigatório",
+          ),
+          onChanged: (value) {
+            bool isFieldValid = value.trim().isNotEmpty;
+            if (isFieldValid != _isFieldPriceValid) {
+              setState(() => _isFieldPriceValid = isFieldValid);
+            }
+          },
+        ),
+
+        _isLoading
+            ? ListView(
+                children: <Widget>[
+                  Opacity(
+                    opacity: 0.3,
+                    child: ModalBarrier(
+                      dismissible: false,
+                      color: Colors.grey,
+                    ),
+                  ),
+                  Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                ],
+              )
+            : Container(),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       key: _scaffoldState,
-//      appBar: AppBar(
-//        iconTheme: IconThemeData(color: Colors.white),
-//        title: Text(
-//          widget.cat == null ? "Form Add" : "Change Data",
-//          style: TextStyle(color: Colors.white),
-//        ),
-//      ),
-      body:  Stack(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.all(12.0),
+      appBar: AppBar(
+        backgroundColor: Colors.deepOrange,
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text(
+          widget.prod == null ? "Adicionar Bebida" : "Atualizar Dados",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+      body: SingleChildScrollView(
 
-            child: Container(
-              child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
+        child: new Container(
+          margin: new EdgeInsets.all(15.0),
+          child: new Form(
+            child: _formUI(),
+          ),
+        ),
+      ),
+      bottomNavigationBar: new Container(
 
-                _showImage(),
+        child: Row(
+          children: <Widget>[
+              Expanded(
 
-                _buildTextFieldName(),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-
-//                      OutlineButton(
-//                        color: Colors.deepOrange,
-//                        onPressed: chooseImage,
-//                        child: Text('Choose Image',
-//                            style: TextStyle(color: Colors.deepOrange),),
-//                      ),
-
-                      Text(
-                        status,
-                        textAlign: TextAlign.center,
+                child: Padding(
+                    padding: EdgeInsets.all(12.0),
+                    child: new MaterialButton(
+                      child: Text(
+                        widget.prod == null
+                            ? "Cadastrar".toUpperCase()
+                            : "Atualizar".toUpperCase(),
                         style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20.0,
+                          color: Colors.white,
                         ),
                       ),
 
-                    ],
-                  ),
-                ),
+                      onPressed: () {
+                        if (_isFieldNameValid == null ||
+                            _isFieldPriceValid == null ||
+                            _isFieldStateValid == null ||
+                            _isFieldCategoryValid == null ||
+                            base64Image == null ||
+                            !_isFieldNameValid ||
+                            !_isFieldPriceValid ||
+                            !_isFieldStateValid ||
+                            !_isFieldCategoryValid ||
+                            !_isFieldImageValid) {
+                          _scaffoldState.currentState.showSnackBar(
+                            SnackBar(
+                              content: Text("Please fill all field"),
+                            ),
+                          );
+                          return;
+                        }
 
+                        setState(() => _isLoading = true);
+                        String name = _controllerName.text.toString();
+                        String price = _controllerPrice.text.toString();
+                        String state = _controllerState.text.toString();
 
-                Padding(
-                  padding: const EdgeInsets.only(top: 0.0),
-                  child: RaisedButton(
+                        Product prod = Product(
+                            name: name, price: price, state: state, image: base64Image);
 
-                    child:  Text(
-                      widget.cat == null
-                          ? "Submit".toUpperCase()
-                          : "Update Data".toUpperCase(),
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
+                        if (widget.prod == null) {
+                          _apiServiceProd.createProduct(prod).then((isSuccess) {
+                            setState(() => _isLoading = false);
 
-                    onPressed: () {
-                      if (_isFieldNameValid == null ||
-                          base64Image == null ||
-                          !_isFieldNameValid ||
-                          ! _isFieldImageValid) {
-                        _scaffoldState.currentState.showSnackBar(
-                          SnackBar(
-                            content: Text("Please fill all field"),
-                          ),
-                        );
-                        return;
-                      }
-                        var plainPassword = "ola";
-                        var hashedPassword = new DBCrypt().hashpw(plainPassword, new DBCrypt().gensalt());
-                      setState(() => _isLoading = true);
-                      String name = _controllerName.text.toString();
-                      Category cat =
-                          Category(id: hashedPassword.replaceAll('/', ''), name: name, image: base64Image);
-
-                      if (widget.cat == null) {
-
-                        _apiService.createCategory(cat).then((isSuccess) {
-                          setState(() => _isLoading = false);
-
-                          if (isSuccess) {
-                            Navigator.pop(_scaffoldState.currentState.context);
-                          } else {
-                            _scaffoldState.currentState.showSnackBar(SnackBar(
-                              content: Text("Submit data failed"),
-                            ));
-                          }
-                        });
-                      } else {
-                        cat.id = widget.cat.id;
-                        _apiService.updateCategory(cat).then((isSuccess) {
-
-                          setState(() => _isLoading = false);
-                          if (isSuccess) {
-//                            Navigator.of(context).push(CupertinoPageRoute<void>(
-//                              builder: (BuildContext context) => App(),
-//                            ));
-                            Navigator.pop(_scaffoldState.currentState.context);
-                          } else {
-                            _scaffoldState.currentState.showSnackBar(SnackBar(
-                              content: Text("Update data failed"),
-                            ));
-                          }
-                        });
-                      }
-                    },
+                            if (isSuccess) {
+                              Navigator.pop(_scaffoldState.currentState.context);
+                            } else {
+                              _scaffoldState.currentState.showSnackBar(SnackBar(
+                                content: Text("Submit data failed"),
+                              ));
+                            }
+                          });
+                        } else {
+                          prod.id = widget.prod.id;
+                          _apiServiceProd.updateProduct(prod).then((isSuccess) {
+                            setState(() => _isLoading = false);
+                            if (isSuccess) {
+    //                            Navigator.of(context).push(CupertinoPageRoute<void>(
+    //                              builder: (BuildContext context) => App(),
+    //                            ));
+                              Navigator.pop(_scaffoldState.currentState.context);
+                            } else {
+                              _scaffoldState.currentState.showSnackBar(SnackBar(
+                                content: Text("Update data failed"),
+                              ));
+                            }
+                          });
+                        }
+                      },
 //                    backgroundColor: ,
-                    color: Colors.orange[600],
-                  ),
+                  color: Colors.deepOrange,
                 ),
-              ],
-            ),
-            ),
-          ),
-          _isLoading
-              ? Stack(
-                  children: <Widget>[
-                    Opacity(
-                      opacity: 0.3,
-                      child: ModalBarrier(
-                        dismissible: false,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  ],
-                )
-              : Container(),
-        ],
+              ),
+              ),
+          ],
+      ),
       ),
     );
   }
 
   Widget _showImage() {
-
     return FutureBuilder<File>(
-        future: file,
-        builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              null != snapshot.data) {
-            tmpFile = snapshot.data;
-            base64Image = base64Encode(snapshot.data.readAsBytesSync());
-            _isFieldImageValid = true;
+      future: file,
+      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            null != snapshot.data) {
+          tmpFile = snapshot.data;
+          base64Image = base64Encode(snapshot.data.readAsBytesSync());
+          _isFieldImageValid = true;
 
+          return Wrap(
+            children: <Widget>[
 
+              GestureDetector(
 
-            return Flexible(
-              child: GestureDetector(
                 onTap: chooseImage,
-              child: Image.file(
-                snapshot.data,
-
+                child: Image.file(
+                  snapshot.data,
+                ),
               ),
-              ),
-            );
-
-          } else if (null != snapshot.error) {
-            return const Text(
-              'Error Picking Image',
-              textAlign: TextAlign.center,
-            );
-          }  else {
-            if(widget.cat != null) {
-              _isFieldImageValid = true;
-              base64Image = widget.cat.image;
-            }
-            return widget.cat != null ?
-            Flexible(
-
-              child: Image.memory(base64Decode(widget.cat.image)),
-
-            )
-
-
-
-                : GestureDetector(
-                  onTap: chooseImage,
-                child: Icon(Icons.photo_camera, size: 100.0, color: Colors.deepOrange,),
-            );
-
+            ],
+          );
+        } else if (null != snapshot.error) {
+          return const Text(
+            'Error Picking Image',
+            textAlign: TextAlign.center,
+          );
+        } else {
+          if (widget.prod != null) {
+            _isFieldImageValid = true;
+            base64Image = widget.prod.image;
           }
-        },
-
+          return widget.prod != null
+              ? Wrap(
+                  children: <Widget>[
+                    Image.memory(base64Decode(widget.prod.image)),
+                  ],
+                )
+              : GestureDetector(
+                  onTap: chooseImage,
+                  child: Icon(
+                    Icons.photo_camera,
+                    size: 100.0,
+                    color: Colors.deepOrange,
+                  ),
+                );
+        }
+      },
     );
-
   }
 
   Widget _buildTextFieldName() {
-    return TextField(
+    return TextFormField(
       controller: _controllerName,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
@@ -295,5 +310,62 @@ class _FormAddScreenState extends State<FormAddScreen> {
         }
       },
     );
+  }
+
+  Widget _buildTextFieldPrice() {
+    return TextFormField(
+      controller: _controllerPrice,
+      keyboardType: TextInputType.number,
+      decoration: InputDecoration(
+        labelText: "Preço",
+        errorText: _isFieldPriceValid == null || _isFieldPriceValid
+            ? null
+            : "O preço é obtrigatório",
+      ),
+      onChanged: (value) {
+        bool isFieldValid = value.trim().isNotEmpty;
+        if (isFieldValid != _isFieldPriceValid) {
+          setState(() => _isFieldPriceValid = isFieldValid);
+        }
+      },
+    );
+  }
+
+  void loadGenderList() {
+    genderList = [];
+    genderList.add(new DropdownMenuItem(
+      child: new Text('Gelada'),
+      value: 0,
+    ));
+    genderList.add(new DropdownMenuItem(
+      child: new Text('Natural'),
+      value: 1,
+    ));
+  }
+
+  Widget _buildTextFieldState() {
+    loadGenderList();
+    return Form(
+        child: new ListView(
+      children: getFormWidget(),
+    ));
+  }
+
+  List<Widget> getFormWidget() {
+    List<Widget> formWidget = new List();
+
+    formWidget.add(new DropdownButton(
+      hint: new Text('Gelada ou Natural'),
+      items: genderList,
+      value: _selectedGender,
+      onChanged: (value) {
+        setState(() {
+          _selectedGender = value;
+        });
+      },
+      isExpanded: true,
+    ));
+
+    return formWidget;
   }
 }

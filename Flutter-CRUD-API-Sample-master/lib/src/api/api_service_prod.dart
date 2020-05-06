@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
+import 'package:flutter_crud_api_sample_app/src/model/product.dart';
 import 'package:http/http.dart' show Client;
 
 import '../model/category.dart';
@@ -13,19 +14,19 @@ class ApiServiceProd {
   final String baseUrl = "http://192.168.1.17:5000";
   Client client = Client();
 
-  Future<List<Category>> getCategory() async {
+  Future<List<Product>> getProduct() async {
 
     final response = await client.get("$baseUrl/prod");
 
 
     if (response.statusCode == 200) {
-      return catFromJson(response.body);
+      return prodFromJson(response.body);
     } else {
       return null;
     }
   }
 
-  Future<bool> createCategory(Category data) async {
+  Future<bool> createProduct(Product data) async {
 
     final response = await client.post(
       "$baseUrl/prod",
@@ -41,7 +42,7 @@ class ApiServiceProd {
 
   }
 
-  Future<bool> updateCategory(Category data) async {
+  Future<bool> updateProduct(Product data) async {
 
     final response = await client.put(
       "$baseUrl/prod/${data.id}",
@@ -56,7 +57,7 @@ class ApiServiceProd {
 
   }
 
-  Future<bool> deleteCategory(String id) async {
+  Future<bool> deleteProduct(int id) async {
 
     final response = await client.delete(
       "$baseUrl/prod/$id",

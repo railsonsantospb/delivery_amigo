@@ -3,8 +3,9 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_crud_api_sample_app/src/app_prod.dart';
 
-import 'app.dart';
+import 'app_cat.dart';
 
 class HomePage1 extends StatefulWidget {
   final name;
@@ -20,8 +21,8 @@ class _HomePage1State extends State<HomePage1> {
 
   int selectedIndex = 0;
   final widgetOptions = [
-    App(),
-    Text("Person2"),
+    AppCat(),
+    AppProd(),
     Text("Person1"),
     Text("Person"),
     Text("Conta"),
@@ -148,7 +149,7 @@ class _HomePage1State extends State<HomePage1> {
           ),
           BottomNavigationBarItem(
               icon:  Icon(Icons.local_drink, size: 30.0,),
-              title: Text('Sobre')
+              title: Text('Bebidas')
           ),
           BottomNavigationBarItem(
               icon:  Icon(Icons.check_circle, size: 30.0,),

@@ -1,25 +1,28 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
+import 'package:flutter_crud_api_sample_app/src/api/api_service_prod.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
+import 'package:flutter_crud_api_sample_app/src/model/product.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_product.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 
-class HomeScreen extends StatefulWidget {
+class HomeProduct extends StatefulWidget {
 
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _HomeProductState createState() => _HomeProductState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeProductState extends State<HomeProduct> {
   BuildContext context;
-  ApiService apiService;
+  ApiServiceProd apiService;
 
 
 
@@ -27,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    apiService = ApiService();
+    apiService = ApiServiceProd();
   }
 
   @override
@@ -41,8 +44,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       child: FutureBuilder(
 
-        future: apiService.getCategory(),
-        builder: (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+        future: apiService.getProduct(),
+        builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
           if (snapshot.hasError) {
             return Center(
               child: Text(
@@ -51,14 +54,14 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (snapshot.connectionState == ConnectionState.done) {
 
 //            setState(() {});
-            List<Category> cat = snapshot.data;
+            List<Product> prod = snapshot.data;
 //            print(cat);
-            if(cat.isEmpty == true){
+            if(prod.isEmpty == true){
               return Center(
                 child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
               );
             } else {
-              return _buildListView(cat);
+              return _buildListView(prod);
             }
           } else {
             return Center(
@@ -71,12 +74,12 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildListView(List<Category> cats) {
+  Widget _buildListView(List<Product> prods) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListView.builder(
         itemBuilder: (context, index) {
-          Category cat = cats[index];
+          Product prod = prods[index];
 
           return Padding(
             padding: const EdgeInsets.only(top: 8.0),
@@ -92,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                         child: Text(
 
-                          cat.name.toUpperCase(),
+                          prod.name.toUpperCase(),
                           style: Theme.of(context).textTheme.title,
                         ),
                       ),  
@@ -100,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     
 
                     Center(
-                      child: Image.memory(base64Decode(cat.image), cacheHeight: 500, cacheWidth: 500,),
+                      child: Image.memory(base64Decode(prod.image), cacheHeight: 500, cacheWidth: 500,),
                     ),
 
 
@@ -118,14 +121,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                   return AlertDialog(
                                     title: Text("Aviso!"),
                                     content: Text(
-                                        "Você quer excluir a categoria ${cat.name}?"),
+                                        "Você quer excluir a categoria ${prod.name}?"),
                                     actions: <Widget>[
                                       FlatButton(
                                         child: Text("SIM"),
                                         onPressed: () {
                                           Navigator.pop(context);
                                           apiService
-                                              .deleteCategory(cat.id)
+                                              .deleteProduct(prod.id)
                                               .then((isSuccess) {
                                             if (isSuccess) {
                                               setState(() {});
@@ -161,7 +164,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                              return FormAddScreen(cat: cat);
+                              return FormAddProduct(prod: prod);
                             }));
                           },
                           child: Text(
@@ -178,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
 
-        itemCount: cats.length,
+        itemCount: prods.length,
 
       ),
 

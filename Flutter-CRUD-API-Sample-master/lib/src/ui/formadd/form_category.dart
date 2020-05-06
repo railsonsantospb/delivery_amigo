@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
-import 'package:flutter_crud_api_sample_app/src/app.dart';
+import 'package:flutter_crud_api_sample_app/src/app_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/model/product.dart';
 import 'package:async/async.dart';
@@ -12,20 +12,20 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 
-import '../home/home_screen.dart';
+import '../home/home_category.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
-class FormAddScreen extends StatefulWidget {
+class FormAddCategory extends StatefulWidget {
   Category cat;
 
-  FormAddScreen({this.cat});
+  FormAddCategory({this.cat});
 
   @override
-  _FormAddScreenState createState() => _FormAddScreenState();
+  _FormAddCategoryState createState() => _FormAddCategoryState();
 }
 
-class _FormAddScreenState extends State<FormAddScreen> {
+class _FormAddCategoryState extends State<FormAddCategory> {
   bool _isLoading = false;
   ApiServiceCat _apiService = ApiServiceCat();
 
@@ -38,7 +38,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
   String status = '';
   String base64Image;
   File tmpFile;
-  String errMessage = 'Error Uploading Image';
+  String errMessage = 'Erro ao Enviar Imagem';
 
   chooseImage() {
     setState(() {
@@ -69,13 +69,14 @@ class _FormAddScreenState extends State<FormAddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldState,
-//      appBar: AppBar(
-//        iconTheme: IconThemeData(color: Colors.white),
-//        title: Text(
-//          widget.cat == null ? "Form Add" : "Change Data",
-//          style: TextStyle(color: Colors.white),
-//        ),
-//      ),
+      appBar: AppBar(
+        backgroundColor: Colors.deepOrange,
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text(
+          widget.cat == null ? "Adicionar Categoria" : "Atualizar Dados",
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
       body:  Stack(
         children: <Widget>[
           Padding(
@@ -122,8 +123,8 @@ class _FormAddScreenState extends State<FormAddScreen> {
 
                     child:  Text(
                       widget.cat == null
-                          ? "Submit".toUpperCase()
-                          : "Update Data".toUpperCase(),
+                          ? "Cadastrar".toUpperCase()
+                          : "Atualizar".toUpperCase(),
                       style: TextStyle(
                         color: Colors.white,
                       ),
@@ -136,7 +137,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
                           ! _isFieldImageValid) {
                         _scaffoldState.currentState.showSnackBar(
                           SnackBar(
-                            content: Text("Please fill all field"),
+                            content: Text("Por Favor Preencha os Campos"),
                           ),
                         );
                         return;
@@ -157,7 +158,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(
-                              content: Text("Submit data failed"),
+                              content: Text("Erro ao Enviar"),
                             ));
                           }
                         });
@@ -173,14 +174,14 @@ class _FormAddScreenState extends State<FormAddScreen> {
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(
-                              content: Text("Update data failed"),
+                              content: Text("Falha na Atualização"),
                             ));
                           }
                         });
                       }
                     },
 //                    backgroundColor: ,
-                    color: Colors.orange[600],
+                    color: Colors.deepOrange,
                   ),
                 ),
               ],
@@ -225,7 +226,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
               child: GestureDetector(
                 onTap: chooseImage,
               child: Image.file(
-                snapshot.data,
+                snapshot.data, cacheHeight: 500, cacheWidth: 500,
 
               ),
               ),
@@ -233,7 +234,7 @@ class _FormAddScreenState extends State<FormAddScreen> {
 
           } else if (null != snapshot.error) {
             return const Text(
-              'Error Picking Image',
+              'Error ao Inserir Imagem',
               textAlign: TextAlign.center,
             );
           }  else {
@@ -267,10 +268,10 @@ class _FormAddScreenState extends State<FormAddScreen> {
       controller: _controllerName,
       keyboardType: TextInputType.text,
       decoration: InputDecoration(
-        labelText: "Full name",
+        labelText: "Nome",
         errorText: _isFieldNameValid == null || _isFieldNameValid
             ? null
-            : "Full name is required",
+            : "Insira o Nome da Categoria",
       ),
       onChanged: (value) {
         bool isFieldValid = value.trim().isNotEmpty;

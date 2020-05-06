@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
-import 'package:flutter_crud_api_sample_app/src/ui/home/home_screen.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_product.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/home_category.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/home_product.dart';
 
 
 GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
-class App extends StatelessWidget {
+class AppProd extends StatelessWidget {
 
 
 
@@ -21,7 +23,7 @@ class App extends StatelessWidget {
       home: Scaffold(
         key: _scaffoldState,
 
-        body: HomeScreen(),
+        body: HomeProduct(),
 
 
         floatingActionButton: FloatingActionButton(
@@ -30,12 +32,17 @@ class App extends StatelessWidget {
             color: Colors.white,
           ),
           onPressed: (){
-            Navigator.push(
-              _scaffoldState.currentContext,
-              MaterialPageRoute(builder: (BuildContext context) {
-                return FormAddScreen();
-              }),
-            );
+//            Navigator.push(
+//              _scaffoldState.currentContext,
+//              MaterialPageRoute(builder: (BuildContext context) {
+//                return FormAddProduct();
+//              }),
+//            );
+            Navigator.push(context, MaterialPageRoute(
+
+              builder:  (context)=> FormAddProduct(),
+            ));
+
           }
 
         ),
