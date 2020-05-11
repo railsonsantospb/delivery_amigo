@@ -2,11 +2,11 @@ import 'dart:convert';
 
 class Category {
 
-  String id;
+  int id;
   String name;
   String image;
 
-  Category({this.id, this.name, this.image});
+  Category({this.id = 0, this.name, this.image});
 
   factory Category.fromJson(Map<String, dynamic> map) {
     return Category(

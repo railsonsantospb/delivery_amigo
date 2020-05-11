@@ -13,8 +13,12 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
 
-class HomeProduct extends StatefulWidget {
+GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
+class HomeProduct extends StatefulWidget {
+  int id;
+
+  HomeProduct({this.id});
 
   @override
   _HomeProductState createState() => _HomeProductState();
@@ -44,7 +48,7 @@ class _HomeProductState extends State<HomeProduct> {
 
       child: FutureBuilder(
 
-        future: apiService.getProduct(),
+        future: apiService.getProductId(widget.id),
         builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -53,15 +57,61 @@ class _HomeProductState extends State<HomeProduct> {
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
 
-//            setState(() {});
+
             List<Product> prod = snapshot.data;
-//            print(cat);
+
             if(prod.isEmpty == true){
-              return Center(
-                child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
-              );
+              return MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  theme: ThemeData(
+                    primaryColor: Colors.deepOrange,
+                    accentColor: Colors.deepOrange,
+                  ),
+                  home: Scaffold(
+                  body: Stack(
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
+                        child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
+                      ),
+                      Center(
+                        child: Text('NENHUMA BEBIDA CADASTRADA'),
+                      ),
+                    ],
+                  ),
+                ],
+              )));
             } else {
-              return _buildListView(prod);
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData(
+                  primaryColor: Colors.deepOrange,
+                  accentColor: Colors.deepOrange,
+                ),
+                home: Scaffold(
+                  key: _scaffoldState,
+
+                  body: _buildListView(prod),
+
+
+                  floatingActionButton: FloatingActionButton(
+                      child: Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      onPressed: (){
+                        Navigator.push(_scaffoldState.currentContext,
+                            CupertinoPageRoute(builder: (context) {
+                              return FormAddProduct();
+                            }));
+
+                      }
+
+                  ),
+                ),
+              );
             }
           } else {
             return Center(
@@ -75,6 +125,7 @@ class _HomeProductState extends State<HomeProduct> {
   }
 
   Widget _buildListView(List<Product> prods) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListView.builder(
@@ -121,7 +172,7 @@ class _HomeProductState extends State<HomeProduct> {
                                   return AlertDialog(
                                     title: Text("Aviso!"),
                                     content: Text(
-                                        "Você quer excluir a categoria ${prod.name}?"),
+                                        "Você quer excluir a bebida ${prod.name}?"),
                                     actions: <Widget>[
                                       FlatButton(
                                         child: Text("SIM"),
@@ -162,10 +213,11 @@ class _HomeProductState extends State<HomeProduct> {
                         ),
                         FlatButton(
                           onPressed: () {
+
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                              return FormAddProduct(prod: prod);
-                            }));
+                                  return FormAddProduct(prod: prod);
+                                }));
                           },
                           child: Text(
                             "EDITAR",

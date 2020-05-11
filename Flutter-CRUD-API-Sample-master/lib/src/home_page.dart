@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_crud_api_sample_app/src/app_prod.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/home_requestx.dart';
 
 import 'app_cat.dart';
 
@@ -22,8 +23,8 @@ class _HomePage1State extends State<HomePage1> {
   int selectedIndex = 0;
   final widgetOptions = [
     AppCat(),
-    AppProd(),
-    Text("Person1"),
+    Text("Person"),
+    HomeRequestX(),
     Text("Person"),
     Text("Conta"),
   ];
@@ -52,7 +53,9 @@ class _HomePage1State extends State<HomePage1> {
         centerTitle: true,
         elevation: 10.0,
         backgroundColor: Colors.deepOrange,
-        title: Text('Jonas Bebidas'),
+        iconTheme: IconThemeData(color: Colors.white),
+        title: Text('Catálogo de Bebidas'),
+
 
 //        actions: <Widget>[
 //          IconButton(icon: Icon(
@@ -143,20 +146,20 @@ class _HomePage1State extends State<HomePage1> {
 
 
           BottomNavigationBarItem(
+              icon:  Icon(Icons.local_drink, size: 30.0,),
+              title: Text('Bebidas')
+          ),
+          BottomNavigationBarItem(
 
               icon: Icon(Icons.menu, size: 30.0,),
               title: Text('Categoria')
           ),
           BottomNavigationBarItem(
-              icon:  Icon(Icons.local_drink, size: 30.0,),
-              title: Text('Bebidas')
-          ),
-          BottomNavigationBarItem(
-              icon:  Icon(Icons.check_circle, size: 30.0,),
+              icon:  Icon(Icons.cancel, size: 30.0,),
               title: Text('Pedidos ')
           ),
           BottomNavigationBarItem(
-              icon:  Icon(Icons.cancel, size: 30.0,),
+              icon:  Icon(Icons.check_circle, size: 30.0,),
               title: Text('Pedidos')
           ),
 

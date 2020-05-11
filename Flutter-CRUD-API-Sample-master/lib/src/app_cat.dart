@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/home/home_category.dart';
@@ -30,12 +31,10 @@ class AppCat extends StatelessWidget {
             color: Colors.white,
           ),
           onPressed: (){
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (BuildContext context) {
-                return FormAddCategory();
-              }),
-            );
+            Navigator.push(_scaffoldState.currentContext,
+                CupertinoPageRoute(builder: (context) {
+                  return FormAddCategory();
+                }));
           }
 
         ),

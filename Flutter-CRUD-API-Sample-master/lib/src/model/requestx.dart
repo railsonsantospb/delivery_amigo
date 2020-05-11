@@ -21,6 +21,7 @@ class RequestX {
         lat: map["lat"], lon: map['lon'], email: map['email']);
   }
 
+
   Map<String, dynamic> toJson() {
     return {"id": id, "client": client, "price_full": price_full, "products": products,
       "date": date, "address": address, "lat": lat, "lon": lon, "email": email};
@@ -34,12 +35,12 @@ class RequestX {
 
 }
 
-List<Product> prodFromJson(String jsonData) {
+List<RequestX> rxFromJson(String jsonData) {
   final data = json.decode(jsonData);
-  return List<Product>.from(data.map((item) => Product.fromJson(item)));
+  return List<RequestX>.from(data.map((item) => RequestX.fromJson(item)));
 }
 
-String prodToJson(Product data) {
+String rxToJson(RequestX data) {
   final jsonData = data.toJson();
   return json.encode(jsonData);
 }

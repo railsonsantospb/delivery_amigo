@@ -26,12 +26,24 @@ class ApiServiceProd {
     }
   }
 
+  Future<List<Product>> getProductId(int id) async {
+
+    final response = await client.get("$baseUrl/prod/${id}");
+
+    if (response.statusCode == 200) {
+      return prodFromJson(response.body);
+    } else {
+      return null;
+    }
+  }
+
   Future<bool> createProduct(Product data) async {
 
     final response = await client.post(
       "$baseUrl/prod",
       headers: {"content-type": "application/json"},
-      body: jsonEncode({"id": data.id, "name": data.name, "image": data.image}),
+      body: jsonEncode({"name": data.name, "price": data.price,
+        "state":data.state, "category": data.category, "image": data.image, "cat_id": data.cat_id}),
     );
 
     if (response.statusCode == 200) {

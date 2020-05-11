@@ -1,7 +1,5 @@
 
 import 'dart:convert';
-
-import 'package:dio/dio.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:http/http.dart' show Client;
 
@@ -19,6 +17,7 @@ class ApiServiceCat {
 
 
     if (response.statusCode == 200) {
+
       return catFromJson(response.body);
     } else {
       return null;
@@ -77,7 +76,7 @@ class ApiServiceCat {
 
   }
 
-  Future<bool> deleteCategory(String id) async {
+  Future<bool> deleteCategory(int id) async {
 
     final response = await client.delete(
       "$baseUrl/cat/$id",

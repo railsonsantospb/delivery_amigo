@@ -4,11 +4,10 @@ import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/home_product.dart';
 
+GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class HomeCategory extends StatefulWidget {
 
@@ -32,7 +31,6 @@ class _HomeCategoryState extends State<HomeCategory> {
 
   @override
   Widget build(BuildContext context) {
-    this.context = context;
 
 
     return SafeArea(
@@ -52,10 +50,23 @@ class _HomeCategoryState extends State<HomeCategory> {
 
 //            setState(() {});
             List<Category> cat = snapshot.data;
+
 //            print(cat);
             if(cat.isEmpty == true){
-              return Center(
-                child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
+              return Stack(
+                children: <Widget>[
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Center(
+                          child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
+                        ),
+                        Center(
+                          child: Text('NENHUM CATÁLOGO CADASTRADA'),
+                        ),
+                      ],
+                    ),
+                ],
               );
             } else {
               return _buildListView(cat);
@@ -81,6 +92,7 @@ class _HomeCategoryState extends State<HomeCategory> {
           return Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Card(
+
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -161,12 +173,24 @@ class _HomeCategoryState extends State<HomeCategory> {
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                              return FormAddCategory(cat: cat);
-                            }));
+                                  return FormAddCategory(cat: cat);
+                                }));
                           },
                           child: Text(
                             "EDITAR",
                             style: TextStyle(color: Colors.blue),
+                          ),
+                        ),
+                        FlatButton(
+                          onPressed: () {
+                            Navigator.push(context,
+                                CupertinoPageRoute(builder: (context) {
+                                  return HomeProduct(id: cat.id,);
+                                }));
+                          },
+                          child: Text(
+                            "ESTOQUE",
+                            style: TextStyle(color: Colors.green),
                           ),
                         ),
                       ],

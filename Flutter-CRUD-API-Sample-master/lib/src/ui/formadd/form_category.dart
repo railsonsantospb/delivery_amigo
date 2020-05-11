@@ -1,18 +1,13 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
-import 'package:flutter_crud_api_sample_app/src/app_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
-import 'package:flutter_crud_api_sample_app/src/model/product.dart';
-import 'package:async/async.dart';
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 
-import '../home/home_category.dart';
 
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
@@ -41,16 +36,22 @@ class _FormAddCategoryState extends State<FormAddCategory> {
   String errMessage = 'Erro ao Enviar Imagem';
 
   chooseImage() {
-    setState(() {
-      file = ImagePicker.pickImage(source: ImageSource.gallery);
-    });
+    if(this.mounted){
+      setState(() {
+        file = ImagePicker.pickImage(source: ImageSource.gallery);
+      });
+    }
+
     setStatus('');
   }
 
   setStatus(String message) {
-    setState(() {
-      status = message;
-    });
+    if(this.mounted){
+      setState(() {
+        status = message;
+      });
+    }
+
   }
 
 
@@ -69,14 +70,14 @@ class _FormAddCategoryState extends State<FormAddCategory> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldState,
-      appBar: AppBar(
-        backgroundColor: Colors.deepOrange,
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          widget.cat == null ? "Adicionar Categoria" : "Atualizar Dados",
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+//      appBar: AppBar(
+//        backgroundColor: Colors.deepOrange,
+//        iconTheme: IconThemeData(color: Colors.white),
+//        title: Text(
+//          widget.cat == null ? "Adicionar Categoria" : "Atualizar Dados",
+//          style: TextStyle(color: Colors.white),
+//        ),
+//      ),
       body:  Stack(
         children: <Widget>[
           Padding(
@@ -142,17 +143,21 @@ class _FormAddCategoryState extends State<FormAddCategory> {
                         );
                         return;
                       }
-                        var plainPassword = "ola";
-                        var hashedPassword = new DBCrypt().hashpw(plainPassword, new DBCrypt().gensalt());
-                      setState(() => _isLoading = true);
+                        if(this.mounted){
+                          setState(() => _isLoading = true);
+                        }
+
                       String name = _controllerName.text.toString();
                       Category cat =
-                          Category(id: hashedPassword.replaceAll('/', ''), name: name, image: base64Image);
+                          Category(name: name, image: base64Image);
 
                       if (widget.cat == null) {
 
                         _apiService.createCategory(cat).then((isSuccess) {
-                          setState(() => _isLoading = false);
+
+                          if(this.mounted){
+                            setState(() => _isLoading = false);
+                          }
 
                           if (isSuccess) {
                             Navigator.pop(_scaffoldState.currentState.context);
@@ -166,7 +171,9 @@ class _FormAddCategoryState extends State<FormAddCategory> {
                         cat.id = widget.cat.id;
                         _apiService.updateCategory(cat).then((isSuccess) {
 
-                          setState(() => _isLoading = false);
+                          if(this.mounted){
+                            setState(() => _isLoading = false);
+                          }
                           if (isSuccess) {
 //                            Navigator.of(context).push(CupertinoPageRoute<void>(
 //                              builder: (BuildContext context) => App(),
@@ -243,15 +250,11 @@ class _FormAddCategoryState extends State<FormAddCategory> {
               base64Image = widget.cat.image;
             }
             return widget.cat != null ?
-            Flexible(
-
-              child: Image.memory(base64Decode(widget.cat.image)),
-
-            )
-
-
-
-                : GestureDetector(
+            Wrap(
+              children: <Widget>[
+                Image.memory(base64Decode(widget.cat.image), cacheHeight: 500, cacheWidth: 500,),
+              ],
+            ) : GestureDetector(
                   onTap: chooseImage,
                 child: Icon(Icons.photo_camera, size: 100.0, color: Colors.deepOrange,),
             );
@@ -276,7 +279,10 @@ class _FormAddCategoryState extends State<FormAddCategory> {
       onChanged: (value) {
         bool isFieldValid = value.trim().isNotEmpty;
         if (isFieldValid != _isFieldNameValid) {
-          setState(() => _isFieldNameValid = isFieldValid);
+          if(this.mounted){
+            setState(() => _isFieldNameValid = isFieldValid);
+          }
+
         }
       },
     );

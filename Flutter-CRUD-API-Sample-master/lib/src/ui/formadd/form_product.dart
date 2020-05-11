@@ -3,18 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_prod.dart';
-import 'package:flutter_crud_api_sample_app/src/app_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/model/product.dart';
-import 'package:async/async.dart';
 import 'dart:io';
-import 'package:dio/dio.dart';
 import 'dart:async';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
-import 'package:dbcrypt/dbcrypt.dart';
-
-import '../home/home_category.dart';
+import 'package:http/http.dart' as http;
 
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
@@ -29,40 +24,70 @@ class FormAddProduct extends StatefulWidget {
 
 class _FormAddProductState extends State<FormAddProduct> {
   bool _isLoading = false;
+  int selected = 0;
   ApiServiceProd _apiServiceProd = ApiServiceProd();
-  ApiServiceCat _apiServiceCat = ApiServiceCat();
+  ApiServiceCat _apiServiceCat;
 
   bool _isFieldNameValid;
   bool _isFieldPriceValid;
   bool _isFieldStateValid;
   bool _isFieldCategoryValid;
   bool _isFieldImageValid;
+  bool _isFieldCatIdValid;
 
   TextEditingController _controllerName = TextEditingController();
   TextEditingController _controllerPrice = TextEditingController();
-  TextEditingController _controllerState = TextEditingController();
-  TextEditingController _controllerCategory = TextEditingController();
 
+
+  String _mySelection1;
+  String _mySelection2;
+  String value;
+  String _catId;
   Future<File> file;
   String status = '';
   String base64Image;
   File tmpFile;
   String errMessage = 'Error Uploading Image';
-  int _selectedGender = 0;
-
-  List<DropdownMenuItem<int>> genderList = [];
 
   chooseImage() {
-    setState(() {
-      file = ImagePicker.pickImage(source: ImageSource.gallery);
-    });
-
+    if(this.mounted){
+      setState(() {
+        file = ImagePicker.pickImage(source: ImageSource.gallery);
+      });
+    }
   }
 
+  final String url = "http://192.168.1.17:5000/cat";
 
+  List data;
+  List state = [
+    {'state': 'Gelada'},
+    {'state': 'Natural'},
+    {'state': 'Natural/Gelada'}
+  ];
+
+  Future<String> getSWData() async {
+    var res = await http
+        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
+    var resBody = json.decode(res.body);
+
+    if(this.mounted){
+      setState(() {
+        data = resBody;
+      });
+    }
+
+
+//    print(resBody);
+
+    return "Sucess";
+  }
 
   @override
   void initState() {
+    getSWData();
+
+    _apiServiceCat = ApiServiceCat();
     if (widget.prod != null) {
       _isFieldNameValid = true;
       _controllerName.text = widget.prod.name;
@@ -74,6 +99,9 @@ class _FormAddProductState extends State<FormAddProduct> {
       _controllerName.text = widget.prod.category;
 
       _isFieldImageValid = true;
+
+      _isFieldCatIdValid = true;
+
     }
     super.initState();
   }
@@ -83,7 +111,6 @@ class _FormAddProductState extends State<FormAddProduct> {
       children: <Widget>[
         _showImage(),
         new TextFormField(
-
           controller: _controllerName,
           decoration: InputDecoration(
             labelText: "Nome",
@@ -94,7 +121,9 @@ class _FormAddProductState extends State<FormAddProduct> {
           onChanged: (value) {
             bool isFieldValid = value.trim().isNotEmpty;
             if (isFieldValid != _isFieldNameValid) {
-              setState(() => _isFieldNameValid = isFieldValid);
+              if(this.mounted){
+                setState(() => _isFieldNameValid = isFieldValid);
+              }
             }
           },
         ),
@@ -110,27 +139,114 @@ class _FormAddProductState extends State<FormAddProduct> {
           onChanged: (value) {
             bool isFieldValid = value.trim().isNotEmpty;
             if (isFieldValid != _isFieldPriceValid) {
-              setState(() => _isFieldPriceValid = isFieldValid);
+              if(this.mounted){
+                setState(() => _isFieldPriceValid = isFieldValid);
+              }
             }
           },
         ),
 
-        _isLoading
-            ? ListView(
-                children: <Widget>[
-                  Opacity(
-                    opacity: 0.3,
-                    child: ModalBarrier(
-                      dismissible: false,
-                      color: Colors.grey,
+
+        SafeArea(
+          child: FutureBuilder(
+            future: _apiServiceCat.getCategory(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+              if (snapshot.hasError) {
+                return Center(
+                  child: Text(
+                      "Alguma coisa está errada: ${snapshot.error.toString()}"),
+                );
+              } else if (snapshot.connectionState == ConnectionState.done) {
+//            setState(() {});
+                List<Category> cat = snapshot.data;
+
+//            print(cat);
+                if (cat.isEmpty == true) {
+                  return Stack(
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Center(
+                            child: Icon(
+                              Icons.not_interested,
+                              color: Colors.red,
+                              size: 100.0,
+                            ),
+                          ),
+                          Center(
+                            child: Text('NENHUMA CATEGORIA CADASTRADA'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                } else {
+                  return Center(
+                    child: new DropdownButtonFormField(
+                      value: value,
+                      hint: widget.prod != null ? Text(widget.prod.category) : Text('Selecione a Categoria'),
+                      onChanged: widget.prod != null ? null : (newVal) {
+
+                        if(this.mounted){
+                          setState(() {
+                            for(var f in cat){
+                              if(f.id.toString() == newVal){
+                                _mySelection1 = f.name;
+                              }
+                            }
+                            value = newVal;
+                            _catId = newVal;
+                            setState(() => _isFieldCategoryValid = _mySelection1.isNotEmpty);
+                            setState(() => _isFieldCatIdValid = _catId.isNotEmpty);
+                          });
+                        }
+                      },
+
+                      items: cat.map((item) {
+
+                        return new DropdownMenuItem(
+                          child: new Text(item.name),
+                          value: item.id.toString(),
+                        );
+                      }).toList(),
+
                     ),
-                  ),
-                  Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ],
-              )
-            : Container(),
+                  );
+                }
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
+        ),
+
+
+
+        Center(
+          child: new DropdownButtonFormField(
+            hint: widget.prod != null ? Text(widget.prod.state) : Text('Bebida Natural ou Gelada?'),
+            items: state.map((item) {
+              return new DropdownMenuItem(
+                child: new Text(item['state']),
+                value: item['state'].toString(),
+              );
+            }).toList(),
+            onChanged: (newVal) {
+              if(this.mounted){
+                setState(() {
+                  _mySelection2 = newVal;
+                  setState(() => _isFieldStateValid = _mySelection2.isNotEmpty);
+                });
+              }
+            },
+
+            value: _mySelection2,
+          ),
+        ),
       ],
     );
   }
@@ -140,16 +256,15 @@ class _FormAddProductState extends State<FormAddProduct> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       key: _scaffoldState,
-      appBar: AppBar(
-        backgroundColor: Colors.deepOrange,
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          widget.prod == null ? "Adicionar Bebida" : "Atualizar Dados",
-          style: TextStyle(color: Colors.white),
-        ),
-      ),
+//      appBar: AppBar(
+//        backgroundColor: Colors.deepOrange,
+//        iconTheme: IconThemeData(color: Colors.white),
+//        title: Text(
+//          widget.prod == null ? "Adicionar Bebida" : "Atualizar Dados",
+//          style: TextStyle(color: Colors.white),
+//        ),
+//      ),
       body: SingleChildScrollView(
-
         child: new Container(
           margin: new EdgeInsets.all(15.0),
           child: new Form(
@@ -158,86 +273,95 @@ class _FormAddProductState extends State<FormAddProduct> {
         ),
       ),
       bottomNavigationBar: new Container(
-
         child: Row(
           children: <Widget>[
-              Expanded(
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(12.0),
+                child: new MaterialButton(
+                  child: Text(
+                    widget.prod == null
+                        ? "Cadastrar".toUpperCase()
+                        : "Atualizar".toUpperCase(),
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
 
-                child: Padding(
-                    padding: EdgeInsets.all(12.0),
-                    child: new MaterialButton(
-                      child: Text(
-                        widget.prod == null
-                            ? "Cadastrar".toUpperCase()
-                            : "Atualizar".toUpperCase(),
-                        style: TextStyle(
-                          color: Colors.white,
+                  onPressed: () {
+
+                    if (_isFieldNameValid == null ||
+                        _isFieldPriceValid == null ||
+                        _isFieldStateValid == null ||
+                        _isFieldCategoryValid == null ||
+                        _isFieldCatIdValid == null ||
+                        base64Image == null ||
+                        !_isFieldNameValid ||
+                        !_isFieldPriceValid ||
+                        !_isFieldStateValid ||
+                        !_isFieldCategoryValid ||
+                        !_isFieldImageValid ||
+                        !_isFieldCatIdValid) {
+                      _scaffoldState.currentState.showSnackBar(
+                        SnackBar(
+                          content: Text("Por Favor Preencha Todos os Campos"),
                         ),
-                      ),
+                      );
 
-                      onPressed: () {
-                        if (_isFieldNameValid == null ||
-                            _isFieldPriceValid == null ||
-                            _isFieldStateValid == null ||
-                            _isFieldCategoryValid == null ||
-                            base64Image == null ||
-                            !_isFieldNameValid ||
-                            !_isFieldPriceValid ||
-                            !_isFieldStateValid ||
-                            !_isFieldCategoryValid ||
-                            !_isFieldImageValid) {
-                          _scaffoldState.currentState.showSnackBar(
-                            SnackBar(
-                              content: Text("Please fill all field"),
-                            ),
-                          );
-                          return;
+                      return;
+                    }
+
+                    if(this.mounted){
+                      setState(() => _isLoading = true);
+                    }
+
+                    String name = _controllerName.text.toString();
+                    String price = _controllerPrice.text.toString();
+
+                    Product prod = Product(
+                        name: name,
+                        price: price,
+                        state: _mySelection2,
+                        category: _mySelection1,
+                        image: base64Image, cat_id: int.parse(_catId));
+
+                    if (widget.prod == null) {
+                      _apiServiceProd.createProduct(prod).then((isSuccess) {
+                        if(this.mounted){
+                          setState(() => _isLoading = false);
                         }
 
-                        setState(() => _isLoading = true);
-                        String name = _controllerName.text.toString();
-                        String price = _controllerPrice.text.toString();
-                        String state = _controllerState.text.toString();
-
-                        Product prod = Product(
-                            name: name, price: price, state: state, image: base64Image);
-
-                        if (widget.prod == null) {
-                          _apiServiceProd.createProduct(prod).then((isSuccess) {
-                            setState(() => _isLoading = false);
-
-                            if (isSuccess) {
-                              Navigator.pop(_scaffoldState.currentState.context);
-                            } else {
-                              _scaffoldState.currentState.showSnackBar(SnackBar(
-                                content: Text("Submit data failed"),
-                              ));
-                            }
-                          });
+                        if (isSuccess) {
+                          Navigator.pop(_scaffoldState.currentState.context);
                         } else {
-                          prod.id = widget.prod.id;
-                          _apiServiceProd.updateProduct(prod).then((isSuccess) {
-                            setState(() => _isLoading = false);
-                            if (isSuccess) {
-    //                            Navigator.of(context).push(CupertinoPageRoute<void>(
-    //                              builder: (BuildContext context) => App(),
-    //                            ));
-                              Navigator.pop(_scaffoldState.currentState.context);
-                            } else {
-                              _scaffoldState.currentState.showSnackBar(SnackBar(
-                                content: Text("Update data failed"),
-                              ));
-                            }
-                          });
+                          _scaffoldState.currentState.showSnackBar(SnackBar(
+                            content: Text("Falha ao Enviar os Dados"),
+                          ));
                         }
-                      },
+                      });
+                    } else {
+                      prod.id = widget.prod.id;
+                      _apiServiceProd.updateProduct(prod).then((isSuccess) {
+                        if(this.mounted){
+                          setState(() => _isLoading = false);
+                        }
+                        if (isSuccess) {
+                          Navigator.pop(_scaffoldState.currentState.context);
+                        } else {
+                          _scaffoldState.currentState.showSnackBar(SnackBar(
+                            content: Text("Falha ao Atualizar os Dados"),
+                          ));
+                        }
+                      });
+                    }
+                  },
 //                    backgroundColor: ,
                   color: Colors.deepOrange,
                 ),
               ),
-              ),
+            ),
           ],
-      ),
+        ),
       ),
     );
   }
@@ -254,19 +378,17 @@ class _FormAddProductState extends State<FormAddProduct> {
 
           return Wrap(
             children: <Widget>[
-
               GestureDetector(
-
                 onTap: chooseImage,
                 child: Image.file(
-                  snapshot.data,
+                  snapshot.data, cacheHeight: 500, cacheWidth: 500,
                 ),
               ),
             ],
           );
         } else if (null != snapshot.error) {
           return const Text(
-            'Error Picking Image',
+            'Erro ao Inserir Imagem',
             textAlign: TextAlign.center,
           );
         } else {
@@ -277,7 +399,7 @@ class _FormAddProductState extends State<FormAddProduct> {
           return widget.prod != null
               ? Wrap(
                   children: <Widget>[
-                    Image.memory(base64Decode(widget.prod.image)),
+                    Image.memory(base64Decode(widget.prod.image), cacheHeight: 500, cacheWidth: 500,),
                   ],
                 )
               : GestureDetector(
@@ -291,81 +413,5 @@ class _FormAddProductState extends State<FormAddProduct> {
         }
       },
     );
-  }
-
-  Widget _buildTextFieldName() {
-    return TextFormField(
-      controller: _controllerName,
-      keyboardType: TextInputType.text,
-      decoration: InputDecoration(
-        labelText: "Full name",
-        errorText: _isFieldNameValid == null || _isFieldNameValid
-            ? null
-            : "Full name is required",
-      ),
-      onChanged: (value) {
-        bool isFieldValid = value.trim().isNotEmpty;
-        if (isFieldValid != _isFieldNameValid) {
-          setState(() => _isFieldNameValid = isFieldValid);
-        }
-      },
-    );
-  }
-
-  Widget _buildTextFieldPrice() {
-    return TextFormField(
-      controller: _controllerPrice,
-      keyboardType: TextInputType.number,
-      decoration: InputDecoration(
-        labelText: "Preço",
-        errorText: _isFieldPriceValid == null || _isFieldPriceValid
-            ? null
-            : "O preço é obtrigatório",
-      ),
-      onChanged: (value) {
-        bool isFieldValid = value.trim().isNotEmpty;
-        if (isFieldValid != _isFieldPriceValid) {
-          setState(() => _isFieldPriceValid = isFieldValid);
-        }
-      },
-    );
-  }
-
-  void loadGenderList() {
-    genderList = [];
-    genderList.add(new DropdownMenuItem(
-      child: new Text('Gelada'),
-      value: 0,
-    ));
-    genderList.add(new DropdownMenuItem(
-      child: new Text('Natural'),
-      value: 1,
-    ));
-  }
-
-  Widget _buildTextFieldState() {
-    loadGenderList();
-    return Form(
-        child: new ListView(
-      children: getFormWidget(),
-    ));
-  }
-
-  List<Widget> getFormWidget() {
-    List<Widget> formWidget = new List();
-
-    formWidget.add(new DropdownButton(
-      hint: new Text('Gelada ou Natural'),
-      items: genderList,
-      value: _selectedGender,
-      onChanged: (value) {
-        setState(() {
-          _selectedGender = value;
-        });
-      },
-      isExpanded: true,
-    ));
-
-    return formWidget;
   }
 }
