@@ -7,6 +7,7 @@ import 'package:flutter_crud_api_sample_app/src/model/requestx.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/view_products.dart';
 
 
 GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
@@ -43,7 +44,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
 
       child: FutureBuilder(
 
-        future: apiService.getRequestX(),
+        future: apiService.getRequestXActive(),
         builder: (BuildContext context, AsyncSnapshot<List<RequestX>> snapshot) {
           if (snapshot.hasError) {
             return Center(
@@ -100,14 +101,14 @@ class _HomeRequestXState extends State<HomeRequestX> {
 
   Widget _buildListView(List<RequestX> rxs) {
     return  Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
       child:  ListView.builder(
         shrinkWrap: true,
         itemBuilder: (context, index) {
           RequestX rx = rxs[index];
 
           return Padding(
-            padding: const EdgeInsets.only(top: 1.0),
+            padding: const EdgeInsets.only(top: 0.0),
             child: Card(
               elevation: 10.0,
 
@@ -120,6 +121,23 @@ class _HomeRequestXState extends State<HomeRequestX> {
 
                     child: Column(
                       children: <Widget>[
+                        new Row(
+                          // section the gelada ou natural
+                          children: <Widget>[
+
+                            Padding(
+                              padding: const EdgeInsets.all(0.0),
+                              child: new Text("Status do Pedido: "),
+                            ),
+
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: new Text("Aguardando",
+                                style: TextStyle(color: Colors.blue),),
+                            ),
+
+                          ],
+                        ),
                         new Row(
                           // section the gelada ou natural
                           children: <Widget>[
@@ -166,24 +184,6 @@ class _HomeRequestXState extends State<HomeRequestX> {
                             Padding(
                               padding: const EdgeInsets.all(4.0),
                               child: new Text(rx.date.split(' ')[1],
-                                style: TextStyle(color: Colors.deepOrange),),
-                            ),
-
-                          ],
-                        ),
-
-                        new Row(
-                          // section the gelada ou natural
-                          children: <Widget>[
-
-                            Padding(
-                              padding: const EdgeInsets.all(0.0),
-                              child: new Text("Bebidas"),
-                            ),
-
-                            Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: new Text(rx.products,
                                 style: TextStyle(color: Colors.deepOrange),),
                             ),
 
@@ -241,6 +241,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
                           ],
                         ),
                 Row(
+
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     FlatButton(
@@ -300,8 +301,21 @@ class _HomeRequestXState extends State<HomeRequestX> {
                             }));
                       },
                       child: Text(
-                        "VISUALIZAR NO MAPA",
+                        "VER NO MAPA",
                         style: TextStyle(color: Colors.blue),
+                      ),
+                    ),
+                    FlatButton(
+                      onPressed: () {
+
+                        Navigator.push(context,
+                            CupertinoPageRoute(builder: (context) {
+                              return TableProducts(list_product: rx.products,);
+                            }));
+                      },
+                      child: Text(
+                        "BEBIDAS",
+                        style: TextStyle(color: Colors.deepOrange),
                       ),
                     ),
 

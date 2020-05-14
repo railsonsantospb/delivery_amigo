@@ -3,6 +3,7 @@ import 'dart:convert';
 class RequestX {
   int id;
   String client;
+  int active;
   String price_full;
   String products;
   String date;
@@ -11,25 +12,25 @@ class RequestX {
   String lon;
   String email;
 
-  RequestX({this.id = 0, this.client, this.price_full, this.products, this.date,
+  RequestX({this.id = 0, this.client, this.active, this.price_full, this.products, this.date,
     this.address, this.lat, this.lon, this.email});
 
   factory RequestX.fromJson(Map<String, dynamic> map) {
     return RequestX(
-        id: map["id"], client: map["client"], price_full: map["price_full"],
+        id: map["id"], client: map["client"], active: map["active"], price_full: map["price_full"],
         products: map["products"], date: map["date"], address: map['address'],
         lat: map["lat"], lon: map['lon'], email: map['email']);
   }
 
 
   Map<String, dynamic> toJson() {
-    return {"id": id, "client": client, "price_full": price_full, "products": products,
+    return {"id": id, "client": client, "active": active, "price_full": price_full, "products": products,
       "date": date, "address": address, "lat": lat, "lon": lon, "email": email};
   }
 
   @override
   String toString() {
-    return 'Profile{id: $id, client: $client, price_full: $price_full, products: $products, '
+    return 'Profile{id: $id, client: $client, active: $active, price_full: $price_full, products: $products, '
         ' date: $date, address: $address, lat: $lat, lon: $lon, email: $email';
   }
 

@@ -26,16 +26,16 @@ class AppCat extends StatelessWidget {
 
 
         floatingActionButton: FloatingActionButton(
-          child: Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
-          onPressed: (){
-            Navigator.push(_scaffoldState.currentContext,
-                CupertinoPageRoute(builder: (context) {
-                  return FormAddCategory();
-                }));
-          }
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: (){
+              Navigator.push(_scaffoldState.currentContext,
+                  CupertinoPageRoute(builder: (BuildContext context) {
+                    return FormAddCategory();
+                  }));
+            }
 
         ),
       ),

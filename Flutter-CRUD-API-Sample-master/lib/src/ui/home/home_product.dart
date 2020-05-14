@@ -12,13 +12,13 @@ import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_product.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:mobx/mobx.dart';
 
-
 GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class HomeProduct extends StatefulWidget {
   int id;
+  String name;
 
-  HomeProduct({this.id});
+  HomeProduct({this.id, this.name});
 
   @override
   _HomeProductState createState() => _HomeProductState();
@@ -27,9 +27,6 @@ class HomeProduct extends StatefulWidget {
 class _HomeProductState extends State<HomeProduct> {
   BuildContext context;
   ApiServiceProd apiService;
-
-
-
 
   @override
   void initState() {
@@ -41,13 +38,8 @@ class _HomeProductState extends State<HomeProduct> {
   Widget build(BuildContext context) {
     this.context = context;
 
-
     return SafeArea(
-
-
-
       child: FutureBuilder(
-
         future: apiService.getProductId(widget.id),
         builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
           if (snapshot.hasError) {
@@ -56,62 +48,32 @@ class _HomeProductState extends State<HomeProduct> {
                   "Something wrong with message: ${snapshot.error.toString()}"),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
-
-
             List<Product> prod = snapshot.data;
 
-            if(prod.isEmpty == true){
-              return MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  theme: ThemeData(
-                    primaryColor: Colors.deepOrange,
-                    accentColor: Colors.deepOrange,
-                  ),
-                  home: Scaffold(
-                  body: Stack(
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Center(
-                        child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
-                      ),
-                      Center(
-                        child: Text('NENHUMA BEBIDA CADASTRADA'),
-                      ),
-                    ],
-                  ),
-                ],
-              )));
+            if (prod.isEmpty == true) {
+              return  Stack(
+                      children: <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Center(
+                              child: Icon(
+                                Icons.not_interested,
+                                color: Colors.red,
+                                size: 100.0,
+                              ),
+                            ),
+                            Center(
+                              child: Text('NENHUM(A) ' +
+                                  widget.name.toUpperCase() +
+                                  ' CADASTRADA'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
             } else {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                theme: ThemeData(
-                  primaryColor: Colors.deepOrange,
-                  accentColor: Colors.deepOrange,
-                ),
-                home: Scaffold(
-                  key: _scaffoldState,
-
-                  body: _buildListView(prod),
-
-
-                  floatingActionButton: FloatingActionButton(
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
-                      ),
-                      onPressed: (){
-                        Navigator.push(_scaffoldState.currentContext,
-                            CupertinoPageRoute(builder: (context) {
-                              return FormAddProduct();
-                            }));
-
-                      }
-
-                  ),
-                ),
-              );
+              return  _buildListView(prod);
             }
           } else {
             return Center(
@@ -120,12 +82,10 @@ class _HomeProductState extends State<HomeProduct> {
           }
         },
       ),
-
     );
   }
 
   Widget _buildListView(List<Product> prods) {
-
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListView.builder(
@@ -143,20 +103,20 @@ class _HomeProductState extends State<HomeProduct> {
                     Padding(
                       padding: EdgeInsets.all(2.0),
                       child: Center(
-
                         child: Text(
-
                           prod.name.toUpperCase(),
                           style: Theme.of(context).textTheme.title,
                         ),
-                      ),  
+                      ),
                     ),
-                    
 
                     Center(
-                      child: Image.memory(base64Decode(prod.image), cacheHeight: 500, cacheWidth: 500,),
+                      child: Image.memory(
+                        base64Decode(prod.image),
+                        cacheHeight: 500,
+                        cacheWidth: 500,
+                      ),
                     ),
-
 
 //                    Text(cat.image),
 
@@ -168,7 +128,6 @@ class _HomeProductState extends State<HomeProduct> {
                             showDialog(
                                 context: context,
                                 builder: (context) {
-
                                   return AlertDialog(
                                     title: Text("Aviso!"),
                                     content: Text(
@@ -213,11 +172,10 @@ class _HomeProductState extends State<HomeProduct> {
                         ),
                         FlatButton(
                           onPressed: () {
-
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                                  return FormAddProduct(prod: prod);
-                                }));
+                              return FormAddProduct(prod: prod);
+                            }));
                           },
                           child: Text(
                             "EDITAR",
@@ -232,11 +190,8 @@ class _HomeProductState extends State<HomeProduct> {
             ),
           );
         },
-
         itemCount: prods.length,
-
       ),
-
     );
   }
 }

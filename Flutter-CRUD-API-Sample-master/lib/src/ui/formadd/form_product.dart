@@ -34,13 +34,17 @@ class _FormAddProductState extends State<FormAddProduct> {
   bool _isFieldCategoryValid;
   bool _isFieldImageValid;
   bool _isFieldCatIdValid;
+  bool _isFieldMarkValid;
+  bool _isFieldActiveValid;
 
   TextEditingController _controllerName = TextEditingController();
   TextEditingController _controllerPrice = TextEditingController();
+  TextEditingController _controllerMark = TextEditingController();
 
 
   String _mySelection1;
   String _mySelection2;
+  String active;
   String value;
   String _catId;
   Future<File> file;
@@ -64,6 +68,11 @@ class _FormAddProductState extends State<FormAddProduct> {
     {'state': 'Gelada'},
     {'state': 'Natural'},
     {'state': 'Natural/Gelada'}
+  ];
+
+  List valueActive = [
+    {'active': 'Habilitada'},
+    {'active': 'Desabilitada'},
   ];
 
   Future<String> getSWData() async {
@@ -97,6 +106,9 @@ class _FormAddProductState extends State<FormAddProduct> {
       _controllerName.text = widget.prod.state;
       _isFieldCategoryValid = true;
       _controllerName.text = widget.prod.category;
+
+      _isFieldMarkValid = true;
+      _controllerMark.text = widget.prod.mark;
 
       _isFieldImageValid = true;
 
@@ -141,6 +153,24 @@ class _FormAddProductState extends State<FormAddProduct> {
             if (isFieldValid != _isFieldPriceValid) {
               if(this.mounted){
                 setState(() => _isFieldPriceValid = isFieldValid);
+              }
+            }
+          },
+        ),
+        new TextFormField(
+          controller: _controllerMark,
+          keyboardType: TextInputType.text,
+          decoration: InputDecoration(
+            labelText: "Marca",
+            errorText: _isFieldMarkValid == null || _isFieldMarkValid
+                ? null
+                : "A marca é obtrigatória",
+          ),
+          onChanged: (value) {
+            bool isFieldValid = value.trim().isNotEmpty;
+            if (isFieldValid != _isFieldMarkValid) {
+              if(this.mounted){
+                setState(() => _isFieldMarkValid = isFieldValid);
               }
             }
           },
@@ -243,10 +273,34 @@ class _FormAddProductState extends State<FormAddProduct> {
                 });
               }
             },
-
             value: _mySelection2,
           ),
         ),
+        Center(
+          child: new DropdownButtonFormField(
+            hint: widget.prod != null ? Text(widget.prod.active == 0 ? "Habilitada" : "Desabilitada") : Text('Habilitar ou Desabilitar Bebida?'),
+            items: valueActive.map((item) {
+              return new DropdownMenuItem(
+                child: new Text(item['active']),
+                value: item['active'].toString(),
+              );
+            }).toList(),
+            onChanged: (newVal) {
+              if(this.mounted){
+                setState(() {
+                  if(newVal == "Habilitada") {
+                    active = "0";
+                  } else {
+                    active = "1";
+                  }
+                  setState(() => _isFieldActiveValid = active.isNotEmpty);
+                });
+              }
+            },
+            value: active,
+          ),
+        ),
+
       ],
     );
   }

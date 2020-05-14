@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_crud_api_sample_app/src/app_cat.dart';
 import 'package:dbcrypt/dbcrypt.dart';
 import 'package:flutter_crud_api_sample_app/src/home_page.dart';
 

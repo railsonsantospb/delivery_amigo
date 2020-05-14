@@ -2,17 +2,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/home_category.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
-import 'package:dbcrypt/dbcrypt.dart';
 
 
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class FormAddCategory extends StatefulWidget {
   Category cat;
+
 
   FormAddCategory({this.cat});
 
@@ -23,6 +24,7 @@ class FormAddCategory extends StatefulWidget {
 class _FormAddCategoryState extends State<FormAddCategory> {
   bool _isLoading = false;
   ApiServiceCat _apiService = ApiServiceCat();
+  HomeCategory home = HomeCategory();
 
   bool _isFieldNameValid;
   bool _isFieldImageValid;
@@ -96,12 +98,6 @@ class _FormAddCategoryState extends State<FormAddCategory> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: <Widget>[
 
-//                      OutlineButton(
-//                        color: Colors.deepOrange,
-//                        onPressed: chooseImage,
-//                        child: Text('Choose Image',
-//                            style: TextStyle(color: Colors.deepOrange),),
-//                      ),
 
                       Text(
                         status,
@@ -160,6 +156,11 @@ class _FormAddCategoryState extends State<FormAddCategory> {
                           }
 
                           if (isSuccess) {
+
+                            Scaffold.of(_scaffoldState.currentState.context)
+                                .showSnackBar(SnackBar(backgroundColor: Colors.green,
+                                content: Text(
+                                    "Cadastrado com Sucesso")));
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(

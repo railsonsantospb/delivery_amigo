@@ -5,13 +5,10 @@ import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_crud_api_sample_app/src/ui/home/home_product.dart';
 
-GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+import '../../app_prod.dart';
 
 class HomeCategory extends StatefulWidget {
-
-
   @override
   _HomeCategoryState createState() => _HomeCategoryState();
 }
@@ -19,9 +16,6 @@ class HomeCategory extends StatefulWidget {
 class _HomeCategoryState extends State<HomeCategory> {
   BuildContext context;
   ApiServiceCat apiService;
-
-
-
 
   @override
   void initState() {
@@ -31,41 +25,40 @@ class _HomeCategoryState extends State<HomeCategory> {
 
   @override
   Widget build(BuildContext context) {
-
+    this.context = context;
 
     return SafeArea(
-
-
-
       child: FutureBuilder(
-
         future: apiService.getCategory(),
-        builder: (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+        builder:
+            (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
           if (snapshot.hasError) {
             return Center(
               child: Text(
                   "Something wrong with message: ${snapshot.error.toString()}"),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
-
-//            setState(() {});
             List<Category> cat = snapshot.data;
 
 //            print(cat);
-            if(cat.isEmpty == true){
+            if (cat.isEmpty == true) {
               return Stack(
                 children: <Widget>[
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        Center(
-                          child: Icon(Icons.not_interested, color: Colors.red, size: 100.0,),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
+                        child: Icon(
+                          Icons.not_interested,
+                          color: Colors.red,
+                          size: 100.0,
                         ),
-                        Center(
-                          child: Text('NENHUM CATÁLOGO CADASTRADA'),
-                        ),
-                      ],
-                    ),
+                      ),
+                      Center(
+                        child: Text('NENHUM CATÁLOGO CADASTRADA'),
+                      ),
+                    ],
+                  ),
                 ],
               );
             } else {
@@ -78,7 +71,6 @@ class _HomeCategoryState extends State<HomeCategory> {
           }
         },
       ),
-
     );
   }
 
@@ -92,7 +84,6 @@ class _HomeCategoryState extends State<HomeCategory> {
           return Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Card(
-
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -101,20 +92,20 @@ class _HomeCategoryState extends State<HomeCategory> {
                     Padding(
                       padding: EdgeInsets.all(2.0),
                       child: Center(
-
                         child: Text(
-
                           cat.name.toUpperCase(),
                           style: Theme.of(context).textTheme.title,
                         ),
-                      ),  
+                      ),
                     ),
-                    
 
                     Center(
-                      child: Image.memory(base64Decode(cat.image), cacheHeight: 500, cacheWidth: 500,),
+                      child: Image.memory(
+                        base64Decode(cat.image),
+                        cacheHeight: 500,
+                        cacheWidth: 500,
+                      ),
                     ),
-
 
 //                    Text(cat.image),
 
@@ -126,7 +117,6 @@ class _HomeCategoryState extends State<HomeCategory> {
                             showDialog(
                                 context: context,
                                 builder: (context) {
-
                                   return AlertDialog(
                                     title: Text("Aviso!"),
                                     content: Text(
@@ -173,8 +163,8 @@ class _HomeCategoryState extends State<HomeCategory> {
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                                  return FormAddCategory(cat: cat);
-                                }));
+                              return FormAddCategory(cat: cat);
+                            }));
                           },
                           child: Text(
                             "EDITAR",
@@ -185,8 +175,11 @@ class _HomeCategoryState extends State<HomeCategory> {
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                                  return HomeProduct(id: cat.id,);
-                                }));
+                              return AppProd(
+                                id: cat.id,
+                                name: cat.name,
+                              );
+                            }));
                           },
                           child: Text(
                             "ESTOQUE",
@@ -201,11 +194,8 @@ class _HomeCategoryState extends State<HomeCategory> {
             ),
           );
         },
-
         itemCount: cats.length,
-
       ),
-
     );
   }
 }

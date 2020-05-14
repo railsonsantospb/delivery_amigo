@@ -8,9 +8,9 @@ class ApiServiceRX {
   final String baseUrl = "http://192.168.1.17:5000";
   Client client = Client();
 
-  Future<List<RequestX>> getRequestX() async {
+  Future<List<RequestX>> getRequestXActive() async {
 
-    final response = await client.get("$baseUrl/rx");
+    final response = await client.get("$baseUrl/rxt");
 
 
     if (response.statusCode == 200) {
@@ -20,6 +20,17 @@ class ApiServiceRX {
     }
   }
 
+  Future<List<RequestX>> getRequestXNotActive() async {
+
+    final response = await client.get("$baseUrl/rxf");
+
+
+    if (response.statusCode == 200) {
+      return rxFromJson(response.body);
+    } else {
+      return null;
+    }
+  }
 
   Future<bool> createRequestX(RequestX rx) async {
 
