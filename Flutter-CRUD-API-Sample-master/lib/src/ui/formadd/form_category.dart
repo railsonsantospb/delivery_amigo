@@ -163,7 +163,7 @@ class _FormAddCategoryState extends State<FormAddCategory> {
                                     "Cadastrado com Sucesso")));
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
-                            _scaffoldState.currentState.showSnackBar(SnackBar(
+                            _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
                               content: Text("Erro ao Enviar"),
                             ));
                           }
@@ -181,7 +181,7 @@ class _FormAddCategoryState extends State<FormAddCategory> {
 //                            ));
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
-                            _scaffoldState.currentState.showSnackBar(SnackBar(
+                            _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
                               content: Text("Falha na Atualização"),
                             ));
                           }

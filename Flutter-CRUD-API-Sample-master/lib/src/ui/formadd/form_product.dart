@@ -44,7 +44,8 @@ class _FormAddProductState extends State<FormAddProduct> {
 
   String _mySelection1;
   String _mySelection2;
-  String active;
+  String _active;
+  String _activeS;
   String value;
   String _catId;
   Future<File> file;
@@ -177,7 +178,9 @@ class _FormAddProductState extends State<FormAddProduct> {
         ),
 
 
-        SafeArea(
+        Visibility(
+          visible: widget.prod != null ? false : true,
+          child: SafeArea(
           child: FutureBuilder(
             future: _apiServiceCat.getCategory(),
             builder:
@@ -252,7 +255,7 @@ class _FormAddProductState extends State<FormAddProduct> {
               }
             },
           ),
-        ),
+        )),
 
 
 
@@ -278,9 +281,10 @@ class _FormAddProductState extends State<FormAddProduct> {
         ),
         Center(
           child: new DropdownButtonFormField(
-            hint: widget.prod != null ? Text(widget.prod.active == 0 ? "Habilitada" : "Desabilitada") : Text('Habilitar ou Desabilitar Bebida?'),
+            hint: widget.prod != null ? Text(widget.prod.active == 0 ? "Habilitada" : "Desabilitada")
+                : Text('Habilitar ou Desabilitar Bebida?'),
             items: valueActive.map((item) {
-              return new DropdownMenuItem(
+              return new DropdownMenuItem<String>(
                 child: new Text(item['active']),
                 value: item['active'].toString(),
               );
@@ -288,16 +292,19 @@ class _FormAddProductState extends State<FormAddProduct> {
             onChanged: (newVal) {
               if(this.mounted){
                 setState(() {
+                  _activeS = newVal;
                   if(newVal == "Habilitada") {
-                    active = "0";
+                    _active = "0";
                   } else {
-                    active = "1";
+                    _active = "1";
                   }
-                  setState(() => _isFieldActiveValid = active.isNotEmpty);
+                  print(_active);
+                  setState(() => _isFieldActiveValid = _active.isNotEmpty);
                 });
+
               }
             },
-            value: active,
+            value: _activeS,
           ),
         ),
 
@@ -357,7 +364,7 @@ class _FormAddProductState extends State<FormAddProduct> {
                         !_isFieldImageValid ||
                         !_isFieldCatIdValid) {
                       _scaffoldState.currentState.showSnackBar(
-                        SnackBar(
+                        SnackBar(backgroundColor: Colors.blue,
                           content: Text("Por Favor Preencha Todos os Campos"),
                         ),
                       );
@@ -371,13 +378,18 @@ class _FormAddProductState extends State<FormAddProduct> {
 
                     String name = _controllerName.text.toString();
                     String price = _controllerPrice.text.toString();
+                    String mark = _controllerMark.text.toString();
+                    String idx = _catId != null ? _catId : widget.prod.cat_id.toString();
+                    print(idx);
 
                     Product prod = Product(
                         name: name,
+                        mark: mark,
+                        active: int.parse(_active),
                         price: price,
-                        state: _mySelection2,
-                        category: _mySelection1,
-                        image: base64Image, cat_id: int.parse(_catId));
+                        state: _mySelection2 != null ? _mySelection2 : widget.prod.state,
+                        category: widget.prod.category,
+                        image: base64Image, cat_id: int.parse(idx));
 
                     if (widget.prod == null) {
                       _apiServiceProd.createProduct(prod).then((isSuccess) {
@@ -388,7 +400,7 @@ class _FormAddProductState extends State<FormAddProduct> {
                         if (isSuccess) {
                           Navigator.pop(_scaffoldState.currentState.context);
                         } else {
-                          _scaffoldState.currentState.showSnackBar(SnackBar(
+                          _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
                             content: Text("Falha ao Enviar os Dados"),
                           ));
                         }
@@ -402,7 +414,7 @@ class _FormAddProductState extends State<FormAddProduct> {
                         if (isSuccess) {
                           Navigator.pop(_scaffoldState.currentState.context);
                         } else {
-                          _scaffoldState.currentState.showSnackBar(SnackBar(
+                          _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
                             content: Text("Falha ao Atualizar os Dados"),
                           ));
                         }

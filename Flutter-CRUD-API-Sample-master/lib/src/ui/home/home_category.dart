@@ -132,12 +132,12 @@ class _HomeCategoryState extends State<HomeCategory> {
                                             if (isSuccess) {
                                               setState(() {});
                                               Scaffold.of(this.context)
-                                                  .showSnackBar(SnackBar(
+                                                  .showSnackBar(SnackBar(backgroundColor: Colors.green,
                                                       content: Text(
                                                           "Excluído com Sucesso")));
                                             } else {
                                               Scaffold.of(this.context)
-                                                  .showSnackBar(SnackBar(
+                                                  .showSnackBar(SnackBar(backgroundColor: Colors.green,
                                                       content: Text(
                                                           "Falha ao Excluir")));
                                             }

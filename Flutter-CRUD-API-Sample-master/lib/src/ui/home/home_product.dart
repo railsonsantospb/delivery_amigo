@@ -1,18 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_prod.dart';
-import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/model/product.dart';
-import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_product.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:mobx/mobx.dart';
-
-GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class HomeProduct extends StatefulWidget {
   int id;
@@ -143,12 +135,12 @@ class _HomeProductState extends State<HomeProduct> {
                                             if (isSuccess) {
                                               setState(() {});
                                               Scaffold.of(this.context)
-                                                  .showSnackBar(SnackBar(
+                                                  .showSnackBar(SnackBar(backgroundColor: Colors.green,
                                                       content: Text(
                                                           "Excluído com Sucesso")));
                                             } else {
                                               Scaffold.of(this.context)
-                                                  .showSnackBar(SnackBar(
+                                                  .showSnackBar(SnackBar(backgroundColor: Colors.red,
                                                       content: Text(
                                                           "Falha ao Excluir")));
                                             }

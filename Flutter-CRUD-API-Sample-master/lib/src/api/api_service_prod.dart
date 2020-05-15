@@ -42,7 +42,7 @@ class ApiServiceProd {
     final response = await client.post(
       "$baseUrl/prod",
       headers: {"content-type": "application/json"},
-      body: jsonEncode({"name": data.name, "price": data.price,
+      body: jsonEncode({"name": data.name, "mark": data.mark, "active": data.active, "price": data.price,
         "state":data.state, "category": data.category, "image": data.image, "cat_id": data.cat_id}),
     );
 
@@ -59,7 +59,8 @@ class ApiServiceProd {
     final response = await client.put(
       "$baseUrl/prod/${data.id}",
       headers: {"content-type": "application/json"},
-      body: jsonEncode({"name": data.name, "image": data.image}),
+      body: jsonEncode({"name": data.name, "mark": data.mark, "active": data.active, "price": data.price,
+        "state":data.state, "category": data.category, "image": data.image, "cat_id": data.cat_id}),
     );
     if (response.statusCode == 200) {
       return true;
