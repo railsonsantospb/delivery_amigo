@@ -72,14 +72,7 @@ class _FormAddCategoryState extends State<FormAddCategory> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldState,
-//      appBar: AppBar(
-//        backgroundColor: Colors.deepOrange,
-//        iconTheme: IconThemeData(color: Colors.white),
-//        title: Text(
-//          widget.cat == null ? "Adicionar Categoria" : "Atualizar Dados",
-//          style: TextStyle(color: Colors.white),
-//        ),
-//      ),
+
       body:  Stack(
         children: <Widget>[
           Padding(
@@ -164,11 +157,12 @@ class _FormAddCategoryState extends State<FormAddCategory> {
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
-                              content: Text("Erro ao Enviar"),
+                              content: Text("Erro ao Enviar ou Verifique sua Conexão"),
                             ));
                           }
                         });
                       } else {
+
                         cat.id = widget.cat.id;
                         _apiService.updateCategory(cat).then((isSuccess) {
 
@@ -179,10 +173,11 @@ class _FormAddCategoryState extends State<FormAddCategory> {
 //                            Navigator.of(context).push(CupertinoPageRoute<void>(
 //                              builder: (BuildContext context) => App(),
 //                            ));
+                            _scaffoldState.currentState.setState(() { });
                             Navigator.pop(_scaffoldState.currentState.context);
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
-                              content: Text("Falha na Atualização"),
+                              content: Text("Falha na Atualização ou Verifique su Conexão"),
                             ));
                           }
                         });

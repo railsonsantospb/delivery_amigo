@@ -34,10 +34,36 @@ class _HomeProductState extends State<HomeProduct> {
       child: FutureBuilder(
         future: apiService.getProductId(widget.id),
         builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
+
           if (snapshot.hasError) {
+            print(snapshot.error.toString());
             return Center(
-              child: Text(
-                  "Something wrong with message: ${snapshot.error.toString()}"),
+              child: Stack(
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          color: Colors.red,
+                          size: 100.0,
+                        ),
+                      ),
+                      Center(
+                        child: Text('SEM CONEXÃO COM A INTERNET'),
+                      ),
+                      Center(
+                        child: Text('FECHE O APLICATIVO'),
+                      ),
+                      Center(
+                        child: Text('TENTE NOVAMENTE'),
+                      ),
+
+                    ],
+                  ),
+                ],
+              ),
             );
           } else if (snapshot.connectionState == ConnectionState.done) {
             List<Product> prod = snapshot.data;
@@ -78,13 +104,39 @@ class _HomeProductState extends State<HomeProduct> {
   }
 
   Widget _buildListView(List<Product> prods) {
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListView.builder(
         itemBuilder: (context, index) {
           Product prod = prods[index];
 
-          return Padding(
+          return prod.id == 0 ? Stack(
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    child: Icon(
+                      Icons.broken_image,
+                      color: Colors.red,
+                      size: 100.0,
+                    ),
+                  ),
+                  Center(
+                    child: Text('SEM CONEXÃO COM A INTERNET'),
+                  ),
+                  Center(
+                    child: Text('FECHE O APLICATIVO'),
+                  ),
+                  Center(
+                    child: Text('TENTE NOVAMENTE'),
+                  ),
+
+                ],
+              ),
+            ],
+          ) : Padding(
             padding: const EdgeInsets.only(top: 8.0),
             child: Card(
               child: Padding(
@@ -142,7 +194,7 @@ class _HomeProductState extends State<HomeProduct> {
                                               Scaffold.of(this.context)
                                                   .showSnackBar(SnackBar(backgroundColor: Colors.red,
                                                       content: Text(
-                                                          "Falha ao Excluir")));
+                                                          "Falha ao Excluir ou Verifique sua Conexão")));
                                             }
                                           });
                                         },

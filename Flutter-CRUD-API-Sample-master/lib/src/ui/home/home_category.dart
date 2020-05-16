@@ -5,7 +5,6 @@ import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
-
 import '../../app_prod.dart';
 
 class HomeCategory extends StatefulWidget {
@@ -25,6 +24,8 @@ class _HomeCategoryState extends State<HomeCategory> {
 
   @override
   Widget build(BuildContext context) {
+
+
     this.context = context;
 
     return SafeArea(
@@ -32,11 +33,38 @@ class _HomeCategoryState extends State<HomeCategory> {
         future: apiService.getCategory(),
         builder:
             (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+
           if (snapshot.hasError) {
+            print(snapshot.error.toString());
             return Center(
-              child: Text(
-                  "Something wrong with message: ${snapshot.error.toString()}"),
+              child: Stack(
+                children: <Widget>[
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Center(
+                        child: Icon(
+                          Icons.broken_image,
+                          color: Colors.red,
+                          size: 100.0,
+                        ),
+                      ),
+                      Center(
+                        child: Text('SEM CONEXÃO COM A INTERNET'),
+                      ),
+                      Center(
+                        child: Text('FECHE O APLICATIVO'),
+                      ),
+                      Center(
+                        child: Text('TENTE NOVAMENTE'),
+                      ),
+
+                    ],
+                  ),
+                ],
+              ),
             );
+
           } else if (snapshot.connectionState == ConnectionState.done) {
             List<Category> cat = snapshot.data;
 
@@ -62,7 +90,8 @@ class _HomeCategoryState extends State<HomeCategory> {
                 ],
               );
             } else {
-              return _buildListView(cat);
+
+              return  _buildListView(cat);
             }
           } else {
             return Center(
@@ -75,7 +104,33 @@ class _HomeCategoryState extends State<HomeCategory> {
   }
 
   Widget _buildListView(List<Category> cats) {
-    return Padding(
+    return cats[0].id == 0 ? Center(
+        child: Stack(
+          children: <Widget>[
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    color: Colors.red,
+                    size: 100.0,
+                  ),
+                ),
+                Center(
+                  child: Text('SEM CONEXÃO COM A INTERNET'),
+                ),
+                Center(
+                  child: Text('FECHE O APLICATIVO'),
+                ),
+                Center(
+                  child: Text('TENTE NOVAMENTE'),
+                ),
+
+              ],
+            ),
+          ],
+        )) : Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: ListView.builder(
         itemBuilder: (context, index) {
@@ -107,7 +162,6 @@ class _HomeCategoryState extends State<HomeCategory> {
                       ),
                     ),
 
-//                    Text(cat.image),
 
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -137,9 +191,9 @@ class _HomeCategoryState extends State<HomeCategory> {
                                                           "Excluído com Sucesso")));
                                             } else {
                                               Scaffold.of(this.context)
-                                                  .showSnackBar(SnackBar(backgroundColor: Colors.green,
+                                                  .showSnackBar(SnackBar(backgroundColor: Colors.red,
                                                       content: Text(
-                                                          "Falha ao Excluir")));
+                                                          "Falha ao Excluir ou Verifique sua Conexão")));
                                             }
                                           });
                                         },

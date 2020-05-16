@@ -62,9 +62,7 @@ class _FormAddProductState extends State<FormAddProduct> {
     }
   }
 
-  final String url = "http://192.168.1.17:5000/cat";
 
-  List data;
   List state = [
     {'state': 'Gelada'},
     {'state': 'Natural'},
@@ -76,26 +74,11 @@ class _FormAddProductState extends State<FormAddProduct> {
     {'active': 'Desabilitada'},
   ];
 
-  Future<String> getSWData() async {
-    var res = await http
-        .get(Uri.encodeFull(url), headers: {"Accept": "application/json"});
-    var resBody = json.decode(res.body);
 
-    if(this.mounted){
-      setState(() {
-        data = resBody;
-      });
-    }
-
-
-//    print(resBody);
-
-    return "Sucess";
-  }
 
   @override
   void initState() {
-    getSWData();
+
 
     _apiServiceCat = ApiServiceCat();
     if (widget.prod != null) {
@@ -186,15 +169,39 @@ class _FormAddProductState extends State<FormAddProduct> {
             builder:
                 (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
               if (snapshot.hasError) {
+                print(snapshot.error.toString());
                 return Center(
-                  child: Text(
-                      "Alguma coisa está errada: ${snapshot.error.toString()}"),
+                  child: Stack(
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: Colors.red,
+                              size: 100.0,
+                            ),
+                          ),
+                          Center(
+                            child: Text('SEM CONEXÃO COM A INTERNET'),
+                          ),
+                          Center(
+                            child: Text('FECHE O APLICATIVO'),
+                          ),
+                          Center(
+                            child: Text('TENTE NOVAMENTE'),
+                          ),
+
+                        ],
+                      ),
+                    ],
+                  ),
                 );
               } else if (snapshot.connectionState == ConnectionState.done) {
-//            setState(() {});
+
                 List<Category> cat = snapshot.data;
 
-//            print(cat);
                 if (cat.isEmpty == true) {
                   return Stack(
                     children: <Widget>[
@@ -216,8 +223,9 @@ class _FormAddProductState extends State<FormAddProduct> {
                     ],
                   );
                 } else {
+                  List<Category> cats = cat;
                   return Center(
-                    child: new DropdownButtonFormField(
+                    child: cats[0].id == 0 ? Text('SEM CONEXÃO COM A INTERNET') : new DropdownButtonFormField(
                       value: value,
                       hint: widget.prod != null ? Text(widget.prod.category) : Text('Selecione a Categoria'),
                       onChanged: widget.prod != null ? null : (newVal) {
@@ -380,15 +388,15 @@ class _FormAddProductState extends State<FormAddProduct> {
                     String price = _controllerPrice.text.toString();
                     String mark = _controllerMark.text.toString();
                     String idx = _catId != null ? _catId : widget.prod.cat_id.toString();
-                    print(idx);
+                    String activex = _active != null ? _active : widget.prod.active.toString();
 
                     Product prod = Product(
                         name: name,
                         mark: mark,
-                        active: int.parse(_active),
+                        active: int.parse(activex),
                         price: price,
                         state: _mySelection2 != null ? _mySelection2 : widget.prod.state,
-                        category: widget.prod.category,
+                        category: _mySelection1 != null ? _mySelection1 : widget.prod.category,
                         image: base64Image, cat_id: int.parse(idx));
 
                     if (widget.prod == null) {
