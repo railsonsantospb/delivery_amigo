@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_product.dart';
 
+GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+
 class HomeProduct extends StatefulWidget {
   int id;
   String name;
@@ -26,82 +28,114 @@ class _HomeProductState extends State<HomeProduct> {
     apiService = ApiServiceProd();
   }
 
+  refresh() {
+    setState(() {});
+  }
+
+
   @override
   Widget build(BuildContext context) {
     this.context = context;
 
-    return SafeArea(
-      child: FutureBuilder(
-        future: apiService.getProductId(widget.id),
-        builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: Colors.deepOrange,
+        accentColor: Colors.deepOrange,
+      ),
+      home: Scaffold(
+        key: _scaffoldState,
 
-          if (snapshot.hasError) {
-            print(snapshot.error.toString());
-            return Center(
-              child: Stack(
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+        body: SafeArea(
+          child: FutureBuilder(
+            future: apiService.getProductId(widget.id),
+            builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
+
+              if (snapshot.hasError) {
+                print(snapshot.error.toString());
+                return Center(
+                  child: Stack(
                     children: <Widget>[
-                      Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          color: Colors.red,
-                          size: 100.0,
-                        ),
-                      ),
-                      Center(
-                        child: Text('SEM CONEXÃO COM A INTERNET'),
-                      ),
-                      Center(
-                        child: Text('FECHE O APLICATIVO'),
-                      ),
-                      Center(
-                        child: Text('TENTE NOVAMENTE'),
-                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: Colors.red,
+                              size: 100.0,
+                            ),
+                          ),
+                          Center(
+                            child: Text('SEM CONEXÃO COM A INTERNET'),
+                          ),
+                          Center(
+                            child: Text('FECHE O APLICATIVO'),
+                          ),
+                          Center(
+                            child: Text('TENTE NOVAMENTE'),
+                          ),
 
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            );
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            List<Product> prod = snapshot.data;
+                );
+              } else if (snapshot.connectionState == ConnectionState.done) {
+                List<Product> prod = snapshot.data;
 
-            if (prod.isEmpty == true) {
-              return  Stack(
-                      children: <Widget>[
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Center(
-                              child: Icon(
-                                Icons.not_interested,
-                                color: Colors.red,
-                                size: 100.0,
-                              ),
+                if (prod.isEmpty == true) {
+                  return  Stack(
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Center(
+                            child: Icon(
+                              Icons.not_interested,
+                              color: Colors.red,
+                              size: 100.0,
                             ),
-                            Center(
-                              child: Text('NENHUM(A) ' +
-                                  widget.name.toUpperCase() +
-                                  ' CADASTRADA'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    );
-            } else {
-              return  _buildListView(prod);
+                          ),
+                          Center(
+                            child: Text('NENHUM(A) ' +
+                                widget.name.toUpperCase() +
+                                ' CADASTRADA'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                } else {
+                  return  _buildListView(prod);
+                }
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
+        ),
+
+
+        floatingActionButton: FloatingActionButton(
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: (){
+              Navigator.push(_scaffoldState.currentContext,
+                  CupertinoPageRoute(builder: (context) {
+                    return FormAddProduct(id: widget.id.toString(), notifyParent: refresh);
+                  }));
             }
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+
+        ),
       ),
     );
   }
+
 
   Widget _buildListView(List<Product> prods) {
 
@@ -154,13 +188,16 @@ class _HomeProductState extends State<HomeProduct> {
                       ),
                     ),
 
-                    Center(
-                      child: Image.memory(
-                        base64Decode(prod.image),
-                        cacheHeight: 500,
-                        cacheWidth: 500,
+                    Row(mainAxisAlignment: MainAxisAlignment.center,children: <Widget>[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(150),
+                        child: Image.memory(
+                          base64Decode(prod.image),
+                          cacheHeight: 250,
+                          cacheWidth: 250,
+                        ),
                       ),
-                    ),
+                    ]),
 
 //                    Text(cat.image),
 
@@ -218,7 +255,7 @@ class _HomeProductState extends State<HomeProduct> {
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                              return FormAddProduct(prod: prod);
+                              return FormAddProduct(prod: prod, notifyParent: refresh);
                             }));
                           },
                           child: Text(

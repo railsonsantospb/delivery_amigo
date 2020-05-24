@@ -14,10 +14,10 @@ class ApiServiceCat {
     try{
       final response = await client.get("$baseUrl/cat");
       if (response.statusCode == 200) {
-
-        return catFromJson(response.body);
+        return catFromJson(response.body).isEmpty ? catFromJson('[{"id": ${0}, "name": "0", "image": "0"}]')
+            : catFromJson(response.body);
       } else {
-        return null;
+        return catFromJson('[{"id": ${0}, "name": "0", "image": "0"}]');
       }
     } catch(e){
       return catFromJson('[{"id": ${0}, "name": "0", "image": "0"}]');

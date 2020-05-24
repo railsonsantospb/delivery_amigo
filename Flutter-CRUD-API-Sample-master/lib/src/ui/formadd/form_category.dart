@@ -8,14 +8,14 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 
-
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class FormAddCategory extends StatefulWidget {
   Category cat;
+  final Function() notifyParent;
 
-
-  FormAddCategory({this.cat});
+  FormAddCategory({Key key, @required this.notifyParent, this.cat})
+      : super(key: key);
 
   @override
   _FormAddCategoryState createState() => _FormAddCategoryState();
@@ -38,7 +38,7 @@ class _FormAddCategoryState extends State<FormAddCategory> {
   String errMessage = 'Erro ao Enviar Imagem';
 
   chooseImage() {
-    if(this.mounted){
+    if (this.mounted) {
       setState(() {
         file = ImagePicker.pickImage(source: ImageSource.gallery);
       });
@@ -48,15 +48,12 @@ class _FormAddCategoryState extends State<FormAddCategory> {
   }
 
   setStatus(String message) {
-    if(this.mounted){
+    if (this.mounted) {
       setState(() {
         status = message;
       });
     }
-
   }
-
-
 
   @override
   void initState() {
@@ -72,123 +69,111 @@ class _FormAddCategoryState extends State<FormAddCategory> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldState,
-
-      body:  Stack(
+      body: Stack(
         children: <Widget>[
           Padding(
             padding: const EdgeInsets.all(12.0),
-
             child: Container(
               child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-
-                _showImage(),
-
-                _buildTextFieldName(),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-
-
-                      Text(
-                        status,
-                        textAlign: TextAlign.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  _showImage(),
+                  _buildTextFieldName(),
+                  Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: <Widget>[
+                        Text(
+                          status,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.green,
+                            fontWeight: FontWeight.w500,
+                            fontSize: 20.0,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 0.0),
+                    child: RaisedButton(
+                      child: Text(
+                        widget.cat == null
+                            ? "Cadastrar".toUpperCase()
+                            : "Atualizar".toUpperCase(),
                         style: TextStyle(
-                          color: Colors.green,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 20.0,
+                          color: Colors.white,
                         ),
                       ),
 
-                    ],
-                  ),
-                ),
-
-
-                Padding(
-                  padding: const EdgeInsets.only(top: 0.0),
-                  child: RaisedButton(
-
-                    child:  Text(
-                      widget.cat == null
-                          ? "Cadastrar".toUpperCase()
-                          : "Atualizar".toUpperCase(),
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-
-                    onPressed: () {
-                      if (_isFieldNameValid == null ||
-                          base64Image == null ||
-                          !_isFieldNameValid ||
-                          ! _isFieldImageValid) {
-                        _scaffoldState.currentState.showSnackBar(
-                          SnackBar(
-                            content: Text("Por Favor Preencha os Campos"),
-                          ),
-                        );
-                        return;
-                      }
-                        if(this.mounted){
+                      onPressed: () {
+                        if (_isFieldNameValid == null ||
+                            base64Image == null ||
+                            !_isFieldNameValid ||
+                            !_isFieldImageValid) {
+                          _scaffoldState.currentState.showSnackBar(
+                            SnackBar(
+                              content: Text("Por Favor Preencha os Campos"),
+                            ),
+                          );
+                          return;
+                        }
+                        if (this.mounted) {
                           setState(() => _isLoading = true);
                         }
 
-                      String name = _controllerName.text.toString();
-                      Category cat =
-                          Category(name: name, image: base64Image);
+                        String name = _controllerName.text.toString();
+                        Category cat = Category(name: name, image: base64Image);
 
-                      if (widget.cat == null) {
+                        if (widget.cat == null) {
+                          _apiService.createCategory(cat).then((isSuccess) {
+                            if (this.mounted) {
+                              setState(() => _isLoading = false);
+                            }
 
-                        _apiService.createCategory(cat).then((isSuccess) {
-
-                          if(this.mounted){
-                            setState(() => _isLoading = false);
-                          }
-
-                          if (isSuccess) {
-
-                            Scaffold.of(_scaffoldState.currentState.context)
-                                .showSnackBar(SnackBar(backgroundColor: Colors.green,
+                            if (isSuccess) {
+                              widget.notifyParent();
+                              Scaffold.of(_scaffoldState.currentState.context)
+                                  .showSnackBar(SnackBar(
+                                      backgroundColor: Colors.green,
+                                      content: Text("Cadastrado com Sucesso")));
+                              Navigator.pop(
+                                  _scaffoldState.currentState.context);
+                            } else {
+                              _scaffoldState.currentState.showSnackBar(SnackBar(
+                                backgroundColor: Colors.red,
                                 content: Text(
-                                    "Cadastrado com Sucesso")));
-                            Navigator.pop(_scaffoldState.currentState.context);
-                          } else {
-                            _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
-                              content: Text("Erro ao Enviar ou Verifique sua Conexão"),
-                            ));
-                          }
-                        });
-                      } else {
-
-                        cat.id = widget.cat.id;
-                        _apiService.updateCategory(cat).then((isSuccess) {
-
-                          if(this.mounted){
-                            setState(() => _isLoading = false);
-                          }
-                          if (isSuccess) {
-//                            Navigator.of(context).push(CupertinoPageRoute<void>(
-//                              builder: (BuildContext context) => App(),
-//                            ));
-                            _scaffoldState.currentState.setState(() { });
-                            Navigator.pop(_scaffoldState.currentState.context);
-                          } else {
-                            _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
-                              content: Text("Falha na Atualização ou Verifique su Conexão"),
-                            ));
-                          }
-                        });
-                      }
-                    },
+                                    "Erro ao Enviar ou Verifique sua Conexão"),
+                              ));
+                            }
+                          });
+                        } else {
+                          cat.id = widget.cat.id;
+                          _apiService.updateCategory(cat).then((isSuccess) {
+                            if (this.mounted) {
+                              setState(() => _isLoading = false);
+                            }
+                            if (isSuccess) {
+                              widget.notifyParent();
+                              Navigator.pop(
+                                  _scaffoldState.currentState.context);
+                            } else {
+                              _scaffoldState.currentState.showSnackBar(SnackBar(
+                                backgroundColor: Colors.red,
+                                content: Text(
+                                    "Falha na Atualização ou Verifique su Conexão"),
+                              ));
+                            }
+                          });
+                        }
+                      },
 //                    backgroundColor: ,
-                    color: Colors.deepOrange,
+                      color: Colors.deepOrange,
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ),
           ),
           _isLoading
@@ -213,53 +198,73 @@ class _FormAddCategoryState extends State<FormAddCategory> {
   }
 
   Widget _showImage() {
-
     return FutureBuilder<File>(
-        future: file,
-        builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              null != snapshot.data) {
-            tmpFile = snapshot.data;
-            base64Image = base64Encode(snapshot.data.readAsBytesSync());
+      future: file,
+      builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done &&
+            null != snapshot.data) {
+          tmpFile = snapshot.data;
+          base64Image = base64Encode(snapshot.data.readAsBytesSync());
+          _isFieldImageValid = true;
+
+          return Flexible(
+            child: GestureDetector(
+              onTap: chooseImage,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(150),
+                      child: Image.file(
+                        snapshot.data,
+                        cacheHeight: 250,
+                        cacheWidth: 250,
+                      ),
+                    ),
+                  ]),
+            ),
+          );
+        } else if (null != snapshot.error) {
+          return const Text(
+            'Error ao Inserir Imagem',
+            textAlign: TextAlign.center,
+          );
+        } else {
+          if (widget.cat != null) {
             _isFieldImageValid = true;
-
-
-
-            return Flexible(
-              child: GestureDetector(
-                onTap: chooseImage,
-              child: Image.file(
-                snapshot.data, cacheHeight: 500, cacheWidth: 500,
-
-              ),
-              ),
-            );
-
-          } else if (null != snapshot.error) {
-            return const Text(
-              'Error ao Inserir Imagem',
-              textAlign: TextAlign.center,
-            );
-          }  else {
-            if(widget.cat != null) {
-              _isFieldImageValid = true;
-              base64Image = widget.cat.image;
-            }
-            return widget.cat != null ?
-            Wrap(
-              children: <Widget>[
-                Image.memory(base64Decode(widget.cat.image), cacheHeight: 500, cacheWidth: 500,),
-              ],
-            ) : GestureDetector(
-                  onTap: chooseImage,
-                child: Icon(Icons.photo_camera, size: 100.0, color: Colors.deepOrange,),
-            );
-
+            base64Image = widget.cat.image;
           }
-        },
-
+          return widget.cat != null
+              ? Wrap(
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: chooseImage,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(150),
+                              child: Image.memory(
+                                base64Decode(widget.cat.image),
+                                cacheHeight: 250,
+                                cacheWidth: 250,
+                              ),
+                            ),
+                          ]),
+                    ),
+                  ],
+                )
+              : GestureDetector(
+                  onTap: chooseImage,
+                  child: Icon(
+                    Icons.photo_camera,
+                    size: 100.0,
+                    color: Colors.deepOrange,
+                  ),
+                );
+        }
+      },
     );
-
   }
 
   Widget _buildTextFieldName() {
@@ -275,10 +280,9 @@ class _FormAddCategoryState extends State<FormAddCategory> {
       onChanged: (value) {
         bool isFieldValid = value.trim().isNotEmpty;
         if (isFieldValid != _isFieldNameValid) {
-          if(this.mounted){
+          if (this.mounted) {
             setState(() => _isFieldNameValid = isFieldValid);
           }
-
         }
       },
     );

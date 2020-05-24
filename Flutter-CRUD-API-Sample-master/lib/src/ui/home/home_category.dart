@@ -5,7 +5,9 @@ import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
-import '../../app_prod.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/home_product.dart';
+
+GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class HomeCategory extends StatefulWidget {
   @override
@@ -22,85 +24,117 @@ class _HomeCategoryState extends State<HomeCategory> {
     apiService = ApiServiceCat();
   }
 
+  refresh() {
+    setState(() {});
+  }
+
+
   @override
   Widget build(BuildContext context) {
 
 
     this.context = context;
 
-    return SafeArea(
-      child: FutureBuilder(
-        future: apiService.getCategory(),
-        builder:
-            (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        primaryColor: Colors.deepOrange,
+        accentColor: Colors.deepOrange,
+      ),
+      home: Scaffold(
+        key: _scaffoldState,
 
-          if (snapshot.hasError) {
-            print(snapshot.error.toString());
-            return Center(
-              child: Stack(
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+        body: SafeArea(
+          child: FutureBuilder(
+            future: apiService.getCategory(),
+            builder:
+                (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+
+              if (snapshot.hasError) {
+                print(snapshot.error.toString());
+                return Center(
+                  child: Stack(
                     children: <Widget>[
-                      Center(
-                        child: Icon(
-                          Icons.broken_image,
-                          color: Colors.red,
-                          size: 100.0,
-                        ),
-                      ),
-                      Center(
-                        child: Text('SEM CONEXÃO COM A INTERNET'),
-                      ),
-                      Center(
-                        child: Text('FECHE O APLICATIVO'),
-                      ),
-                      Center(
-                        child: Text('TENTE NOVAMENTE'),
-                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Center(
+                            child: Icon(
+                              Icons.broken_image,
+                              color: Colors.red,
+                              size: 100.0,
+                            ),
+                          ),
+                          Center(
+                            child: Text('SEM CONEXÃO COM A INTERNET'),
+                          ),
+                          Center(
+                            child: Text('FECHE O APLICATIVO'),
+                          ),
+                          Center(
+                            child: Text('TENTE NOVAMENTE'),
+                          ),
 
-                    ],
-                  ),
-                ],
-              ),
-            );
-
-          } else if (snapshot.connectionState == ConnectionState.done) {
-            List<Category> cat = snapshot.data;
-
-//            print(cat);
-            if (cat.isEmpty == true) {
-              return Stack(
-                children: <Widget>[
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Center(
-                        child: Icon(
-                          Icons.not_interested,
-                          color: Colors.red,
-                          size: 100.0,
-                        ),
-                      ),
-                      Center(
-                        child: Text('NENHUM CATÁLOGO CADASTRADA'),
+                        ],
                       ),
                     ],
                   ),
-                ],
-              );
-            } else {
+                );
 
-              return  _buildListView(cat);
+              } else if (snapshot.connectionState == ConnectionState.done) {
+                List<Category> cat = snapshot.data;
+
+                if (cat[0].id == 0) {
+                  return Stack(
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Center(
+                            child: Icon(
+                              Icons.not_interested,
+                              color: Colors.red,
+                              size: 100.0,
+                            ),
+                          ),
+                          Center(
+                            child: Text('NENHUM CATÁLOGO CADASTRADO'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  );
+                } else {
+
+                  return  _buildListView(cat);
+                }
+              } else {
+                return Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
+        ),
+
+
+        floatingActionButton: FloatingActionButton(
+            child: Icon(
+              Icons.add,
+              color: Colors.white,
+            ),
+            onPressed: (){
+              Navigator.push(_scaffoldState.currentContext,
+                  CupertinoPageRoute(builder: (BuildContext context) {
+                    return FormAddCategory(notifyParent: refresh);
+                  }));
             }
-          } else {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-        },
+
+        ),
       ),
     );
+
+
   }
 
   Widget _buildListView(List<Category> cats) {
@@ -154,13 +188,16 @@ class _HomeCategoryState extends State<HomeCategory> {
                       ),
                     ),
 
-                    Center(
-                      child: Image.memory(
-                        base64Decode(cat.image),
-                        cacheHeight: 500,
-                        cacheWidth: 500,
+                    Row(mainAxisAlignment: MainAxisAlignment.center,children: <Widget>[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(150),
+                        child: Image.memory(
+                          base64Decode(cat.image),
+                          cacheHeight: 250,
+                          cacheWidth: 250,
+                        ),
                       ),
-                    ),
+                    ]),
 
 
                     Row(
@@ -187,13 +224,13 @@ class _HomeCategoryState extends State<HomeCategory> {
                                               setState(() {});
                                               Scaffold.of(this.context)
                                                   .showSnackBar(SnackBar(backgroundColor: Colors.green,
-                                                      content: Text(
-                                                          "Excluído com Sucesso")));
+                                                  content: Text(
+                                                      "Excluído com Sucesso")));
                                             } else {
                                               Scaffold.of(this.context)
                                                   .showSnackBar(SnackBar(backgroundColor: Colors.red,
-                                                      content: Text(
-                                                          "Falha ao Excluir ou Verifique sua Conexão")));
+                                                  content: Text(
+                                                      "Falha ao Excluir ou Verifique sua Conexão")));
                                             }
                                           });
                                         },
@@ -217,8 +254,8 @@ class _HomeCategoryState extends State<HomeCategory> {
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                              return FormAddCategory(cat: cat);
-                            }));
+                                  return FormAddCategory(cat: cat, notifyParent: refresh);
+                                }));
                           },
                           child: Text(
                             "EDITAR",
@@ -229,11 +266,11 @@ class _HomeCategoryState extends State<HomeCategory> {
                           onPressed: () {
                             Navigator.push(context,
                                 CupertinoPageRoute(builder: (context) {
-                              return AppProd(
-                                id: cat.id,
-                                name: cat.name,
-                              );
-                            }));
+                                  return HomeProduct(
+                                    id: cat.id,
+                                    name: cat.name,
+                                  );
+                                }));
                           },
                           child: Text(
                             "ESTOQUE",

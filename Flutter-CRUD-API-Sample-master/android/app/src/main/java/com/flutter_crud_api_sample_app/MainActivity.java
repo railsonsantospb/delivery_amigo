@@ -1,4 +1,4 @@
-package com.ysn.flutter_crud_api_sample_app;
+package com.flutter_crud_api_sample_app;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

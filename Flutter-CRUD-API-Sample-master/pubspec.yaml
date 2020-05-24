@@ -24,6 +24,9 @@ dependencies:
   flutter_mobx:
   badges: ^1.1.1
   connectivity:
+  google_maps_flutter:
+  flutter_polyline_points:
+  geolocator:
 
 
 dev_dependencies:

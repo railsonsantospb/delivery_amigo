@@ -8,12 +8,12 @@ import 'package:flutter_crud_api_sample_app/src/ui/home/view_products.dart';
 
 GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
-class HomeRequestX extends StatefulWidget {
+class HomeRequestY extends StatefulWidget {
   @override
-  _HomeRequestXState createState() => _HomeRequestXState();
+  _HomeRequestYState createState() => _HomeRequestYState();
 }
 
-class _HomeRequestXState extends State<HomeRequestX> {
+class _HomeRequestYState extends State<HomeRequestY> {
   BuildContext context;
   ApiServiceRX apiService;
   TextEditingController editingController = TextEditingController();
@@ -32,7 +32,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
 
     return SafeArea(
       child: FutureBuilder(
-        future: apiService.getRequestXActive(),
+        future: apiService.getRequestXNotActive(),
         builder:
             (BuildContext context, AsyncSnapshot<List<RequestX>> snapshot) {
           if (snapshot.hasError) {
@@ -172,8 +172,8 @@ class _HomeRequestXState extends State<HomeRequestX> {
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
                                 child: new Text(
-                                  "Aguardando",
-                                  style: TextStyle(color: Colors.blue),
+                                  "Confirmado",
+                                  style: TextStyle(color: Colors.green),
                                 ),
                               ),
                             ],
@@ -199,7 +199,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
                             children: <Widget>[
                               Padding(
                                 padding: const EdgeInsets.all(0.0),
-                                child: new Text("Data da Compra: "),
+                                child: new Text("Data da Comfirmação: "),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
@@ -215,7 +215,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
                             children: <Widget>[
                               Padding(
                                 padding: const EdgeInsets.all(0.0),
-                                child: new Text("Hora da Compra: "),
+                                child: new Text("Hora da Comfirmação: "),
                               ),
                               Padding(
                                 padding: const EdgeInsets.all(4.0),
@@ -284,23 +284,27 @@ class _HomeRequestXState extends State<HomeRequestX> {
                                           return AlertDialog(
                                             title: Text("Aviso!"),
                                             content: Text(
-                                                "Confirmar entrega do pedido de ${rx.client}?"),
+                                                "Deseja apagar o pedido de ${rx.client}?"),
                                             actions: <Widget>[
                                               FlatButton(
                                                 child: Text("SIM"),
                                                 onPressed: () {
                                                   Navigator.pop(context);
-                                                  apiService.updateRequestX(rx).then((isSuccess) {
+
+                                                  apiService
+                                                      .deleteRequestX(rx.id)
+                                                      .then((isSuccess) {
                                                     if (isSuccess) {
-                                                      _scaffoldState.currentState.setState(() { });
-                                                      Navigator.pop(_scaffoldState.currentState.context);
-                                                      _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
-                                                        content: Text("Pedido Confirmad com Sucesso"),
-                                                      ));
+                                                      setState(() {});
+                                                      Scaffold.of(this.context)
+                                                          .showSnackBar(SnackBar(
+                                                              content: Text(
+                                                                  "Pedido Excluído")));
                                                     } else {
-                                                      _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
-                                                        content: Text("Falha na Confirmação ou Verifique sua Conexão"),
-                                                      ));
+                                                      Scaffold.of(this.context)
+                                                          .showSnackBar(SnackBar(
+                                                              content: Text(
+                                                                  "Falha ao Excluir")));
                                                     }
                                                   });
                                                 },
@@ -316,8 +320,8 @@ class _HomeRequestXState extends State<HomeRequestX> {
                                         });
                                   },
                                   child: Text(
-                                    "CONFIRMAR",
-                                    style: TextStyle(color: Colors.green),
+                                    "EXCLUIR",
+                                    style: TextStyle(color: Colors.red),
                                   ),
                                 ),
                                 FlatButton(
@@ -347,7 +351,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
                                   },
                                   child: Text(
                                     "BEBIDAS",
-                                    style: TextStyle(color: Colors.deepOrange),
+                                    style: TextStyle(color: Colors.green),
                                   ),
                                 ),
                               ]),

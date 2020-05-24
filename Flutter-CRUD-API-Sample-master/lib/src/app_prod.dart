@@ -27,33 +27,7 @@ class _AppProdState extends State<AppProd> {
   @override
   Widget build(BuildContext context) {
 
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primaryColor: Colors.deepOrange,
-        accentColor: Colors.deepOrange,
-      ),
-      home: Scaffold(
-        key: _scaffoldState,
 
-        body: HomeProduct(id: widget.id,name: widget.name,),
-
-
-        floatingActionButton: FloatingActionButton(
-            child: Icon(
-              Icons.add,
-              color: Colors.white,
-            ),
-            onPressed: (){
-              Navigator.push(_scaffoldState.currentContext,
-                  CupertinoPageRoute(builder: (context) {
-                    return FormAddProduct();
-                  }));
-            }
-
-        ),
-      ),
-    );
   }
 }
 

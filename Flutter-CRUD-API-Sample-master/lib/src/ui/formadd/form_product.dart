@@ -3,20 +3,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_prod.dart';
-import 'package:flutter_crud_api_sample_app/src/model/category.dart';
 import 'package:flutter_crud_api_sample_app/src/model/product.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
 
 final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class FormAddProduct extends StatefulWidget {
   Product prod;
+  String id;
+  final Function() notifyParent;
 
-  FormAddProduct({this.prod});
+  FormAddProduct({Key key, @required this.notifyParent, this.prod, this.id}) : super(key: key);
 
   @override
   _FormAddProductState createState() => _FormAddProductState();
@@ -26,12 +26,10 @@ class _FormAddProductState extends State<FormAddProduct> {
   bool _isLoading = false;
   int selected = 0;
   ApiServiceProd _apiServiceProd = ApiServiceProd();
-  ApiServiceCat _apiServiceCat;
 
   bool _isFieldNameValid;
   bool _isFieldPriceValid;
-  bool _isFieldStateValid;
-  bool _isFieldCategoryValid;
+  bool _isFieldInfoValid;
   bool _isFieldImageValid;
   bool _isFieldCatIdValid;
   bool _isFieldMarkValid;
@@ -40,14 +38,12 @@ class _FormAddProductState extends State<FormAddProduct> {
   TextEditingController _controllerName = TextEditingController();
   TextEditingController _controllerPrice = TextEditingController();
   TextEditingController _controllerMark = TextEditingController();
+  TextEditingController _controllerInfo = TextEditingController();
 
 
-  String _mySelection1;
-  String _mySelection2;
   String _active;
   String _activeS;
   String value;
-  String _catId;
   Future<File> file;
   String status = '';
   String base64Image;
@@ -63,12 +59,6 @@ class _FormAddProductState extends State<FormAddProduct> {
   }
 
 
-  List state = [
-    {'state': 'Gelada'},
-    {'state': 'Natural'},
-    {'state': 'Natural/Gelada'}
-  ];
-
   List valueActive = [
     {'active': 'Habilitada'},
     {'active': 'Desabilitada'},
@@ -79,17 +69,15 @@ class _FormAddProductState extends State<FormAddProduct> {
   @override
   void initState() {
 
-
-    _apiServiceCat = ApiServiceCat();
     if (widget.prod != null) {
       _isFieldNameValid = true;
       _controllerName.text = widget.prod.name;
+
       _isFieldPriceValid = true;
       _controllerPrice.text = widget.prod.price;
-      _isFieldStateValid = true;
-      _controllerName.text = widget.prod.state;
-      _isFieldCategoryValid = true;
-      _controllerName.text = widget.prod.category;
+
+      _isFieldInfoValid = true;
+      _controllerInfo.text = widget.prod.price;
 
       _isFieldMarkValid = true;
       _controllerMark.text = widget.prod.mark;
@@ -100,6 +88,7 @@ class _FormAddProductState extends State<FormAddProduct> {
 
     }
     super.initState();
+    setState(() => _isFieldCatIdValid = widget.prod == null ?  widget.id.isNotEmpty : true);
   }
 
   Widget _formUI() {
@@ -159,134 +148,6 @@ class _FormAddProductState extends State<FormAddProduct> {
             }
           },
         ),
-
-
-        Visibility(
-          visible: widget.prod != null ? false : true,
-          child: SafeArea(
-          child: FutureBuilder(
-            future: _apiServiceCat.getCategory(),
-            builder:
-                (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
-              if (snapshot.hasError) {
-                print(snapshot.error.toString());
-                return Center(
-                  child: Stack(
-                    children: <Widget>[
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.red,
-                              size: 100.0,
-                            ),
-                          ),
-                          Center(
-                            child: Text('SEM CONEXÃO COM A INTERNET'),
-                          ),
-                          Center(
-                            child: Text('FECHE O APLICATIVO'),
-                          ),
-                          Center(
-                            child: Text('TENTE NOVAMENTE'),
-                          ),
-
-                        ],
-                      ),
-                    ],
-                  ),
-                );
-              } else if (snapshot.connectionState == ConnectionState.done) {
-
-                List<Category> cat = snapshot.data;
-
-                if (cat.isEmpty == true) {
-                  return Stack(
-                    children: <Widget>[
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Center(
-                            child: Icon(
-                              Icons.not_interested,
-                              color: Colors.red,
-                              size: 100.0,
-                            ),
-                          ),
-                          Center(
-                            child: Text('NENHUMA CATEGORIA CADASTRADA'),
-                          ),
-                        ],
-                      ),
-                    ],
-                  );
-                } else {
-                  List<Category> cats = cat;
-                  return Center(
-                    child: cats[0].id == 0 ? Text('SEM CONEXÃO COM A INTERNET') : new DropdownButtonFormField(
-                      value: value,
-                      hint: widget.prod != null ? Text(widget.prod.category) : Text('Selecione a Categoria'),
-                      onChanged: widget.prod != null ? null : (newVal) {
-
-                        if(this.mounted){
-                          setState(() {
-                            for(var f in cat){
-                              if(f.id.toString() == newVal){
-                                _mySelection1 = f.name;
-                              }
-                            }
-                            value = newVal;
-                            _catId = newVal;
-                            setState(() => _isFieldCategoryValid = _mySelection1.isNotEmpty);
-                            setState(() => _isFieldCatIdValid = _catId.isNotEmpty);
-                          });
-                        }
-                      },
-
-                      items: cat.map((item) {
-
-                        return new DropdownMenuItem(
-                          child: new Text(item.name),
-                          value: item.id.toString(),
-                        );
-                      }).toList(),
-
-                    ),
-                  );
-                }
-              } else {
-                return Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
-            },
-          ),
-        )),
-
-
-
-        Center(
-          child: new DropdownButtonFormField(
-            hint: widget.prod != null ? Text(widget.prod.state) : Text('Bebida Natural ou Gelada?'),
-            items: state.map((item) {
-              return new DropdownMenuItem(
-                child: new Text(item['state']),
-                value: item['state'].toString(),
-              );
-            }).toList(),
-            onChanged: (newVal) {
-              if(this.mounted){
-                setState(() {
-                  _mySelection2 = newVal;
-                  setState(() => _isFieldStateValid = _mySelection2.isNotEmpty);
-                });
-              }
-            },
-            value: _mySelection2,
-          ),
-        ),
         Center(
           child: new DropdownButtonFormField(
             hint: widget.prod != null ? Text(widget.prod.active == 0 ? "Habilitada" : "Desabilitada")
@@ -315,6 +176,25 @@ class _FormAddProductState extends State<FormAddProduct> {
             value: _activeS,
           ),
         ),
+        new TextFormField(
+          controller: _controllerInfo,
+          keyboardType: TextInputType.multiline,
+          decoration: InputDecoration(
+            labelText: "Informações Adicionais",
+            errorText: _isFieldInfoValid == null || _isFieldInfoValid
+                ? null
+                : "A informação é obtrigatória",
+          ),
+          onChanged: (value) {
+            bool isFieldValid = value.trim().isNotEmpty;
+            if (isFieldValid != _isFieldInfoValid) {
+              if(this.mounted){
+                setState(() => _isFieldInfoValid = isFieldValid);
+              }
+            }
+          },
+        ),
+
 
       ],
     );
@@ -361,16 +241,15 @@ class _FormAddProductState extends State<FormAddProduct> {
 
                     if (_isFieldNameValid == null ||
                         _isFieldPriceValid == null ||
-                        _isFieldStateValid == null ||
-                        _isFieldCategoryValid == null ||
+                        _isFieldInfoValid == null ||
                         _isFieldCatIdValid == null ||
                         base64Image == null ||
                         !_isFieldNameValid ||
                         !_isFieldPriceValid ||
-                        !_isFieldStateValid ||
-                        !_isFieldCategoryValid ||
+                        !_isFieldInfoValid ||
                         !_isFieldImageValid ||
                         !_isFieldCatIdValid) {
+                      print(_isFieldCatIdValid);
                       _scaffoldState.currentState.showSnackBar(
                         SnackBar(backgroundColor: Colors.blue,
                           content: Text("Por Favor Preencha Todos os Campos"),
@@ -387,7 +266,8 @@ class _FormAddProductState extends State<FormAddProduct> {
                     String name = _controllerName.text.toString();
                     String price = _controllerPrice.text.toString();
                     String mark = _controllerMark.text.toString();
-                    String idx = _catId != null ? _catId : widget.prod.cat_id.toString();
+                    String info = _controllerInfo.text.toString();
+                    String idx = widget.id != null ? widget.id : widget.prod.cat_id.toString();
                     String activex = _active != null ? _active : widget.prod.active.toString();
 
                     Product prod = Product(
@@ -395,17 +275,18 @@ class _FormAddProductState extends State<FormAddProduct> {
                         mark: mark,
                         active: int.parse(activex),
                         price: price,
-                        state: _mySelection2 != null ? _mySelection2 : widget.prod.state,
-                        category: _mySelection1 != null ? _mySelection1 : widget.prod.category,
+                        info: info,
                         image: base64Image, cat_id: int.parse(idx));
 
                     if (widget.prod == null) {
                       _apiServiceProd.createProduct(prod).then((isSuccess) {
+
                         if(this.mounted){
                           setState(() => _isLoading = false);
                         }
 
                         if (isSuccess) {
+                          widget.notifyParent();
                           Navigator.pop(_scaffoldState.currentState.context);
                         } else {
                           _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
@@ -420,6 +301,7 @@ class _FormAddProductState extends State<FormAddProduct> {
                           setState(() => _isLoading = false);
                         }
                         if (isSuccess) {
+                          widget.notifyParent();
                           Navigator.pop(_scaffoldState.currentState.context);
                         } else {
                           _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
@@ -454,9 +336,18 @@ class _FormAddProductState extends State<FormAddProduct> {
             children: <Widget>[
               GestureDetector(
                 onTap: chooseImage,
-                child: Image.file(
-                  snapshot.data, cacheHeight: 500, cacheWidth: 500,
-                ),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(150),
+                        child: Image.file(
+                          snapshot.data,
+                          cacheHeight: 250,
+                          cacheWidth: 250,
+                        ),
+                      ),
+                    ]),
               ),
             ],
           );
@@ -473,7 +364,21 @@ class _FormAddProductState extends State<FormAddProduct> {
           return widget.prod != null
               ? Wrap(
                   children: <Widget>[
-                    Image.memory(base64Decode(widget.prod.image), cacheHeight: 500, cacheWidth: 500,),
+                    GestureDetector(
+                      onTap: chooseImage,
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(150),
+                              child: Image.memory(
+                                base64Decode(widget.prod.image),
+                                cacheHeight: 250,
+                                cacheWidth: 250,
+                              ),
+                            ),
+                          ]),
+                    ),
                   ],
                 )
               : GestureDetector(
