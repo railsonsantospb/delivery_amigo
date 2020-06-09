@@ -5,21 +5,22 @@ class Category {
   int id;
   String name;
   String image;
+  String id_cat;
 
-  Category({this.id = 0, this.name, this.image});
+  Category({this.id = 0, this.name, this.image, this.id_cat});
 
   factory Category.fromJson(Map<String, dynamic> map) {
     return Category(
-        id: map["id"], name: map["name"], image: map["image"]);
+        id: map["id"], name: map["name"], image: map["image"], id_cat: map['id_cat']);
   }
 
   Map<String, dynamic> toJson() {
-    return {"id": id, "name": name, "image": image};
+    return {"id": id, "name": name, "image": image, "id_cat": id_cat};
   }
 
   @override
   String toString() {
-    return 'Category{id: $id, name: $name, image: $image}';
+    return 'Category{id: $id, name: $name, image: $image, id_cat: $id_cat}';
   }
 
 }

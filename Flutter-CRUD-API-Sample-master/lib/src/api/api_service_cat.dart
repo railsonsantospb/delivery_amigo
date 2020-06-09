@@ -9,18 +9,17 @@ class ApiServiceCat {
   final String baseUrl = "http://192.168.1.17:5000";
   Client client = Client();
 
-  Future<List<Category>> getCategory() async {
+  Future<List<Category>> getCategory(String id_cat) async {
 
     try{
-      final response = await client.get("$baseUrl/cat");
+      final response = await client.get("$baseUrl/cat/$id_cat");
       if (response.statusCode == 200) {
-        return catFromJson(response.body).isEmpty ? catFromJson('[{"id": ${0}, "name": "0", "image": "0"}]')
-            : catFromJson(response.body);
+        return catFromJson(response.body);
       } else {
-        return catFromJson('[{"id": ${0}, "name": "0", "image": "0"}]');
+        return null;
       }
     } catch(e){
-      return catFromJson('[{"id": ${0}, "name": "0", "image": "0"}]');
+      return catFromJson('[{"id": ${0}, "name": "0", "image": "0", "id_cat": "0"}]');
     }
 
 
@@ -32,7 +31,7 @@ class ApiServiceCat {
       final response = await client.post(
         "$baseUrl/cat",
         headers: {"content-type": "application/json"},
-        body: jsonEncode({"id": data.id, "name": data.name, "image": data.image}),
+        body: jsonEncode({"id": data.id, "name": data.name, "image": data.image, "id_cat": data.id_cat}),
       );
       if (response.statusCode == 200) {
         return true;

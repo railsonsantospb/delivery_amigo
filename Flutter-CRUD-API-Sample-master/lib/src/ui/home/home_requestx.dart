@@ -72,7 +72,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
             List<RequestX> rx = snapshot.data;
 
 //            print(cat);
-            if (rx.isEmpty == true) {
+            if (rx == null) {
               return Stack(
                 children: <Widget>[
                   Column(

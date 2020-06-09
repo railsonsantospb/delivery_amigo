@@ -7,14 +7,16 @@ import 'package:flutter_crud_api_sample_app/src/ui/home/home_company.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/home/home_requestx.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/home/home_requesty.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/home/home_user.dart';
+import 'package:flutter_crud_api_sample_app/src/ui/home/login_home.dart';
 import 'api/api_service_rx.dart';
+import 'model/company.dart';
 
 
 class HomePage1 extends StatefulWidget {
-  final name;
-  final email;
 
-  HomePage1({this.name, this.email});
+  String cpf;
+
+  HomePage1({this.cpf});
 
   @override
   _HomePage1State createState() => _HomePage1State();
@@ -24,7 +26,7 @@ class HomePage1 extends StatefulWidget {
 
 class _HomePage1State extends State<HomePage1> {
 
-
+  String cpf;
   Timer timer;
   String valor;
   int seconds, minutes, hours;
@@ -35,14 +37,8 @@ class _HomePage1State extends State<HomePage1> {
   bool isActive = false;
 
   int selectedIndex = 0;
-  final widgetOptions = [
-    FormAddCompany(),
-    HomeCategory(),
-    HomeRequestX(),
-    HomeRequestY(),
-    HomeUser(),
-    Text("Conta"),
-  ];
+  List<StatefulWidget> options;
+
 
   Color getColor() {
     if (1 == 0) {
@@ -52,8 +48,21 @@ class _HomePage1State extends State<HomePage1> {
     }
   }
 
+  List<StatefulWidget> opt() {
+    final widgetOptions = [
+      HomeCategory(cpf: widget.cpf,),
+      HomeRequestX(),
+      HomeRequestY(),
+      HomeUser(),
+      FormAddCompany(),
+    ];
+
+    return widgetOptions;
+  }
+
   @override
   void initState() {
+    options = opt();
     super.initState();
     apiService = ApiServiceRX();
     timer = Timer.periodic(duration, (Timer t) {
@@ -61,6 +70,9 @@ class _HomePage1State extends State<HomePage1> {
     });
 
   }
+
+
+
 
   apiTime(){
 
@@ -86,18 +98,32 @@ class _HomePage1State extends State<HomePage1> {
 
 
     return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: true,
       appBar: new AppBar(
         centerTitle: true,
         elevation: 10.0,
         backgroundColor: Colors.deepOrange,
         iconTheme: IconThemeData(color: Colors.white),
         title: Text('Administrador de Bebidas'),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.exit_to_app),
+            onPressed: () {
+              Navigator.pushAndRemoveUntil(
+                context,
+                CupertinoPageRoute(builder: (context) => LoginScreen3()),
+                    (Route<dynamic> route) => false,
+              );
+            },
+          ),
+        ],
       ),
 
 
 
       body: Center(
-        child: widgetOptions.elementAt(selectedIndex),
+        child: options.elementAt(selectedIndex),
       ),
 
       bottomNavigationBar: BottomNavigationBar(

@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_prod.dart';
 import 'package:flutter_crud_api_sample_app/src/model/product.dart';
 import 'dart:io';
@@ -60,8 +59,8 @@ class _FormAddProductState extends State<FormAddProduct> {
 
 
   List valueActive = [
-    {'active': 'Habilitada'},
-    {'active': 'Desabilitada'},
+    {'active': 'Habilitar'},
+    {'active': 'Desabilitar'},
   ];
 
 
@@ -119,7 +118,7 @@ class _FormAddProductState extends State<FormAddProduct> {
             labelText: "Preço",
             errorText: _isFieldPriceValid == null || _isFieldPriceValid
                 ? null
-                : "O preço é obtrigatório",
+                : "O preço é obrigatório",
           ),
           onChanged: (value) {
             bool isFieldValid = value.trim().isNotEmpty;
@@ -137,7 +136,7 @@ class _FormAddProductState extends State<FormAddProduct> {
             labelText: "Marca",
             errorText: _isFieldMarkValid == null || _isFieldMarkValid
                 ? null
-                : "A marca é obtrigatória",
+                : "A marca é obrigatória",
           ),
           onChanged: (value) {
             bool isFieldValid = value.trim().isNotEmpty;
@@ -148,10 +147,30 @@ class _FormAddProductState extends State<FormAddProduct> {
             }
           },
         ),
+
+        new TextFormField(
+          controller: _controllerInfo,
+          keyboardType: TextInputType.multiline,
+          decoration: InputDecoration(
+            labelText: "Informações Adicionais",
+            errorText: _isFieldInfoValid == null || _isFieldInfoValid
+                ? null
+                : "A informação é obrigatória",
+          ),
+          onChanged: (value) {
+            bool isFieldValid = value.trim().isNotEmpty;
+            if (isFieldValid != _isFieldInfoValid) {
+              if(this.mounted){
+                setState(() => _isFieldInfoValid = isFieldValid);
+              }
+            }
+          },
+        ),
+
         Center(
           child: new DropdownButtonFormField(
-            hint: widget.prod != null ? Text(widget.prod.active == 0 ? "Habilitada" : "Desabilitada")
-                : Text('Habilitar ou Desabilitar Bebida?'),
+            hint: widget.prod != null ? Text(widget.prod.active == 0 ? "Habilitado" : "Desabilitado")
+                : Text('Habilitar ou Desabilitar Produto?'),
             items: valueActive.map((item) {
               return new DropdownMenuItem<String>(
                 child: new Text(item['active']),
@@ -162,7 +181,7 @@ class _FormAddProductState extends State<FormAddProduct> {
               if(this.mounted){
                 setState(() {
                   _activeS = newVal;
-                  if(newVal == "Habilitada") {
+                  if(newVal == "Habilitar") {
                     _active = "0";
                   } else {
                     _active = "1";
@@ -176,25 +195,6 @@ class _FormAddProductState extends State<FormAddProduct> {
             value: _activeS,
           ),
         ),
-        new TextFormField(
-          controller: _controllerInfo,
-          keyboardType: TextInputType.multiline,
-          decoration: InputDecoration(
-            labelText: "Informações Adicionais",
-            errorText: _isFieldInfoValid == null || _isFieldInfoValid
-                ? null
-                : "A informação é obtrigatória",
-          ),
-          onChanged: (value) {
-            bool isFieldValid = value.trim().isNotEmpty;
-            if (isFieldValid != _isFieldInfoValid) {
-              if(this.mounted){
-                setState(() => _isFieldInfoValid = isFieldValid);
-              }
-            }
-          },
-        ),
-
 
       ],
     );
@@ -287,6 +287,9 @@ class _FormAddProductState extends State<FormAddProduct> {
 
                         if (isSuccess) {
                           widget.notifyParent();
+                          _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
+                            content: Text("Produto Cadastrado com Sucesso"),
+                          ));
                           Navigator.pop(_scaffoldState.currentState.context);
                         } else {
                           _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
@@ -302,6 +305,9 @@ class _FormAddProductState extends State<FormAddProduct> {
                         }
                         if (isSuccess) {
                           widget.notifyParent();
+                          _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,
+                            content: Text("Produto Atualizado com Sucesso"),
+                          ));
                           Navigator.pop(_scaffoldState.currentState.context);
                         } else {
                           _scaffoldState.currentState.showSnackBar(SnackBar(backgroundColor: Colors.red,

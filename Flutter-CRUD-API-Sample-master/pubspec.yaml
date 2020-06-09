@@ -27,6 +27,11 @@ dependencies:
   google_maps_flutter:
   flutter_polyline_points:
   geolocator:
+  progress_dialog: ^1.2.1
+  cpfcnpj: ^1.0.3
+  brasil_fields: ^0.1.0
+  flutter_masked_text: ^0.8.0
+  flutter_cache_manager: ^1.1.3
 
 
 dev_dependencies:
@@ -42,3 +47,7 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - images/mountains.jpeg
+    - images/mountains.jpg
