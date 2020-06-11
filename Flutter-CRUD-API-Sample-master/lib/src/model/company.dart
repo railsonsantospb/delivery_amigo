@@ -14,15 +14,16 @@ class Company {
   String lat;
   String lon;
   String password;
+  String rating;
 
   Company({this.id = 0, this.name, this.image, this.city, this.category, this.cpf_cnpj,
-    this.phone, this.owner, this.address, this.lat, this.lon, this.password});
+    this.phone, this.owner, this.address, this.lat, this.lon, this.password, this.rating});
 
   factory Company.fromJson(Map<String, dynamic> map) {
     return Company(
         id: map["id"], name: map["name"], image: map["image"], city: map["city"], category: map["category"],
         cpf_cnpj: map["cpf_cnpj"], phone: map['phone'], owner: map["owner"], address: map["address"],
-        lat: map['lat'], lon: map['lon'], password: map['password']);
+        lat: map['lat'], lon: map['lon'], password: map['password'], rating: map["rating"]);
   }
 
   Map<String, dynamic> toJson() {

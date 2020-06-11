@@ -82,26 +82,91 @@ class _LoginScreen3State extends State<LoginScreen3>
 
   chooseImage1() {
     if (this.mounted) {
-      setState(() {
-        file1 = ImagePicker.pickImage(source: ImageSource.gallery);
-      });
+      Widget cancelaButton = FlatButton(
+        child: Text("GALERIA"),
+        onPressed: () {
+          setState(() {
+            file1 = ImagePicker.pickImage(source: ImageSource.gallery);
+          });
+          Navigator.of(context).pop();
+        },
+      );
+
+      Widget continuaButton = FlatButton(
+        child: Text("CAMERA"),
+        onPressed: () {
+          setState(() {
+            file1 = ImagePicker.pickImage(source: ImageSource.camera);
+          });
+          Navigator.of(context).pop();
+        },
+      );
+
+      AlertDialog alert = AlertDialog(
+        title: Text("Escolha a Forma de Enviar a Image"),
+
+        actions: [
+          cancelaButton,
+          continuaButton,
+        ],
+      );
+
+      //exibe o diálogo
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
     }
   }
 
   chooseImage2() {
     if (this.mounted) {
-      setState(() {
-        file2 = ImagePicker.pickImage(source: ImageSource.gallery);
-      });
+      Widget cancelaButton = FlatButton(
+        child: Text("GALERIA"),
+        onPressed: () {
+          setState(() {
+            file2 = ImagePicker.pickImage(source: ImageSource.gallery);
+          });
+          Navigator.of(context).pop();
+        },
+      );
+
+      Widget continuaButton = FlatButton(
+        child: Text("CAMERA"),
+        onPressed: () {
+          setState(() {
+            file2 = ImagePicker.pickImage(source: ImageSource.camera);
+          });
+          Navigator.of(context).pop();
+        },
+      );
+
+      AlertDialog alert = AlertDialog(
+        title: Text("Escolha a Forma de Enviar a Image"),
+
+        actions: [
+          cancelaButton,
+          continuaButton,
+        ],
+      );
+
+      //exibe o diálogo
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alert;
+        },
+      );
     }
   }
 
   List state = [
     {'state': 'Lanches/Restaurantes'},
     {'state': 'Bebidas'},
-    {'state': 'SuperMercado'},
+    {'state': 'SuperMercados'},
     {'state': 'Lojas'},
-    {'state': 'Depósitos'},
   ];
 
   List valueActive = [
@@ -110,12 +175,44 @@ class _LoginScreen3State extends State<LoginScreen3>
   ];
 
   _getCurrentLocation() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
-    setState(() {
-      _currentPosition = position;
-    });
+    try{
+      Position position = await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+      setState(() {
+        _currentPosition = position;
+      });
+    } catch(e){
+      Widget okButton = FlatButton(
+        child: Text("OK"),
+        onPressed: () {
+          Navigator.pop(context);
+        },
+      );
+      AlertDialog alerta = AlertDialog(
+        title: Text(
+          "Atenção",
+          style: TextStyle(color: Colors.red),
+        ),
+        content: Text(
+          "POR FAVOR ATIVE SEU GPS PARA CONCLUIR O CADASTRO!",
+          style: TextStyle(
+              color: Colors.blue,
+              fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          okButton,
+        ],
+      );
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return alerta;
+        },
+      );
+    }
+
   }
 
   void _showMessage(String message) {
