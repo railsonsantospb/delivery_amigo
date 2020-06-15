@@ -12,8 +12,8 @@ import 'package:cpfcnpj/cpfcnpj.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class LoginScreen3 extends StatefulWidget {
   @override
@@ -68,7 +68,7 @@ class _LoginScreen3State extends State<LoginScreen3>
   TextEditingController _controllerPassword = TextEditingController();
   TextEditingController _controllerPassword2 = TextEditingController();
 
-  TextEditingController _controllerCpfLogin =
+  MaskedTextController _controllerCpfLogin =
       new MaskedTextController(mask: '000.000.000-00');
   TextEditingController _controllerPasswordLogin = TextEditingController();
 
@@ -80,86 +80,97 @@ class _LoginScreen3State extends State<LoginScreen3>
   String password1;
   String password2;
 
+  bool check = false;
+
   chooseImage1() {
     if (this.mounted) {
-      Widget cancelaButton = FlatButton(
-        child: Text("GALERIA"),
-        onPressed: () {
-          setState(() {
-            file1 = ImagePicker.pickImage(source: ImageSource.gallery);
-          });
-          Navigator.of(context).pop();
-        },
-      );
-
-      Widget continuaButton = FlatButton(
-        child: Text("CAMERA"),
-        onPressed: () {
-          setState(() {
-            file1 = ImagePicker.pickImage(source: ImageSource.camera);
-          });
-          Navigator.of(context).pop();
-        },
-      );
-
-      AlertDialog alert = AlertDialog(
-        title: Text("Escolha a Forma de Enviar a Image"),
-
-        actions: [
-          cancelaButton,
-          continuaButton,
-        ],
-      );
-
-      //exibe o diálogo
       showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        },
-      );
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text("Escolha a forma de enviar a foto"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("GALERIA"),
+                  onPressed: () {
+                    setState(() {
+                      file1 =
+                          ImagePicker.pickImage(source: ImageSource.gallery);
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: Text("CAMERA"),
+                  onPressed: () {
+                    setState(() {
+                      file1 = ImagePicker.pickImage(source: ImageSource.camera);
+                    });
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          });
     }
   }
 
   chooseImage2() {
     if (this.mounted) {
-      Widget cancelaButton = FlatButton(
-        child: Text("GALERIA"),
-        onPressed: () {
-          setState(() {
-            file2 = ImagePicker.pickImage(source: ImageSource.gallery);
-          });
-          Navigator.of(context).pop();
-        },
-      );
-
-      Widget continuaButton = FlatButton(
-        child: Text("CAMERA"),
-        onPressed: () {
-          setState(() {
-            file2 = ImagePicker.pickImage(source: ImageSource.camera);
-          });
-          Navigator.of(context).pop();
-        },
-      );
-
-      AlertDialog alert = AlertDialog(
-        title: Text("Escolha a Forma de Enviar a Image"),
-
-        actions: [
-          cancelaButton,
-          continuaButton,
-        ],
-      );
-
-      //exibe o diálogo
       showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return alert;
-        },
-      );
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              content: Text("Escolha a forma de enviar a foto"),
+              actions: <Widget>[
+                FlatButton(
+                  child: Text("GALERIA"),
+                  onPressed: () {
+                    setState(() {
+                      file2 =
+                          ImagePicker.pickImage(source: ImageSource.gallery);
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+                FlatButton(
+                  child: Text("CAMERA"),
+                  onPressed: () {
+                    setState(() {
+                      file2 = ImagePicker.pickImage(source: ImageSource.camera);
+                    });
+                    Navigator.pop(context);
+                  },
+                )
+              ],
+            );
+          });
     }
+  }
+
+  saveToLogin(String cpf, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('cpf', cpf);
+    prefs.setString('password', password);
+  }
+
+  getValues() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //Return String
+
+    _controllerCpfLogin.text = prefs.getString('cpf');
+    if (prefs.getString('cpf') != null && this.mounted) {
+      setState(() {
+        check = true;
+      });
+    }
+    _controllerPasswordLogin.text = prefs.getString('password');
+  }
+
+  removeValues() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.remove("cpf");
+    prefs.remove("password");
   }
 
   List state = [
@@ -175,15 +186,14 @@ class _LoginScreen3State extends State<LoginScreen3>
   ];
 
   _getCurrentLocation() async {
-
-    try{
+    try {
       Position position = await Geolocator()
           .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
 
       setState(() {
         _currentPosition = position;
       });
-    } catch(e){
+    } catch (e) {
       Widget okButton = FlatButton(
         child: Text("OK"),
         onPressed: () {
@@ -197,9 +207,7 @@ class _LoginScreen3State extends State<LoginScreen3>
         ),
         content: Text(
           "POR FAVOR ATIVE SEU GPS PARA CONCLUIR O CADASTRO!",
-          style: TextStyle(
-              color: Colors.blue,
-              fontWeight: FontWeight.bold),
+          style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
         ),
         actions: [
           okButton,
@@ -212,21 +220,13 @@ class _LoginScreen3State extends State<LoginScreen3>
         },
       );
     }
-
-  }
-
-  void _showMessage(String message) {
-    setState(() {
-      _message = message;
-    });
   }
 
   @override
   void initState() {
+    getValues();
     super.initState();
   }
-
-  Future<void> _handleSignIn() async {}
 
   Widget HomePage() {
     pr = new ProgressDialog(context, showLogs: true);
@@ -400,8 +400,7 @@ class _LoginScreen3State extends State<LoginScreen3>
 
   Widget LoginPage() {
     return new Scaffold(
-        key: _scaffoldState,
-        body: Container(
+          body: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
             color: Colors.white,
@@ -569,7 +568,31 @@ class _LoginScreen3State extends State<LoginScreen3>
               Divider(
                 height: 24.0,
               ),
-
+              new Container(
+                width: MediaQuery.of(context).size.width,
+                margin:
+                    const EdgeInsets.only(left: 30.0, right: 30.0, top: 20.0),
+                alignment: Alignment.center,
+                child: new Row(children: <Widget>[
+                  new Checkbox(
+                      value: check,
+                      onChanged: (bool value) {
+                        setState(() {
+                          check = value;
+                        });
+                        if (check == true) {
+                          saveToLogin(_controllerCpfLogin.text.toString(),
+                              _controllerPasswordLogin.text.toString());
+                        } else {
+                          removeValues();
+                        }
+                      }),
+                  Text("Deseja salvar seus dados?"),
+                ]),
+              ),
+              Divider(
+                height: 24.0,
+              ),
               new Container(
                 width: MediaQuery.of(context).size.width,
                 margin:
@@ -584,28 +607,30 @@ class _LoginScreen3State extends State<LoginScreen3>
                         ),
                         color: Colors.deepOrange,
                         onPressed: () {
-
+                          if (check) {
+                            _isFieldCpfLoginValid = true;
+                            _isFieldPasswordLoginValid = true;
+                          }
                           if (_isFieldPasswordLoginValid == null ||
                               _isFieldCpfLoginValid == null ||
                               !_isFieldPasswordLoginValid ||
                               !_isFieldCpfLoginValid) {
-                            _scaffoldState.currentState.showSnackBar(
+                            Scaffold.of(context).showSnackBar(
                               SnackBar(
                                 backgroundColor: Colors.blue,
                                 content:
-                                Text("Por Favor Preencha Todos os Campos"),
+                                    Text("Por Favor Preencha Todos os Campos"),
                               ),
                             );
                           } else {
                             String c = _controllerCpfLogin.text.toString();
                             _apiServiceCop.getCopCpf(c).then((cpf) {
-                              print(cpf[0]);
-                              if(cpf.isNotEmpty) {
-                                if (cpf[0].cpf_cnpj != "0") {
+                              if (cpf != null) {
+                                if (cpf.isNotEmpty) {
                                   if (_controllerPasswordLogin.text
-                                      .toString() == cpf[0].password) {
-                                    if (this.mounted &&
-                                        cpf != null) {
+                                          .toString() ==
+                                      cpf[0].password) {
+                                    if (this.mounted && cpf != null) {
                                       if (CPF.isValid(c)) {
                                         Widget cancelaButton = FlatButton(
                                           child: Text("Cancelar"),
@@ -621,10 +646,16 @@ class _LoginScreen3State extends State<LoginScreen3>
                                             Future.delayed(Duration(seconds: 3))
                                                 .then((value) {
                                               pr.hide().whenComplete(() {
+                                                if (check) {}
                                                 Navigator.pushAndRemoveUntil(
                                                   context,
-                                                  CupertinoPageRoute(builder: (context) => new HomePage1(cpf: cpf[0].cpf_cnpj,)),
-                                                      (Route<dynamic> route) => false,
+                                                  CupertinoPageRoute(
+                                                      builder: (context) =>
+                                                          new HomePage1(
+                                                            data: cpf[0],
+                                                          )),
+                                                  (Route<dynamic> route) =>
+                                                      false,
                                                 );
                                               });
                                             });
@@ -648,23 +679,22 @@ class _LoginScreen3State extends State<LoginScreen3>
                                           },
                                         );
                                       } else {
-                                        _scaffoldState.currentState
-                                            .showSnackBar(SnackBar(
+                                        Scaffold.of(context).showSnackBar(SnackBar(
                                           backgroundColor: Colors.red,
                                           content: Text("CPF Inválido!"),
                                         ));
                                       }
                                     } else {
-                                      _scaffoldState.currentState.showSnackBar(
+                                      Scaffold.of(context).showSnackBar(
                                         SnackBar(
                                           backgroundColor: Colors.blue,
-                                          content:
-                                          Text("CPF Inválido ou Já Cadastrado"),
+                                          content: Text(
+                                              "CPF Inválido ou Já Cadastrado"),
                                         ),
                                       );
                                     }
                                   } else {
-                                    _scaffoldState.currentState.showSnackBar(
+                                    Scaffold.of(context).showSnackBar(
                                       SnackBar(
                                         backgroundColor: Colors.blue,
                                         content: Text("Verifique as senhas"),
@@ -672,41 +702,41 @@ class _LoginScreen3State extends State<LoginScreen3>
                                     );
                                   }
                                 } else {
-                                  Widget cancelaButton = FlatButton(
-                                    child: Text("OK"),
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                  );
-
-                                  AlertDialog alert = AlertDialog(
-                                    title: Text("Problemas com a Internet!"),
-                                    content: Text(
-                                        "Verifique sua Conexão ou Contate o Suporte!"),
-                                    actions: [
-                                      cancelaButton,
-                                    ],
-                                  );
-
-                                  //exibe o diálogo
-                                  showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) {
-                                      return alert;
-                                    },
+                                  Scaffold.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Colors.blue,
+                                      content: Text(
+                                          "CPF não Possui Cadastro na Nossa Base de Dados"),
+                                    ),
                                   );
                                 }
                               } else {
-                                _scaffoldState.currentState.showSnackBar(
-                                  SnackBar(
-                                    backgroundColor: Colors.blue,
-                                    content: Text("CPF não Possui Cadastro na Nossa Base de Dados"),
-                                  ),
+                                Widget cancelaButton = FlatButton(
+                                  child: Text("OK"),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                );
+
+                                AlertDialog alert = AlertDialog(
+                                  title: Text("Problemas com a Internet!"),
+                                  content: Text(
+                                      "Verifique sua Conexão ou Contate o Suporte!"),
+                                  actions: [
+                                    cancelaButton,
+                                  ],
+                                );
+
+                                //exibe o diálogo
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return alert;
+                                  },
                                 );
                               }
                             });
                           }
-
                         },
                         child: new Container(
                           padding: const EdgeInsets.symmetric(
@@ -740,7 +770,6 @@ class _LoginScreen3State extends State<LoginScreen3>
 
   Widget SignupPage() {
     return new Scaffold(
-      key: _scaffoldState,
       body: Container(
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
@@ -1374,19 +1403,9 @@ class _LoginScreen3State extends State<LoginScreen3>
                   ),
                 ),
                 Divider(
-                  height: 24.0,
+                  height: 84.0,
                 ),
-                new Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.only(right: 20.0),
-                      child: new FlatButton(
-                        onPressed: () => {},
-                      ),
-                    ),
-                  ],
-                ),
+                
               ],
             ),
           )),
@@ -1414,7 +1433,7 @@ class _LoginScreen3State extends State<LoginScreen3>
               !_isFieldCpf_CnpjValid ||
               !_isFieldCityValid ||
               !_isFieldPhoneValid) {
-            _scaffoldState.currentState.showSnackBar(
+            Scaffold.of(context).showSnackBar(
               SnackBar(
                 backgroundColor: Colors.blue,
                 content: Text("Por Favor Preencha Todos os Campos"),
@@ -1545,8 +1564,7 @@ class _LoginScreen3State extends State<LoginScreen3>
 
                                     gotoLogin();
                                   } else {
-                                    _scaffoldState.currentState
-                                        .showSnackBar(SnackBar(
+                                    Scaffold.of(context)..showSnackBar(SnackBar(
                                       backgroundColor: Colors.red,
                                       content: Text("Falha ao Enviar os Dados"),
                                     ));
@@ -1576,13 +1594,13 @@ class _LoginScreen3State extends State<LoginScreen3>
                         },
                       );
                     } else {
-                      _scaffoldState.currentState.showSnackBar(SnackBar(
+                      Scaffold.of(context).showSnackBar(SnackBar(
                         backgroundColor: Colors.red,
                         content: Text("CPF Inválido!"),
                       ));
                     }
                   } else {
-                    _scaffoldState.currentState.showSnackBar(
+                    Scaffold.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: Colors.blue,
                         content: Text("CPF Inválido ou Já Cadastrado"),
@@ -1590,7 +1608,7 @@ class _LoginScreen3State extends State<LoginScreen3>
                     );
                   }
                 } else {
-                  _scaffoldState.currentState.showSnackBar(
+                  Scaffold.of(context).showSnackBar(
                     SnackBar(
                       backgroundColor: Colors.blue,
                       content: Text("Verifique as senhas"),

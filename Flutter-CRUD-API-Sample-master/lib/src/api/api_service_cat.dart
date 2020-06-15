@@ -6,7 +6,7 @@ import '../model/category.dart';
 
 
 class ApiServiceCat {
-  final String baseUrl = "http://192.168.1.17:5000";
+  final String baseUrl = "http://192.168.1.4:5000";
   Client client = Client();
 
   Future<List<Category>> getCategory(String id_cat) async {
@@ -19,7 +19,7 @@ class ApiServiceCat {
         return null;
       }
     } catch(e){
-      return catFromJson('[{"id": ${0}, "name": "0", "image": "0", "id_cat": "0"}]');
+      return null;
     }
 
 
@@ -31,7 +31,7 @@ class ApiServiceCat {
       final response = await client.post(
         "$baseUrl/cat",
         headers: {"content-type": "application/json"},
-        body: jsonEncode({"id": data.id, "name": data.name, "image": data.image, "id_cat": data.id_cat}),
+        body: jsonEncode({"id": data.id, "name": data.name, "image": data.image, "id_cpf": data.id_cpf}),
       );
       if (response.statusCode == 200) {
         return true;

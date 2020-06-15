@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crud_api_sample_app/src/api/api_service_cat.dart';
 import 'package:flutter_crud_api_sample_app/src/model/category.dart';
+import 'package:flutter_crud_api_sample_app/src/model/company.dart';
 import 'package:flutter_crud_api_sample_app/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
@@ -10,9 +11,10 @@ import 'package:flutter_crud_api_sample_app/src/ui/home/home_product.dart';
 GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
 
 class HomeCategory extends StatefulWidget {
+  Company data;
   String cpf;
 
-  HomeCategory({this.cpf});
+  HomeCategory({this.data, this.cpf});
 
   @override
   _HomeCategoryState createState() => _HomeCategoryState();
@@ -49,16 +51,18 @@ class _HomeCategoryState extends State<HomeCategory> {
               centerTitle: true,
               elevation: 10.0,
               backgroundColor: Colors.white,
-              title: Text('Catálagos', style: TextStyle(height: -200, color: Colors.blue)),
+              title: Text('Catálagos',
+                  style: TextStyle(height: -200, color: Colors.blue)),
             )),
         key: _scaffoldState,
         body: SafeArea(
           child: FutureBuilder(
-            future: apiService.getCategory(widget.cpf),
+            future: apiService.getCategory(widget.data.cpf_cnpj),
             builder:
                 (BuildContext context, AsyncSnapshot<List<Category>> snapshot) {
+              List<Category> cat = snapshot.data;
+
               if (snapshot.hasError) {
-                print(snapshot.error.toString());
                 return Center(
                   child: Stack(
                     children: <Widget>[
@@ -90,30 +94,61 @@ class _HomeCategoryState extends State<HomeCategory> {
                   ),
                 );
               } else if (snapshot.connectionState == ConnectionState.done) {
-                List<Category> cat = snapshot.data;
-
-                if (cat.isEmpty == true) {
-                  return Stack(
-                    children: <Widget>[
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Center(
-                            child: Icon(
-                              Icons.not_interested,
-                              color: Colors.red,
-                              size: 100.0,
+                if (cat == null) {
+                  return Center(
+                    child: Stack(
+                      children: <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Center(
+                              child: Icon(
+                                Icons.broken_image,
+                                color: Colors.red,
+                                size: 100.0,
+                              ),
                             ),
-                          ),
-                          Center(
-                            child: Text('NENHUM CATÁLOGO CADASTRADO'),
-                          ),
-                        ],
-                      ),
-                    ],
+                            Center(
+                              child: Text('SEM CONEXÃO COM A INTERNET'),
+                            ),
+                            Center(
+                              child: Text('FECHE O APLICATIVO'),
+                            ),
+                            Center(
+                              child: Text('TENTE NOVAMENTE'),
+                            ),
+                            Center(
+                              child: Text('SE PERSISTIR CONTATE O SUPORTE'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   );
                 } else {
-                  return _buildListView(cat);
+                  if (cat.isEmpty) {
+                    return Stack(
+                      children: <Widget>[
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Center(
+                              child: Icon(
+                                Icons.not_interested,
+                                color: Colors.red,
+                                size: 100.0,
+                              ),
+                            ),
+                            Center(
+                              child: Text('NENHUM CATÁLOGO CADASTRADO'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  } else {
+                    return _buildListView(cat);
+                  }
                 }
               } else {
                 return Center(
@@ -131,7 +166,10 @@ class _HomeCategoryState extends State<HomeCategory> {
             onPressed: () {
               Navigator.push(_scaffoldState.currentContext,
                   CupertinoPageRoute(builder: (BuildContext context) {
-                return FormAddCategory(notifyParent: refresh);
+                return FormAddCategory(
+                  notifyParent: refresh,
+                  cpf: widget.data.cpf_cnpj,
+                );
               }));
             }),
       ),
@@ -139,7 +177,7 @@ class _HomeCategoryState extends State<HomeCategory> {
   }
 
   Widget _buildListView(List<Category> cats) {
-    return cats[0].id == 0
+    return cats == null
         ? Center(
             child: Stack(
             children: <Widget>[
@@ -189,7 +227,7 @@ class _HomeCategoryState extends State<HomeCategory> {
                             child: Center(
                               child: Text(
                                 cat.name.toUpperCase(),
-                                style: Theme.of(context).textTheme.title,
+                                style: Theme.of(context).textTheme.caption,
                               ),
                             ),
                           ),
@@ -264,7 +302,10 @@ class _HomeCategoryState extends State<HomeCategory> {
                                   Navigator.push(context,
                                       CupertinoPageRoute(builder: (context) {
                                     return FormAddCategory(
-                                        cat: cat, notifyParent: refresh);
+                                      cat: cat,
+                                      notifyParent: refresh,
+                                      cpf: widget.data.cpf_cnpj,
+                                    );
                                   }));
                                 },
                                 child: Text(
