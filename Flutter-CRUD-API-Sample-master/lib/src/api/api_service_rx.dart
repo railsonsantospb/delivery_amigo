@@ -5,7 +5,7 @@ import 'package:http/http.dart' show Client;
 
 
 class ApiServiceRX {
-  final String baseUrl = "http://192.168.1.4:5000";
+  final String baseUrl = "http://192.168.1.32:5000";
   Client client = Client();
 
   Future<List<RequestX>> getRequestXActive() async {

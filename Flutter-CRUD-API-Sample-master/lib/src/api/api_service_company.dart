@@ -5,7 +5,7 @@ import 'package:http/http.dart' show Client;
 
 
 class ApiServiceCop {
-  final String baseUrl = "http://192.168.1.4:5000";
+  final String baseUrl = "http://192.168.1.32:5000";
   Client client = Client();
 
 
@@ -73,7 +73,7 @@ class ApiServiceCop {
         "$baseUrl/cop/${data.id}",
         headers: {"content-type": "application/json", "X-Api-Key": "t1h3m5p7v9711713d15617f19"},
         body: jsonEncode({"name": data.name, "image": data.image, "city": data.city,
-          "category": data.category, "cpf_cnpj": data.cpf_cnpj, "phone": data.phone,
+          "category": data.category, "phone": data.phone,
           "owner": data.owner, "address": data.address, "lat": data.lat, "lon": data.lon, "password": data.password}),
       );
       if (response.statusCode == 200) {

@@ -6,7 +6,7 @@ import '../model/category.dart';
 
 
 class ApiServiceCat {
-  final String baseUrl = "http://192.168.1.4:5000";
+  final String baseUrl = "http://192.168.1.32:5000";
   Client client = Client();
 
   Future<List<Category>> getCategory(String id_cat) async {

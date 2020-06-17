@@ -5,7 +5,6 @@ import 'package:flutter_crud_api_sample_app/src/api/api_service_company.dart';
 import 'package:flutter_crud_api_sample_app/src/model/company.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:cpfcnpj/cpfcnpj.dart';
 import 'dart:io';
 import 'dart:async';
 import 'dart:convert';
@@ -29,6 +28,7 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   int selected = 0;
   ApiServiceCop _apiServiceCop = ApiServiceCop();
   ProgressDialog pr;
+  ProgressDialog pr2;
 
   bool _isFieldNameValid;
   bool _isFieldPriceValid;
@@ -41,9 +41,11 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   bool _isFieldAddressValid;
   bool _isFieldCpf_CnpjValid;
   bool _isFieldPasswordValid;
+  bool _isFieldCityValid;
 
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
+  String locale;
   double lat, long;
 
   TextEditingController _controllerName = TextEditingController();
@@ -54,6 +56,7 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   TextEditingController _controllerPhone =
       new MaskedTextController(mask: '(00) 00000-0000');
   TextEditingController _controllerPassword = TextEditingController();
+  TextEditingController _controllerCity = TextEditingController();
 
   String _mySelection2;
   String value;
@@ -65,11 +68,33 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   ApiServiceCop apiService;
 
   chooseImage() {
-    if (this.mounted) {
-      setState(() {
-        file = ImagePicker.pickImage(source: ImageSource.gallery);
-      });
-    }
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text("Escolha a forma de enviar a foto"),
+            actions: <Widget>[
+              FlatButton(
+                child: Text("GALERIA"),
+                onPressed: () {
+                  setState(() {
+                    file = ImagePicker.pickImage(source: ImageSource.gallery);
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              FlatButton(
+                child: Text("CAMERA"),
+                onPressed: () {
+                  setState(() {
+                    file = ImagePicker.pickImage(source: ImageSource.camera);
+                  });
+                  Navigator.pop(context);
+                },
+              )
+            ],
+          );
+        });
   }
 
   List state = [
@@ -86,12 +111,16 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   ];
 
   _getCurrentLocation() async {
-    Position position = await Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-
-    setState(() {
-      _currentPosition = position;
-    });
+    try {
+      Position position = await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      List<Placemark> placemark = await Geolocator().placemarkFromCoordinates(
+          _currentPosition.latitude, _currentPosition.longitude);
+      setState(() {
+        _currentPosition = position;
+        locale = placemark.first.subLocality.toString();
+      });
+    } catch (e) {}
   }
 
   @override
@@ -116,6 +145,9 @@ class _FormAddCompanyState extends State<FormAddCompany> {
       _isFieldPasswordValid = true;
       _controllerPassword.text = widget.cop.password;
 
+      _isFieldCityValid = true;
+      _controllerCity.text = widget.cop.city;
+
       _isFieldStateValid = true;
 
       _isFieldImageValid = true;
@@ -130,10 +162,12 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   Widget build(BuildContext context) {
     pr = new ProgressDialog(context, showLogs: true);
     pr.style(
-      message: "Enviando seu pedido...",
+      message: "Atualizando...",
       backgroundColor: Colors.deepOrange,
       messageTextStyle: TextStyle(color: Colors.white, fontSize: 18.0),
     );
+
+    
 
     return Scaffold(
       key: _scaffoldState,
@@ -195,6 +229,25 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                 if (isFieldValid != _isFieldCpf_CnpjValid) {
                   if (this.mounted) {
                     setState(() => _isFieldCpf_CnpjValid = isFieldValid);
+                  }
+                }
+              },
+            ),
+            new TextField(
+              enabled: false,
+              controller: _controllerCity,
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                labelText: "Cidade",
+                errorText: _isFieldCityValid == null || _isFieldCityValid
+                    ? null
+                    : "O Cidade é obrigatória",
+              ),
+              onChanged: (value) {
+                bool isFieldValid = value.trim().isNotEmpty;
+                if (isFieldValid != _isFieldCityValid) {
+                  if (this.mounted) {
+                    setState(() => _isFieldCityValid = isFieldValid);
                   }
                 }
               },
@@ -311,33 +364,38 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                     return;
                   }
 
-                  if (this.mounted) {
-                    setState(() => _isLoading = true);
-                  }
-
                   String name = _controllerName.text.toString();
                   String owner = _controllerOwner.text.toString();
                   String address = _controllerAddress.text.toString();
                   String phone = _controllerPhone.text.toString();
                   String password = _controllerPassword.text.toString();
+                  String city = _controllerCity.text.toString();
 
                   Company cop = Company(
+                      id: widget.cop.id,
                       name: name,
+                      city: city,
                       image: base64Image,
-                      category: _mySelection2,
+                      category: _mySelection2 == null
+                          ? widget.cop.category
+                          : _mySelection2,
                       cpf_cnpj: cpf_cnpj,
                       phone: phone,
                       owner: owner,
                       address: address,
-                      password: password);
+                      password: password,
+                      lat: widget.cop.lat,
+                      lon: widget.cop.lon);
 
-                  cop.id = widget.cop.id;
+                 
+                  pr.show();
+                  
 
                   _apiServiceCop.updateCop(cop).then((isSuccess) {
-                    if (this.mounted) {
-                      setState(() => _isLoading = false);
+                    if(this.mounted){
+                      pr.hide();
                     }
-                    
+
                     if (isSuccess) {
                       _scaffoldState.currentState.showSnackBar(SnackBar(
                         backgroundColor: Colors.green,
@@ -364,7 +422,97 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                     color: Colors.white,
                   ),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  
+                },
+              ),
+            ),
+            Divider(),
+            SizedBox(
+              width: double.infinity, // match_parent
+              child: RaisedButton(
+                color: Colors.deepOrange,
+                child: Text(
+                  "Atualizar Localização".toUpperCase(),
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                onPressed: () {
+                  _getCurrentLocation();
+                  pr.show();
+                  Future.delayed(Duration(seconds: 4)).then((value) {
+                    pr.hide().whenComplete(() {
+                      if (_currentPosition == null) {
+                        Widget okButton = FlatButton(
+                          child: Text("OK"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        );
+                        AlertDialog alerta = AlertDialog(
+                          title: Text(
+                            "Atenção",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          content: Text(
+                            "POR FAVOR ATIVE SEU GPS PARA CONCLUIR!",
+                            style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          actions: [
+                            okButton,
+                          ],
+                        );
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return alerta;
+                          },
+                        );
+                      } else {
+                        if (this.mounted) {
+                          setState(() {
+                            widget.cop.lat =
+                                _currentPosition.latitude.toString();
+                            widget.cop.lon =
+                                _currentPosition.longitude.toString();
+                            _controllerCity.text = locale;
+                          });
+                        }
+
+                        Widget okButton = FlatButton(
+                          child: Text("OK"),
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                        );
+                        AlertDialog alerta = AlertDialog(
+                          title: Text(
+                            "Atenção",
+                            style: TextStyle(color: Colors.red),
+                          ),
+                          content: Text(
+                            "SUA LOCALIZAÇÃO FOI ATUALIZADA COM SUCESSO!",
+                            style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold),
+                          ),
+                          actions: [
+                            okButton,
+                          ],
+                        );
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return alerta;
+                          },
+                        );
+                      }
+                    });
+                  });
+                },
               ),
             ),
           ],

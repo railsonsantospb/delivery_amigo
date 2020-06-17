@@ -33,7 +33,7 @@ class Company {
 
   @override
   String toString() {
-    return 'Category{id: $id, name: $name, image: $image, city: $city, category: $category, '
+    return 'Company{id: $id, name: $name, image: $image, city: $city, category: $category, '
         'cpf_cnpj: $cpf_cnpj, phone: $phone, owner: $owner,  address: $address, lat: $lat, lon: $lon password: $password}';
   }
 
