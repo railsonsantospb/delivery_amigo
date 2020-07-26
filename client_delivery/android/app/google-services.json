@@ -1,0 +1,77 @@
+{
+  "project_info": {
+    "project_number": "978392237539",
+    "firebase_url": "https://clientdelivery-1da2f.firebaseio.com",
+    "project_id": "clientdelivery-1da2f",
+    "storage_bucket": "clientdelivery-1da2f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978392237539:android:3e55d86988a42bec4b4cd6",
+        "android_client_info": {
+          "package_name": "com.client_delivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "978392237539-srnp1setfq6ktlv4jl45c59gbrs469vj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.client_delivery",
+            "certificate_hash": "8b83854ab18066e933bb6ca60b83717d7e1371f2"
+          }
+        },
+        {
+          "client_id": "978392237539-batfmsigj035u2kpajlvc614o923kl25.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqAxqEgnvNG_qle5sPtJi1AibmiApL6IE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978392237539-batfmsigj035u2kpajlvc614o923kl25.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:978392237539:android:bb9feb8faa7a26a24b4cd6",
+        "android_client_info": {
+          "package_name": "com.jonasbebidas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "978392237539-batfmsigj035u2kpajlvc614o923kl25.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAqAxqEgnvNG_qle5sPtJi1AibmiApL6IE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "978392237539-batfmsigj035u2kpajlvc614o923kl25.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
