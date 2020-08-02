@@ -1,14 +1,16 @@
 import 'dart:convert';
-
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:amigodelivery/api/api_service_company.dart';
-import 'package:amigodelivery/components/cart_products.dart';
 import 'package:amigodelivery/components/login_screen_3.dart';
-import 'package:amigodelivery/components/pedidos_h.dart';
 import 'package:amigodelivery/home.dart';
 import 'package:amigodelivery/model/company.dart';
+import 'package:amigodelivery/api/api_service_rx.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:vibration/vibration.dart';
+import 'package:amigodelivery/components/local_notications_helper.dart';
 
 class MyAppC extends StatefulWidget {
   String name;
@@ -21,6 +23,66 @@ class MyAppC extends StatefulWidget {
 }
 
 class _MyAppCState extends State<MyAppC> {
+  final notifications = FlutterLocalNotificationsPlugin();
+  String aux;
+  int acess = 0;
+  ApiServiceRX apiServiceR;
+  int seconds, minutes, hours;
+  static const duration = const Duration(seconds: 1);
+
+  Timer timer;
+
+  Future onSelectNotification(String payload) async =>
+      await Navigator.pushAndRemoveUntil(
+        context,
+        CupertinoPageRoute(
+            builder: (context) => MyAppC(
+                  email: widget.email,
+                  name: widget.name,
+                )),
+        (Route<dynamic> route) => false,
+      );
+
+  @override
+  void initState() {
+    notifications.cancelAll();
+
+    // getValues();
+    final settingsAndroid = AndroidInitializationSettings('app_icon');
+    final settingsIOS = IOSInitializationSettings(
+        onDidReceiveLocalNotification: (id, title, body, payload) =>
+            onSelectNotification(payload));
+
+    notifications.initialize(
+        InitializationSettings(settingsAndroid, settingsIOS),
+        onSelectNotification: onSelectNotification);
+    apiServiceR = ApiServiceRX();
+    timer = Timer.periodic(duration, (Timer t) {
+      apiTime();
+    });
+
+    super.initState();
+  }
+
+  apiTime() {
+    apiServiceR.getRequestY(widget.email).then((value) {
+      if (value != null) {
+        if (value.isNotEmpty) {
+          showOngoingNotification(notifications,
+              title: value[0].copName,
+              body: 'Confirmamos seu pedido, estamos chegando!');
+
+          Vibration.vibrate();
+          Future.delayed(Duration(milliseconds: 10000));
+          Vibration.vibrate();
+          apiServiceR.deleteRequestY(value[0].id).then((valuey) {
+            print(valuey);
+          });
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -48,7 +110,7 @@ class _MyAppCState extends State<MyAppC> {
               isScrollable: true,
               tabs: choices.map((Choice choice) {
                 return Tab(
-                  text: choice.title + "S",
+                  text: choice.title,
                   icon: Icon(choice.icon),
                 );
               }).toList(),
@@ -147,9 +209,8 @@ class _MyAppCState extends State<MyAppC> {
 }
 
 const List<Choice> choices = const <Choice>[
-  const Choice(title: 'LOJA', icon: Icons.store),
-  const Choice(title: 'SUPERMERCADO', icon: Icons.local_grocery_store),
-  const Choice(title: 'RESTAURANTE', icon: Icons.restaurant),
+  const Choice(title: 'LOJA OU DEPOSITO', icon: Icons.store),
+  const Choice(title: 'RESTAURANTE OU LANCHONETE', icon: Icons.restaurant),
 ];
 
 class Choice {
@@ -176,6 +237,12 @@ class _MyHomePageState extends State<MyHomePage> {
   ApiServiceCop _apiServiceCop;
   List<Company> items;
   List<Company> duplicateItems;
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
+
+  Future<Null> refreshList() async {
+    refreshKey.currentState?.show(atTop: false);
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -244,6 +311,16 @@ class _MyHomePageState extends State<MyHomePage> {
                     items = cop;
                     duplicateItems = cop;
                   }
+
+                  int n = 0;
+                  try {
+                    for (final cat in items) {
+                      if (widget.title.toLowerCase() ==
+                          cat.category.toLowerCase()) {
+                        n = 1;
+                      }
+                    }
+                  } catch (Ex) {}
 
                   if (snapshot.hasError) {
                     return Center(
@@ -331,7 +408,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           ],
                         );
                       } else {
-                        return items == null || items.isEmpty
+                        return items == null || items.isEmpty || n == 0
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: <Widget>[
@@ -349,158 +426,239 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ],
                               )
                             : Expanded(
-                                child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: items.length,
-                                itemBuilder: (context, index) {
-                                  int n = 0;
-                                  for (final cat in items) {
-                                    if (widget.title.toLowerCase() ==
-                                        cat.category.toLowerCase()) {
-                                      n = 1;
-                                    }
-                                  }
-                                  return widget.title.toLowerCase() ==
-                                          items[index].category.toLowerCase()
-                                      ? GestureDetector(
-                                          onTap: () {
-                                            Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      HomePage1(
-                                                    cpf: items[index].cpf_cnpj,
-                                                    email: widget.email,
-                                                    name: widget.name,
-                                                    id: items[index].id,
-                                                  ),
-                                                ));
-                                          },
-                                          child: Card(
-                                            elevation: 5,
-                                            child: new SingleChildScrollView(
-                                                child: Container(
-                                              height: 120.0,
-                                              child: Row(
-                                                children: <Widget>[
-                                                  Container(
-                                                      height: 120.0,
-                                                      width: 80.0,
-                                                      decoration: BoxDecoration(
-                                                        borderRadius:
-                                                            BorderRadius.only(
-                                                                bottomLeft: Radius
-                                                                    .circular(
-                                                                        5),
-                                                                topLeft: Radius
-                                                                    .circular(
-                                                                        5)),
-                                                        image: DecorationImage(
-                                                            fit: BoxFit.cover,
-                                                            image: MemoryImage(
-                                                                base64Decode(
-                                                                    items[index]
-                                                                        .image))),
-                                                      )),
-                                                  Container(
-                                                    height: 150,
-                                                    child: Padding(
-                                                      padding:
-                                                          EdgeInsets.fromLTRB(
-                                                              10, 2, 0, 0),
-                                                      child: Column(
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: <Widget>[
-                                                          Text(
-                                                            items[index].name,
-                                                          ),
-                                                          Padding(
-                                                            padding: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0, 3, 0, 3),
+                                child: RefreshIndicator(
+                                    onRefresh: refreshList,
+                                    key: refreshKey,
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemCount: items.length,
+                                      itemBuilder: (context, index) {
+                                        return widget.title.toLowerCase() ==
+                                                items[index]
+                                                    .category
+                                                    .toLowerCase()
+                                            ? GestureDetector(
+                                                onTap: () {
+                                                  Navigator.push(
+                                                      context,
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            HomePage1(
+                                                          cpf: items[index]
+                                                              .cpf_cnpj,
+                                                          email: widget.email,
+                                                          name: widget.name,
+                                                          id: items[index].id,
+                                                        ),
+                                                      ));
+                                                },
+                                                child: Card(
+                                                  elevation: 5,
+                                                  child: new Container(
+                                                      child: Container(
+                                                    height: 140.0,
+                                                    child: Row(
+                                                      children: <Widget>[
+                                                        SingleChildScrollView(
                                                             child: Container(
-                                                              width: 120,
-                                                              decoration: BoxDecoration(
-                                                                  border: Border.all(
-                                                                      color: Colors
-                                                                          .white),
-                                                                  borderRadius:
-                                                                      BorderRadius.all(
+                                                                height: 120.0,
+                                                                width: 120.0,
+                                                                decoration:
+                                                                    BoxDecoration(
+                                                                  borderRadius: BorderRadius.only(
+                                                                      bottomLeft:
                                                                           Radius.circular(
-                                                                              10))),
-                                                              child:
-                                                                  new FlutterRatingBar(
-                                                                itemSize: 20,
-                                                                initialRating: double
-                                                                    .parse(items[
-                                                                            index]
-                                                                        .rating),
-                                                                fillColor: Colors
-                                                                    .deepOrange,
-                                                                borderColor: Colors
-                                                                    .deepOrange
-                                                                    .withAlpha(
-                                                                        50),
-                                                                allowHalfRating:
-                                                                    true,
-                                                              ),
+                                                                              5),
+                                                                      topLeft: Radius
+                                                                          .circular(
+                                                                              5)),
+                                                                  image: DecorationImage(
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                      image: MemoryImage(
+                                                                          base64Decode(
+                                                                              items[index].image))),
+                                                                ))),
+                                                        Container(
+                                                          height: 150,
+                                                          child: Padding(
+                                                            padding: EdgeInsets
+                                                                .fromLTRB(10, 2,
+                                                                    0, 0),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                              children: <
+                                                                  Widget>[
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          5,
+                                                                          0,
+                                                                          2),
+                                                                  child:
+                                                                      Container(
+                                                                    width: 200,
+                                                                    child: Text(
+                                                                      items[index]
+                                                                          .name,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color: Color.fromARGB(
+                                                                              255,
+                                                                              48,
+                                                                              48,
+                                                                              54),
+                                                                          fontWeight:
+                                                                              FontWeight.bold),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          3,
+                                                                          0,
+                                                                          3),
+                                                                  child:
+                                                                      Container(
+                                                                    width: 120,
+                                                                    decoration: BoxDecoration(
+                                                                        border: Border.all(
+                                                                            color: Colors
+                                                                                .white),
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(10))),
+                                                                    child:
+                                                                        new FlutterRatingBar(
+                                                                      itemSize:
+                                                                          20,
+                                                                      initialRating:
+                                                                          double.parse(
+                                                                              items[index].rating),
+                                                                      fillColor:
+                                                                          Colors
+                                                                              .deepOrange,
+                                                                      borderColor: Colors
+                                                                          .deepOrange
+                                                                          .withAlpha(
+                                                                              50),
+                                                                      allowHalfRating:
+                                                                          true,
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          5,
+                                                                          0,
+                                                                          2),
+                                                                  child:
+                                                                      Container(
+                                                                    width: 200,
+                                                                    child: Text(
+                                                                      items[index]
+                                                                          .address,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color: Color.fromARGB(
+                                                                              255,
+                                                                              48,
+                                                                              48,
+                                                                              54)),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          5,
+                                                                          0,
+                                                                          2),
+                                                                  child:
+                                                                      Container(
+                                                                    width: 200,
+                                                                    child: Text(
+                                                                      'Horários: ' +
+                                                                          items[index]
+                                                                              .hour,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color: Color.fromARGB(
+                                                                              255,
+                                                                              48,
+                                                                              48,
+                                                                              54)),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .fromLTRB(
+                                                                          0,
+                                                                          5,
+                                                                          0,
+                                                                          2),
+                                                                  child:
+                                                                      Container(
+                                                                    width: 200,
+                                                                    child: Text(
+                                                                      'Dias: ' +
+                                                                          items[index]
+                                                                              .week,
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                              15,
+                                                                          color: Color.fromARGB(
+                                                                              255,
+                                                                              48,
+                                                                              48,
+                                                                              54)),
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                              ],
                                                             ),
                                                           ),
-                                                          Padding(
-                                                            padding: EdgeInsets
-                                                                .fromLTRB(
-                                                                    0, 5, 0, 2),
-                                                            child: Container(
-                                                              width: 260,
-                                                              child: Text(
-                                                                items[index]
-                                                                    .address,
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                        15,
-                                                                    color: Color
-                                                                        .fromARGB(
-                                                                            255,
-                                                                            48,
-                                                                            48,
-                                                                            54)),
-                                                              ),
-                                                            ),
-                                                          )
-                                                        ],
-                                                      ),
+                                                        )
+                                                      ],
                                                     ),
+                                                  )),
+                                                ),
+                                              )
+                                            : n == 0
+                                                ? Column(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: <Widget>[
+                                                      Center(
+                                                        child: Icon(
+                                                          Icons.not_interested,
+                                                          color: Colors.red,
+                                                          size: 100.0,
+                                                        ),
+                                                      ),
+                                                      Center(
+                                                        child: Text(
+                                                            'NENHUM ESTABELECIMENTO ENCONTRADO'),
+                                                      ),
+                                                    ],
                                                   )
-                                                ],
-                                              ),
-                                            )),
-                                          ),
-                                        )
-                                      : n == 0
-                                          ? Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                Center(
-                                                  child: Icon(
-                                                    Icons.not_interested,
-                                                    color: Colors.red,
-                                                    size: 100.0,
-                                                  ),
-                                                ),
-                                                Center(
-                                                  child: Text(
-                                                      'NENHUM ESTABELECIMENTO ENCONTRADO'),
-                                                ),
-                                              ],
-                                            )
-                                          : Divider(
-                                              color: Colors.white,
-                                            );
-                                },
-                              ));
+                                                : Divider(
+                                                    color: Colors.white,
+                                                  );
+                                      },
+                                    )));
                       }
                     }
                   } else {

@@ -1,19 +1,17 @@
 import 'package:badges/badges.dart';
 import 'dart:async';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:amigodelivery/api/api_service_prod_cart.dart';
 import 'package:amigodelivery/components/card.dart';
 import 'package:amigodelivery/components/cart_products.dart';
 import 'package:amigodelivery/components/corpo.dart';
 import 'package:flutter/cupertino.dart';
-import 'dart:io';
 import 'package:amigodelivery/pages/companys.dart';
 import 'package:flutter/widgets.dart';
 import 'package:amigodelivery/pages/home_requestx.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class HomePage1 extends StatefulWidget {
-
   final name;
   final email;
   final cpf;
@@ -26,10 +24,10 @@ class HomePage1 extends StatefulWidget {
 }
 
 class _HomePage1State extends State<HomePage1> {
-  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
   int selectedIndex = 0;
   List<StatefulWidget> options;
   ApiServiceProdCart apiService;
+
   Timer timer;
   String valor;
   int seconds, minutes, hours;
@@ -67,43 +65,8 @@ class _HomePage1State extends State<HomePage1> {
     }
   }
 
-  void requisitarPermissoesParaNotificacoesNoIos() {
-    _firebaseMessaging.requestNotificationPermissions(
-        IosNotificationSettings(sound: true, badge: true, alert: true)
-    );
-    _firebaseMessaging.onIosSettingsRegistered
-        .listen((IosNotificationSettings settings)
-    {
-      print("Settings registered: $settings");
-    });
-  }
-
-  void iniciarFirebaseListeners() {
-
-    if (Platform.isIOS) requisitarPermissoesParaNotificacoesNoIos();
-
-    _firebaseMessaging.getToken().then((token){
-      print("Firebase token " + token);
-    });
-
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print('mensagem recebida $message');
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print('on resume $message');
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print('on launch $message');
-      },
-    );
-  }
-
-
-
   @override
   void initState() {
-    this.iniciarFirebaseListeners();
     if (this.mounted) {
       apiService = ApiServiceProdCart();
       timer = Timer.periodic(duration, (Timer t) {
@@ -242,7 +205,7 @@ class _HomePage1State extends State<HomePage1> {
                 Icons.home,
                 size: 30.0,
               ),
-              title: Text('início')),
+              title: Text('Início')),
           BottomNavigationBarItem(
             icon: Badge(
               badgeColor: getColor(),

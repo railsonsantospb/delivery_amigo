@@ -14,8 +14,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
-final GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
-
 class FormAddCompany extends StatefulWidget {
   String cpf;
   String id;
@@ -27,6 +25,7 @@ class FormAddCompany extends StatefulWidget {
 }
 
 class _FormAddCompanyState extends State<FormAddCompany> {
+  final GlobalKey<ScaffoldState> _scaffoldState3 = GlobalKey<ScaffoldState>();
   bool _isLoading = false;
   int selected = 0;
   ApiServiceCop _apiServiceCop;
@@ -46,6 +45,8 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   bool _isFieldCpf_CnpjValid;
   bool _isFieldPasswordValid;
   bool _isFieldCityValid;
+  bool _isFieldHourValid;
+  bool _isFieldWeekValid;
 
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
@@ -59,6 +60,10 @@ class _FormAddCompanyState extends State<FormAddCompany> {
       new MaskedTextController(mask: '000.000.000-00');
   TextEditingController _controllerPhone =
       new MaskedTextController(mask: '(00) 00000-0000');
+  TextEditingController _controllerHour =
+      new MaskedTextController(mask: '00h00 até 00h00');
+  TextEditingController _controllerWeek =
+      new MaskedTextController(mask: 'AAA. a AAA.');
   TextEditingController _controllerPassword = TextEditingController();
   TextEditingController _controllerCity = TextEditingController();
 
@@ -152,7 +157,7 @@ class _FormAddCompanyState extends State<FormAddCompany> {
     );
 
     return Scaffold(
-      key: _scaffoldState,
+      key: _scaffoldState3,
       resizeToAvoidBottomPadding: false,
       resizeToAvoidBottomInset: false,
       body: SafeArea(
@@ -239,6 +244,12 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                   _isFieldCpf_CnpjValid = true;
                   _controllerCpf_Cnpj.text = cops[0].cpf_cnpj;
 
+                  _isFieldHourValid = true;
+                  _controllerHour.text = cops[0].hour;
+
+                  _isFieldWeekValid = true;
+                  _controllerWeek.text = cops[0].week;
+
                   _isFieldPhoneValid = true;
                   _controllerPhone.text = cops[0].phone;
 
@@ -299,6 +310,44 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                           if (isFieldValid != _isFieldOwnerValid) {
                             if (this.mounted) {
                               setState(() => _isFieldOwnerValid = isFieldValid);
+                            }
+                          }
+                        },
+                      ),
+                      new TextField(
+                        controller: _controllerHour,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: "Horários Disponíveis",
+                          errorText:
+                              _isFieldHourValid == null || _isFieldHourValid
+                                  ? null
+                                  : "Os horários são obrigatórios",
+                        ),
+                        onChanged: (value) {
+                          bool isFieldValid = value.trim().isNotEmpty;
+                          if (isFieldValid != _isFieldHourValid) {
+                            if (this.mounted) {
+                              setState(() => _isFieldHourValid = isFieldValid);
+                            }
+                          }
+                        },
+                      ),
+                      new TextField(
+                        controller: _controllerWeek,
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          labelText: "Dias Disponíveis",
+                          errorText:
+                              _isFieldWeekValid == null || _isFieldWeekValid
+                                  ? null
+                                  : "Os dias são obrigatórios",
+                        ),
+                        onChanged: (value) {
+                          bool isFieldValid = value.trim().isNotEmpty;
+                          if (isFieldValid != _isFieldWeekValid) {
+                            if (this.mounted) {
+                              setState(() => _isFieldWeekValid = isFieldValid);
                             }
                           }
                         },
@@ -453,7 +502,7 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                                 !_isFieldPasswordValid ||
                                 !_isFieldOwnerValid ||
                                 !_isFieldAddressValid) {
-                              _scaffoldState.currentState.showSnackBar(
+                              _scaffoldState3.currentState.showSnackBar(
                                 SnackBar(
                                   backgroundColor: Colors.blue,
                                   content: Text(
@@ -470,6 +519,8 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                             String password =
                                 _controllerPassword.text.toString();
                             String city = _controllerCity.text.toString();
+                            String week = _controllerWeek.text.toString();
+                            String hour = _controllerHour.text.toString();
 
                             Company cop = Company(
                                 id: cops[0].id,
@@ -485,7 +536,9 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                                 address: address,
                                 password: password,
                                 lat: cops[0].lat,
-                                lon: cops[0].lon);
+                                lon: cops[0].lon,
+                                hour: hour,
+                                week: week);
 
                             pr.show();
 
@@ -497,14 +550,14 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                                       retornarP();
                                     });
 
-                                    _scaffoldState.currentState
+                                    _scaffoldState3.currentState
                                         .showSnackBar(SnackBar(
                                       backgroundColor: Colors.green,
                                       content:
                                           Text("Dados Ataulizados com Sucesso"),
                                     ));
                                   } else {
-                                    _scaffoldState.currentState
+                                    _scaffoldState3.currentState
                                         .showSnackBar(SnackBar(
                                       backgroundColor: Colors.red,
                                       content:

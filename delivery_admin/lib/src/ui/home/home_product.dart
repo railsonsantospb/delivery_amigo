@@ -6,7 +6,7 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:deliveryadmin/src/ui/formadd/form_product.dart';
 
-GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+// GlobalKey<ScaffoldState> _scaffoldState2 = GlobalKey<ScaffoldState>();
 
 class HomeProduct extends StatefulWidget {
   final cpf;
@@ -55,7 +55,6 @@ class _HomeProductState extends State<HomeProduct> {
               title: Text(widget.name.toUpperCase(),
                   style: TextStyle(height: -200, color: Colors.blue)),
             )),
-        key: _scaffoldState,
         body: SafeArea(
           child: FutureBuilder(
             future: apiService.getProductId(widget.id),

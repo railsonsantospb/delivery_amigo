@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:amigodelivery/model/requesty.dart';
 import 'package:http/http.dart' show Client;
 import 'package:amigodelivery/model/requestx.dart';
 
@@ -11,6 +12,28 @@ class ApiServiceRX {
     try {
       final response = await client.get(
         "$baseUrl/rxtc/$email/$id",
+        headers: {
+          "content-type": "application/json",
+          "X-Api-Key": "t1h3m5p7v9711713d15617f19"
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return rxFromJson(response.body);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return rxFromJson(
+          '[{"id": ${0}, "client": "1", "active": ${2}, "price_full": "1", '
+          '"products": "1", "date": "1", "address": "1", "lat": "1", "lon": "1", "email": "1", "phone": "0", "pay": "0", "obs": "0"}]');
+    }
+  }
+
+  Future<List<RequestX>> getRequestXActiveEmail(String email) async {
+    try {
+      final response = await client.get(
+        "$baseUrl/rxtc/$email",
         headers: {
           "content-type": "application/json",
           "X-Api-Key": "t1h3m5p7v9711713d15617f19"
@@ -152,6 +175,45 @@ class ApiServiceRX {
       }
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<List<RequestY>> getRequestY(String email) async {
+    try {
+      final response = await client.get(
+        "$baseUrl/ry/$email",
+        headers: {
+          "content-type": "application/json",
+          "X-Api-Key": "t1h3m5p7v9711713d15617f19"
+        },
+      );
+
+      if (response.statusCode == 200) {
+        return ryFromJson(response.body);
+      } else {
+        return null;
+      }
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> deleteRequestY(int id) async {
+    try {
+      final response = await client.delete(
+        "$baseUrl/ry/$id",
+        headers: {
+          "content-type": "application/json",
+          "X-Api-Key": "t1h3m5p7v9711713d15617f19"
+        },
+      );
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 }

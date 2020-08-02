@@ -6,8 +6,6 @@ import 'package:flutter/widgets.dart';
 import 'package:deliveryadmin/src/ui/home/maps.dart';
 import 'package:deliveryadmin/src/ui/home/view_products.dart';
 
-GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
-
 class HomeRequestY extends StatefulWidget {
   final id_cop;
 
@@ -17,6 +15,7 @@ class HomeRequestY extends StatefulWidget {
 }
 
 class _HomeRequestYState extends State<HomeRequestY> {
+  GlobalKey<ScaffoldState> _scaffoldState5 = GlobalKey<ScaffoldState>();
   BuildContext context;
   ApiServiceRX apiService;
   TextEditingController editingController = TextEditingController();
@@ -132,7 +131,7 @@ class _HomeRequestYState extends State<HomeRequestY> {
                   accentColor: Colors.deepOrange,
                 ),
                 home: Scaffold(
-                  key: _scaffoldState,
+                  key: _scaffoldState5,
                   body: _buildListView(rx),
                 ),
               );

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:deliveryadmin/src/model/requestx.dart';
+import 'package:deliveryadmin/src/model/requesty.dart';
 import 'package:http/http.dart' show Client;
 
 class ApiServiceRX {
@@ -118,10 +119,10 @@ class ApiServiceRX {
     }
   }
 
-  Future<String> countRequestX() async {
+  Future<String> countRequestX(int id) async {
     try {
       final response = await client.get(
-        "$baseUrl/rxc",
+        "$baseUrl/rxc/$id",
         headers: {
           "content-type": "application/json",
           "X-Api-Key": "t1h3m5p7v9711713d15617f19"
@@ -135,6 +136,32 @@ class ApiServiceRX {
       }
     } catch (e) {
       return null;
+    }
+  }
+
+  Future<bool> createRequestY(RequestY ry) async {
+    try {
+      final response = await client.post(
+        "$baseUrl/ry",
+        headers: {
+          "content-type": "application/json",
+          "X-Api-Key": "t1h3m5p7v9711713d15617f19"
+        },
+        body: jsonEncode({
+          "id": ry.id,
+          "client": ry.client,
+          "email": ry.email,
+          "copName": ry.copName,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 }

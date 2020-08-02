@@ -200,7 +200,7 @@ class _LoginScreen3State extends State<LoginScreen3>
         Navigator.pushAndRemoveUntil(
           context,
           CupertinoPageRoute(
-              builder: (context) => new HomePage1(
+              builder: (context) => new MyAppC(
                   name: _googleSignIn.currentUser.displayName,
                   email: _googleSignIn.currentUser.email)),
           (Route<dynamic> route) => false,

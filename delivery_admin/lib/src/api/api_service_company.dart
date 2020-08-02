@@ -65,7 +65,9 @@ class ApiServiceCop {
           "address": data.address,
           "lat": data.lat,
           "lon": data.lon,
-          "password": data.password
+          "password": data.password,
+          "hour": data.hour,
+          "week": data.week
         }),
       );
 
@@ -97,7 +99,9 @@ class ApiServiceCop {
           "address": data.address,
           "lat": data.lat,
           "lon": data.lon,
-          "password": data.password
+          "password": data.password,
+          "hour": data.hour,
+          "week": data.week
         }),
       );
       if (response.statusCode == 200) {

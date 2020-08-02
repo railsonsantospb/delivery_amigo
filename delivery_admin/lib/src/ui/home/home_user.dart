@@ -5,8 +5,6 @@ import 'package:deliveryadmin/src/model/requestx.dart';
 import 'package:flutter/widgets.dart';
 import 'package:deliveryadmin/src/model/user.dart';
 
-GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
-
 class HomeUser extends StatefulWidget {
   var list_product;
   var value;

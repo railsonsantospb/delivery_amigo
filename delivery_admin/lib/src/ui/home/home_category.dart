@@ -8,8 +8,6 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:deliveryadmin/src/ui/home/home_product.dart';
 
-GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
-
 class HomeCategory extends StatefulWidget {
   Company data;
 
@@ -20,6 +18,7 @@ class HomeCategory extends StatefulWidget {
 }
 
 class _HomeCategoryState extends State<HomeCategory> {
+  GlobalKey<ScaffoldState> _scaffoldState2 = GlobalKey<ScaffoldState>();
   BuildContext context;
   ApiServiceCat apiService;
 
@@ -53,7 +52,7 @@ class _HomeCategoryState extends State<HomeCategory> {
               title: Text('Catálagos',
                   style: TextStyle(height: -200, color: Colors.blue)),
             )),
-        key: _scaffoldState,
+        key: _scaffoldState2,
         body: SafeArea(
           child: FutureBuilder(
             future: apiService.getCategory(widget.data.cpf_cnpj),
@@ -163,7 +162,7 @@ class _HomeCategoryState extends State<HomeCategory> {
               color: Colors.white,
             ),
             onPressed: () {
-              Navigator.push(_scaffoldState.currentContext,
+              Navigator.push(_scaffoldState2.currentContext,
                   CupertinoPageRoute(builder: (BuildContext context) {
                 return FormAddCategory(
                   notifyParent: refresh,

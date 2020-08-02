@@ -43,6 +43,8 @@ class _LoginScreen3State extends State<LoginScreen3>
   bool _isFieldCatIdValid;
   bool _isFieldPhoneValid;
   bool _isFieldOwnerValid;
+  bool _isFieldHourValid;
+  bool _isFieldWeekValid;
   bool _isFieldAddressValid;
   bool _isFieldCpf_CnpjValid;
   bool _isFieldCityValid;
@@ -62,6 +64,10 @@ class _LoginScreen3State extends State<LoginScreen3>
       new MaskedTextController(mask: '000.000.000-00');
   TextEditingController _controllerPhone =
       new MaskedTextController(mask: '(00) 00000-0000');
+  TextEditingController _controllerHour =
+      new MaskedTextController(mask: '00h00 até 00h00');
+  TextEditingController _controllerWeek =
+      new MaskedTextController(mask: 'AAA. a AAA.');
   TextEditingController _controllerCity = TextEditingController();
   TextEditingController _controllerPassword = TextEditingController();
   TextEditingController _controllerPassword2 = TextEditingController();
@@ -200,9 +206,9 @@ class _LoginScreen3State extends State<LoginScreen3>
   }
 
   List state = [
-    {'state': 'Restaurante'},
-    {'state': 'SuperMercado'},
-    {'state': 'Loja'},
+    {'state': 'Restaurante ou Lanchonete'},
+    // {'state': 'SuperMercado'},
+    {'state': 'Loja ou Deposito'},
   ];
 
   List valueActive = [
@@ -894,6 +900,138 @@ class _LoginScreen3State extends State<LoginScreen3>
                       child: new Padding(
                         padding: const EdgeInsets.only(left: 40.0),
                         child: new Text(
+                          "HORÁRIOS DISPONÍVEIS",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepOrange,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                new Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin:
+                      const EdgeInsets.only(left: 40.0, right: 40.0, top: 10.0),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                          color: Colors.deepOrange,
+                          width: 0.5,
+                          style: BorderStyle.solid),
+                    ),
+                  ),
+                  padding: const EdgeInsets.only(left: 0.0, right: 10.0),
+                  child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      new Expanded(
+                        child: TextField(
+                          controller: _controllerHour,
+                          keyboardType: TextInputType.number,
+                          textAlign: TextAlign.left,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Exemplo: 08h00 até 18h00',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            errorText:
+                                _isFieldHourValid == null || _isFieldHourValid
+                                    ? null
+                                    : "O horário é obrigatório",
+                          ),
+                          onChanged: (value) {
+                            bool isFieldValid = value.trim().isNotEmpty;
+                            if (isFieldValid != _isFieldHourValid) {
+                              if (this.mounted) {
+                                setState(
+                                    () => _isFieldHourValid = isFieldValid);
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  height: 24.0,
+                ),
+                new Row(
+                  children: <Widget>[
+                    new Expanded(
+                      child: new Padding(
+                        padding: const EdgeInsets.only(left: 40.0),
+                        child: new Text(
+                          "DIAS DISPONÍVEIS",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.deepOrange,
+                            fontSize: 15.0,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                new Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin:
+                      const EdgeInsets.only(left: 40.0, right: 40.0, top: 10.0),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                          color: Colors.deepOrange,
+                          width: 0.5,
+                          style: BorderStyle.solid),
+                    ),
+                  ),
+                  padding: const EdgeInsets.only(left: 0.0, right: 10.0),
+                  child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      new Expanded(
+                        child: TextField(
+                          controller: _controllerWeek,
+                          keyboardType: TextInputType.text,
+                          textAlign: TextAlign.left,
+                          decoration: InputDecoration(
+                            border: InputBorder.none,
+                            hintText: 'Exemplo: Seg. a Sex.',
+                            hintStyle: TextStyle(color: Colors.grey),
+                            errorText:
+                                _isFieldWeekValid == null || _isFieldWeekValid
+                                    ? null
+                                    : "Os dias são obrigatórios",
+                          ),
+                          onChanged: (value) {
+                            bool isFieldValid = value.trim().isNotEmpty;
+                            if (isFieldValid != _isFieldWeekValid) {
+                              if (this.mounted) {
+                                setState(
+                                    () => _isFieldWeekValid = isFieldValid);
+                              }
+                            }
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Divider(
+                  height: 24.0,
+                ),
+                new Row(
+                  children: <Widget>[
+                    new Expanded(
+                      child: new Padding(
+                        padding: const EdgeInsets.only(left: 40.0),
+                        child: new Text(
                           "CPF",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -1368,6 +1506,8 @@ class _LoginScreen3State extends State<LoginScreen3>
               _isFieldCpf_CnpjValid == null ||
               _isFieldAddressValid == null ||
               _isFieldStateValid == null ||
+              _isFieldHourValid == null ||
+              _isFieldWeekValid == null ||
 //              _isFieldCityValid == null ||
               _isFieldPhoneValid == null ||
               _isFieldPasswordValid == null ||
@@ -1378,6 +1518,8 @@ class _LoginScreen3State extends State<LoginScreen3>
               !_isFieldOwnerValid ||
               !_isFieldAddressValid ||
               !_isFieldCpf_CnpjValid ||
+              !_isFieldHourValid ||
+              !_isFieldWeekValid ||
 //              !_isFieldCityValid ||
               !_isFieldPhoneValid) {
             alertShow("Por Favor Preencha Todos os Campos");
@@ -1441,7 +1583,8 @@ class _LoginScreen3State extends State<LoginScreen3>
                                       _controllerAddress.text.toString();
                                   String phone =
                                       _controllerPhone.text.toString();
-                                  String city = _controllerCity.text.toString();
+                                  String week = _controllerWeek.text.toString();
+                                  String hour = _controllerHour.text.toString();
 
                                   Company cop = Company(
                                       name: name,
@@ -1455,7 +1598,9 @@ class _LoginScreen3State extends State<LoginScreen3>
                                       lat: _currentPosition.latitude.toString(),
                                       lon:
                                           _currentPosition.longitude.toString(),
-                                      password: password2);
+                                      password: password2,
+                                      hour: hour,
+                                      week: week);
 
                                   _apiServiceCop
                                       .createCop(cop)

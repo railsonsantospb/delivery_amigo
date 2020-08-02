@@ -8,7 +8,12 @@ import 'package:deliveryadmin/src/ui/home/home_company.dart';
 import 'package:deliveryadmin/src/ui/home/home_requestx.dart';
 import 'package:deliveryadmin/src/ui/home/home_requesty.dart';
 import 'package:deliveryadmin/src/ui/home/login_home.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'api/api_service_rx.dart';
+import 'package:deliveryadmin/src/ui/home/local_notications_helper.dart';
+import 'package:ringtone/ringtone.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:vibration/vibration.dart';
 
 class HomePage1 extends StatefulWidget {
   final Company data;
@@ -20,11 +25,14 @@ class HomePage1 extends StatefulWidget {
 }
 
 class _HomePage1State extends State<HomePage1> {
+  final notifications = FlutterLocalNotificationsPlugin();
   String cpf;
   Timer timer;
   String valor;
+  String aux;
+  String acess;
   int seconds, minutes, hours;
-  static const duration = const Duration(seconds: 1);
+  static const duration = const Duration(seconds: 2);
   ApiServiceRX apiService;
 
   int secondsPassed = 0;
@@ -47,6 +55,7 @@ class _HomePage1State extends State<HomePage1> {
         data: widget.data,
       ),
       HomeRequestX(
+        name: widget.data.name,
         id_cop: widget.data.id,
       ),
       HomeRequestY(
@@ -60,12 +69,51 @@ class _HomePage1State extends State<HomePage1> {
     return widgetOptions;
   }
 
+  saveToAcess(String acess) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('acess', acess);
+  }
+
+  getValues() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    //Return String
+
+    if (prefs.getString('acess') != null && this.mounted) {
+      setState(() {
+        acess = prefs.getString('acess');
+      });
+    }
+  }
+
+  Future onSelectNotification(String payload) async =>
+      await Navigator.pushAndRemoveUntil(
+        context,
+        CupertinoPageRoute(
+            builder: (context) => HomePage1(
+                  data: widget.data,
+                )),
+        (Route<dynamic> route) => false,
+      );
+
   @override
   void initState() {
+    notifications.cancelAll();
+    getValues();
+    final settingsAndroid = AndroidInitializationSettings('app_icon');
+    final settingsIOS = IOSInitializationSettings(
+        onDidReceiveLocalNotification: (id, title, body, payload) =>
+            onSelectNotification(payload));
+
+    notifications.initialize(
+        InitializationSettings(settingsAndroid, settingsIOS),
+        onSelectNotification: onSelectNotification);
+
     options = opt();
     if (this.mounted) {
       apiService = ApiServiceRX();
       timer = Timer.periodic(duration, (Timer t) {
+        getValues();
         apiTime();
       });
     }
@@ -73,10 +121,24 @@ class _HomePage1State extends State<HomePage1> {
   }
 
   apiTime() {
-    apiService.countRequestX().then((value) {
+    getValues();
+    apiService.countRequestX(widget.data.id).then((value) {
       if (this.mounted) {
+        if (value != "0" && value != null && acess != value) {
+          showOngoingNotification(notifications,
+              title: 'Amigo Delivery',
+              body: 'Você precisa realizar uma entrega!');
+          Ringtone.play();
+          Vibration.vibrate();
+          Future.delayed(Duration(milliseconds: 10000));
+          Vibration.vibrate();
+          saveToAcess("1");
+        }
         setState(() {
           valor = value;
+          if (acess != valor) {
+            saveToAcess(value);
+          }
         });
       }
     });
@@ -86,6 +148,11 @@ class _HomePage1State extends State<HomePage1> {
   Widget build(BuildContext context) {
     void onItemTapped(int index) {
       setState(() {
+        if (index == 1) {
+          Vibration.cancel();
+          Ringtone.stop();
+          notifications.cancelAll();
+        }
         selectedIndex = index;
       });
     }

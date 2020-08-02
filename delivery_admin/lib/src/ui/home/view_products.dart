@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:deliveryadmin/src/model/requestx.dart';
 import 'package:flutter/widgets.dart';
 
-GlobalKey<ScaffoldState> _scaffoldState = GlobalKey<ScaffoldState>();
+GlobalKey<ScaffoldState> _scaffoldState4 = GlobalKey<ScaffoldState>();
 
 class HomeRequestProdX extends StatefulWidget {
   var list_product;
@@ -45,7 +45,7 @@ class _HomeRequestProXState extends State<HomeRequestProdX> {
           title: Text('Preço Total R\$: ' + widget.value,
               style: TextStyle(height: 0.0)),
         ),
-        key: _scaffoldState,
+        key: _scaffoldState4,
         body: _buildListView(widget.list_product),
       ),
     );
