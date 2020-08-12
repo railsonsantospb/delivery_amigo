@@ -121,7 +121,7 @@ class _HorizontalListState extends State<HorizontalList> {
               );
             } else {
               return Container(
-                height: 100.0,
+                height: 150.0,
                 child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: cat.length,
@@ -134,7 +134,7 @@ class _HorizontalListState extends State<HorizontalList> {
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => SearchList(
-                                    header: cat[index].name,
+                                    header: cat[index].name.toUpperCase(),
                                     id: cat[index].id,
                                   ),
                                 ));
@@ -153,7 +153,7 @@ class _HorizontalListState extends State<HorizontalList> {
                               subtitle: Container(
                                 alignment: Alignment.topCenter,
                                 child: Text(
-                                  cat[index].name,
+                                  cat[index].name.toUpperCase(),
                                   style: new TextStyle(
                                       fontSize: 12.0,
                                       fontWeight: FontWeight.bold),
