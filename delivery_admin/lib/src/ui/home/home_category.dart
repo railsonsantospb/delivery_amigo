@@ -7,6 +7,8 @@ import 'package:deliveryadmin/src/ui/formadd/form_category.dart';
 import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:deliveryadmin/src/ui/home/home_product.dart';
+import 'package:ringtone/ringtone.dart';
+import 'package:vibration/vibration.dart';
 
 class HomeCategory extends StatefulWidget {
   Company data;
@@ -24,6 +26,8 @@ class _HomeCategoryState extends State<HomeCategory> {
 
   @override
   void initState() {
+    Ringtone.stop();
+    Vibration.cancel();
     super.initState();
     apiService = ApiServiceCat();
   }

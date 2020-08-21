@@ -11,6 +11,8 @@ import 'package:amigodelivery/api/api_service_rx.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:vibration/vibration.dart';
 import 'package:amigodelivery/components/local_notications_helper.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:progress_dialog/progress_dialog.dart';
 
 class MyAppC extends StatefulWidget {
   String name;
@@ -29,6 +31,7 @@ class _MyAppCState extends State<MyAppC> {
   ApiServiceRX apiServiceR;
   int seconds, minutes, hours;
   static const duration = const Duration(seconds: 1);
+
 
   Timer timer;
 
@@ -63,6 +66,8 @@ class _MyAppCState extends State<MyAppC> {
 
     super.initState();
   }
+
+
 
   apiTime() {
     apiServiceR.getRequestY(widget.email).then((value) {
@@ -238,6 +243,10 @@ class _MyHomePageState extends State<MyHomePage> {
   List<Company> items;
   List<Company> duplicateItems;
   var refreshKey = GlobalKey<RefreshIndicatorState>();
+  final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
+  Position _currentPosition;
+  ProgressDialog pr;
+  String locale;
 
   Future<Null> refreshList() async {
     refreshKey.currentState?.show(atTop: false);
@@ -246,13 +255,30 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    _getCurrentLocation();
     duplicateItems = List<Company>();
     items = List<Company>();
     _apiServiceCop = ApiServiceCop();
     super.initState();
   }
 
+  _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator()
+          .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      List<Placemark> placemark = await Geolocator()
+          .placemarkFromCoordinates(position.latitude, position.longitude);
+
+
+        _currentPosition = position;
+        locale = placemark.first.subLocality.toString();
+
+    } catch (e) {}
+  }
+
+
   void filterSearchResults(String query) {
+
     List<Company> dummySearchList = List<Company>();
     dummySearchList.addAll(duplicateItems);
     if (query.isNotEmpty) {
@@ -278,118 +304,163 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      body: Stack(
-        children: <Widget>[
-          Column(
+    _getCurrentLocation();
+    Future gps = _getCurrentLocation();
+    Future<List<Company>> copf = _apiServiceCop.getCop();
+
+    pr = new ProgressDialog(context, showLogs: true);
+    pr.style(
+      message: "Buscando localização...",
+      backgroundColor: Colors.deepOrange,
+      messageTextStyle: TextStyle(color: Colors.white, fontSize: 18.0),
+    );
+
+        return new Scaffold(
+          body: Stack(
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  onChanged: (value) {
-                    filterSearchResults(value);
-                  },
-                  controller: editingController,
-                  decoration: InputDecoration(
-                      labelText: "Pesquisar",
-                      hintText: "Pesquisar",
-                      prefixIcon: Icon(Icons.search),
-                      border: OutlineInputBorder(
-                          borderRadius:
+              Column(
+                children: <Widget>[
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: TextField(
+                      onChanged: (value) {
+                        filterSearchResults(value);
+                      },
+                      controller: editingController,
+                      decoration: InputDecoration(
+                          labelText: "Pesquisar",
+                          hintText: "Pesquisar",
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                              borderRadius:
                               BorderRadius.all(Radius.circular(25.0)))),
-                ),
-              ),
-              FutureBuilder(
-                future: _apiServiceCop.getCop(),
-                builder: (BuildContext context,
-                    AsyncSnapshot<List<Company>> snapshot) {
-                  List<Company> cop = snapshot.data;
+                    ),
+                  ),
 
-                  if (items == null || items.isEmpty) {
-                    items = cop;
-                    duplicateItems = cop;
-                  }
+                  FutureBuilder(
+                    future: Future.wait([gps, copf]),
+                    builder: (BuildContext context,
+                        AsyncSnapshot<List<dynamic>> snapshot) {
+//                      _getCurrentLocation();
+                      List<Company> cop;
+                      try{
+                        cop = snapshot.data[1];
+                      } catch(e){
 
-                  int n = 0;
-                  try {
-                    for (final cat in items) {
-                      if (widget.title.toLowerCase() ==
-                          cat.category.toLowerCase()) {
-                        n = 1;
                       }
-                    }
-                  } catch (Ex) {}
 
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Stack(
-                        children: <Widget>[
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+
+                      if (items == null || items.isEmpty) {
+                        items = cop;
+                        duplicateItems = cop;
+                      }
+
+                      int n = 0;
+                      try {
+                        for (final cat in items) {
+                          if (widget.title.toLowerCase() ==
+                              cat.category.toLowerCase()) {
+                            n = 1;
+                          }
+                        }
+                      } catch (Ex) {}
+
+                      if (snapshot.hasError) {
+                        return Center(
+                          child: Stack(
                             children: <Widget>[
-                              Center(
-                                child: Icon(
-                                  Icons.broken_image,
-                                  color: Colors.red,
-                                  size: 100.0,
-                                ),
-                              ),
-                              Center(
-                                child: Text('SEM CONEXÃO COM A INTERNET'),
-                              ),
-                              Center(
-                                child: Text('FECHE O APLICATIVO'),
-                              ),
-                              Center(
-                                child: Text('TENTE NOVAMENTE'),
-                              ),
-                              Center(
-                                child: Text('SE PERSISTIR CONTATE O SUPORTE'),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      color: Colors.red,
+                                      size: 100.0,
+                                    ),
+                                  ),
+                                  Center(
+                                    child: Text('SEM CONEXÃO COM A INTERNET'),
+                                  ),
+                                  Center(
+                                    child: Text('FECHE O APLICATIVO'),
+                                  ),
+                                  Center(
+                                    child: Text('TENTE NOVAMENTE'),
+                                  ),
+                                  Center(
+                                    child: Text(
+                                        'SE PERSISTIR CONTATE O SUPORTE'),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                    );
-                  } else if (snapshot.connectionState == ConnectionState.done) {
-                    if (items == null) {
-                      return Center(
-                        child: Stack(
-                          children: <Widget>[
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
+                        );
+                      } else
+                      if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                        if (items == null) {
+                          return Center(
+                            child: Stack(
                               children: <Widget>[
-                                Center(
-                                  child: Icon(
-                                    Icons.broken_image,
-                                    color: Colors.red,
-                                    size: 100.0,
-                                  ),
-                                ),
-                                Center(
-                                  child: Text('SEM CONEXÃO COM A INTERNET'),
-                                ),
-                                Center(
-                                  child: Text('FECHE O APLICATIVO'),
-                                ),
-                                Center(
-                                  child: Text('TENTE NOVAMENTE'),
-                                ),
-                                Center(
-                                  child: Text('SE PERSISTIR CONTATE O SUPORTE'),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Center(
+                                      child: Icon(
+                                        Icons.broken_image,
+                                        color: Colors.red,
+                                        size: 100.0,
+                                      ),
+                                    ),
+                                    Center(
+                                      child: Text('SEM CONEXÃO COM A INTERNET'),
+                                    ),
+                                    Center(
+                                      child: Text('FECHE O APLICATIVO'),
+                                    ),
+                                    Center(
+                                      child: Text('TENTE NOVAMENTE'),
+                                    ),
+                                    Center(
+                                      child: Text(
+                                          'SE PERSISTIR CONTATE O SUPORTE'),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      if (items.isEmpty) {
-                        return Stack(
-                          children: <Widget>[
-                            Column(
+                          );
+                        } else {
+                          if (items.isEmpty) {
+                            return Stack(
+                              children: <Widget>[
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: <Widget>[
+                                    Center(
+                                      child: Icon(
+                                        Icons.not_interested,
+                                        color: Colors.red,
+                                        size: 100.0,
+                                      ),
+                                    ),
+                                    Center(
+                                      child:
+                                      Text('NENHUM ESTABELECIMENTO ENCONTRADO'),
+                                    ),
+
+                                  ],
+                                ),
+                              ],
+                            );
+                          } else {
+                            return items == null || items.isEmpty || n == 0
+                                ? Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget>[
                                 Center(
@@ -400,32 +471,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                   ),
                                 ),
                                 Center(
-                                  child:
-                                      Text('NENHUM ESTABELECIMENTO ENCONTRADO'),
+                                  child: Text(
+                                      'NENHUM ESTABELECIMENTO ENCONTRADO'),
                                 ),
                               ],
-                            ),
-                          ],
-                        );
-                      } else {
-                        return items == null || items.isEmpty || n == 0
-                            ? Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: <Widget>[
-                                  Center(
-                                    child: Icon(
-                                      Icons.not_interested,
-                                      color: Colors.red,
-                                      size: 100.0,
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Text(
-                                        'NENHUM ESTABELECIMENTO ENCONTRADO'),
-                                  ),
-                                ],
-                              )
-                            : Expanded(
+                            )
+                                : Expanded(
                                 child: RefreshIndicator(
                                     onRefresh: refreshList,
                                     key: refreshKey,
@@ -433,245 +484,304 @@ class _MyHomePageState extends State<MyHomePage> {
                                       shrinkWrap: true,
                                       itemCount: items.length,
                                       itemBuilder: (context, index) {
-                                        return widget.title.toLowerCase() ==
-                                                items[index]
-                                                    .category
-                                                    .toLowerCase()
-                                            ? GestureDetector(
-                                                onTap: () {
-                                                  Navigator.push(
-                                                      context,
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            HomePage1(
-                                                          cpf: items[index]
-                                                              .cpf_cnpj,
-                                                          email: widget.email,
-                                                          name: widget.name,
-                                                          id: items[index].id,
-                                                        ),
-                                                      ));
+                                        _getCurrentLocation();
+                                        if (_currentPosition == null &&
+                                            index == 0) {
+                                          return Column(children: [
+                                            Center(
+                                              child: Icon(
+                                                Icons.not_interested,
+                                                color: Colors.red,
+                                                size: 100.0,
+                                              ),
+                                            ),
+                                            Center(
+                                              child: Text(
+                                                  'POR FAVOR, PERMITA O APP USAR O GPS PARA CONTINUAR COM A BUSCA!'),
+                                            ),
+                                            Center(
+                                              child: FloatingActionButton(
+                                                child: Icon(Icons.update),
+                                                onPressed: () {
+                                                  refreshList();
+//                                                  setState(() {
+//
+//                                                  });
                                                 },
-                                                child: Card(
-                                                  elevation: 5,
-                                                  child: new Container(
-                                                      child: Container(
-                                                    height: 140.0,
-                                                    child: Row(
-                                                      children: <Widget>[
-                                                        SingleChildScrollView(
-                                                            child: Container(
-                                                                height: 120.0,
-                                                                width: 120.0,
-                                                                decoration:
-                                                                    BoxDecoration(
-                                                                  borderRadius: BorderRadius.only(
-                                                                      bottomLeft:
-                                                                          Radius.circular(
-                                                                              5),
-                                                                      topLeft: Radius
-                                                                          .circular(
-                                                                              5)),
-                                                                  image: DecorationImage(
-                                                                      fit: BoxFit
-                                                                          .cover,
-                                                                      image: MemoryImage(
-                                                                          base64Decode(
-                                                                              items[index].image))),
-                                                                ))),
-                                                        Container(
-                                                          height: 150,
-                                                          child: Padding(
-                                                            padding: EdgeInsets
-                                                                .fromLTRB(10, 2,
-                                                                    0, 0),
-                                                            child: Column(
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: <
-                                                                  Widget>[
-                                                                Padding(
-                                                                  padding: EdgeInsets
-                                                                      .fromLTRB(
-                                                                          0,
-                                                                          5,
-                                                                          0,
-                                                                          2),
-                                                                  child:
-                                                                      Container(
-                                                                    width: 200,
-                                                                    child: Text(
-                                                                      items[index]
-                                                                          .name,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              15,
-                                                                          color: Color.fromARGB(
-                                                                              255,
-                                                                              48,
-                                                                              48,
-                                                                              54),
-                                                                          fontWeight:
-                                                                              FontWeight.bold),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsets
-                                                                      .fromLTRB(
-                                                                          0,
-                                                                          3,
-                                                                          0,
-                                                                          3),
-                                                                  child:
-                                                                      Container(
-                                                                    width: 120,
-                                                                    decoration: BoxDecoration(
-                                                                        border: Border.all(
-                                                                            color: Colors
-                                                                                .white),
-                                                                        borderRadius:
-                                                                            BorderRadius.all(Radius.circular(10))),
-                                                                    child:
-                                                                        new FlutterRatingBar(
-                                                                      itemSize:
-                                                                          20,
-                                                                      initialRating:
-                                                                          double.parse(
-                                                                              items[index].rating),
-                                                                      fillColor:
-                                                                          Colors
-                                                                              .deepOrange,
-                                                                      borderColor: Colors
-                                                                          .deepOrange
-                                                                          .withAlpha(
-                                                                              50),
-                                                                      allowHalfRating:
-                                                                          true,
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsets
-                                                                      .fromLTRB(
-                                                                          0,
-                                                                          5,
-                                                                          0,
-                                                                          2),
-                                                                  child:
-                                                                      Container(
-                                                                    width: 200,
-                                                                    child: Text(
-                                                                      items[index]
-                                                                          .address,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              15,
-                                                                          color: Color.fromARGB(
-                                                                              255,
-                                                                              48,
-                                                                              48,
-                                                                              54)),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsets
-                                                                      .fromLTRB(
-                                                                          0,
-                                                                          5,
-                                                                          0,
-                                                                          2),
-                                                                  child:
-                                                                      Container(
-                                                                    width: 200,
-                                                                    child: Text(
-                                                                      'Horários: ' +
-                                                                          items[index]
-                                                                              .hour,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              15,
-                                                                          color: Color.fromARGB(
-                                                                              255,
-                                                                              48,
-                                                                              48,
-                                                                              54)),
-                                                                    ),
-                                                                  ),
-                                                                ),
-                                                                Padding(
-                                                                  padding: EdgeInsets
-                                                                      .fromLTRB(
-                                                                          0,
-                                                                          5,
-                                                                          0,
-                                                                          2),
-                                                                  child:
-                                                                      Container(
-                                                                    width: 200,
-                                                                    child: Text(
-                                                                      'Dias: ' +
-                                                                          items[index]
-                                                                              .week,
-                                                                      style: TextStyle(
-                                                                          fontSize:
-                                                                              15,
-                                                                          color: Color.fromARGB(
-                                                                              255,
-                                                                              48,
-                                                                              48,
-                                                                              54)),
-                                                                    ),
-                                                                  ),
-                                                                )
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  )),
-                                                ),
-                                              )
-                                            : n == 0
-                                                ? Column(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .center,
+                                              ),
+                                            )
+                                          ],);
+                                        }
+
+                                        return widget.title.toLowerCase() ==
+                                            items[index]
+                                                .category
+                                                .toLowerCase() &&
+                                            locale == items[index].city
+                                            ? GestureDetector(
+                                          onTap: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      HomePage1(
+                                                        cpf: items[index]
+                                                            .cpf_cnpj,
+                                                        email: widget.email,
+                                                        name: widget.name,
+                                                        id: items[index].id,
+                                                      ),
+                                                ));
+                                          },
+                                          child: Card(
+                                            elevation: 5,
+                                            child: new Container(
+                                                child: Container(
+                                                  height: 140.0,
+                                                  child: Row(
                                                     children: <Widget>[
-                                                      Center(
-                                                        child: Icon(
-                                                          Icons.not_interested,
-                                                          color: Colors.red,
-                                                          size: 100.0,
+                                                      SingleChildScrollView(
+                                                          child: Container(
+                                                              height: 120.0,
+                                                              width: 120.0,
+                                                              decoration:
+                                                              BoxDecoration(
+                                                                borderRadius: BorderRadius
+                                                                    .only(
+                                                                    bottomLeft:
+                                                                    Radius
+                                                                        .circular(
+                                                                        5),
+                                                                    topLeft: Radius
+                                                                        .circular(
+                                                                        5)),
+                                                                image: DecorationImage(
+                                                                    fit: BoxFit
+                                                                        .cover,
+                                                                    image: MemoryImage(
+                                                                        base64Decode(
+                                                                            items[index]
+                                                                                .image))),
+                                                              ))),
+                                                      Container(
+                                                        height: 150,
+                                                        child: Padding(
+                                                          padding: EdgeInsets
+                                                              .fromLTRB(10, 2,
+                                                              0, 0),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                            CrossAxisAlignment
+                                                                .start,
+                                                            children: <
+                                                                Widget>[
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .fromLTRB(
+                                                                    0,
+                                                                    5,
+                                                                    0,
+                                                                    2),
+                                                                child:
+                                                                Container(
+                                                                  width: 200,
+                                                                  child: Text(
+                                                                    items[index]
+                                                                        .name,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                        15,
+                                                                        color: Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            48,
+                                                                            48,
+                                                                            54),
+                                                                        fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .fromLTRB(
+                                                                    0,
+                                                                    3,
+                                                                    0,
+                                                                    3),
+                                                                child:
+                                                                Container(
+                                                                  width: 120,
+                                                                  decoration: BoxDecoration(
+                                                                      border: Border
+                                                                          .all(
+                                                                          color: Colors
+                                                                              .white),
+                                                                      borderRadius:
+                                                                      BorderRadius
+                                                                          .all(
+                                                                          Radius
+                                                                              .circular(
+                                                                              10))),
+                                                                  child:
+                                                                  new FlutterRatingBar(
+                                                                    itemSize:
+                                                                    20,
+                                                                    initialRating:
+                                                                    double
+                                                                        .parse(
+                                                                        items[index]
+                                                                            .rating),
+                                                                    fillColor:
+                                                                    Colors
+                                                                        .deepOrange,
+                                                                    borderColor: Colors
+                                                                        .deepOrange
+                                                                        .withAlpha(
+                                                                        50),
+                                                                    allowHalfRating:
+                                                                    true,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .fromLTRB(
+                                                                    0,
+                                                                    5,
+                                                                    0,
+                                                                    2),
+                                                                child:
+                                                                Container(
+                                                                  width: 200,
+                                                                  child: Text(
+                                                                    items[index]
+                                                                        .address,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                        15,
+                                                                        color: Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            48,
+                                                                            48,
+                                                                            54)),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .fromLTRB(
+                                                                    0,
+                                                                    5,
+                                                                    0,
+                                                                    2),
+                                                                child:
+                                                                Container(
+                                                                  width: 200,
+                                                                  child: Text(
+                                                                    'Horários: ' +
+                                                                        items[index]
+                                                                            .hour,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                        15,
+                                                                        color: Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            48,
+                                                                            48,
+                                                                            54)),
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                              Padding(
+                                                                padding: EdgeInsets
+                                                                    .fromLTRB(
+                                                                    0,
+                                                                    5,
+                                                                    0,
+                                                                    2),
+                                                                child:
+                                                                Container(
+                                                                  width: 200,
+                                                                  child: Text(
+                                                                    'Dias: ' +
+                                                                        items[index]
+                                                                            .week,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                        15,
+                                                                        color: Color
+                                                                            .fromARGB(
+                                                                            255,
+                                                                            48,
+                                                                            48,
+                                                                            54)),
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                      Center(
-                                                        child: Text(
-                                                            'NENHUM ESTABELECIMENTO ENCONTRADO'),
-                                                      ),
+                                                      )
                                                     ],
-                                                  )
-                                                : Divider(
-                                                    color: Colors.white,
-                                                  );
+                                                  ),
+                                                )),
+                                          ),
+                                        )
+                                            : n == 0
+                                            ? Column(
+                                          mainAxisAlignment:
+                                          MainAxisAlignment
+                                              .center,
+                                          children: <Widget>[
+                                            Center(
+                                              child: Icon(
+                                                Icons.not_interested,
+                                                color: Colors.red,
+                                                size: 100.0,
+                                              ),
+                                            ),
+                                            Center(
+                                              child: Text(
+                                                  'NENHUM ESTABELECIMENTO ENCONTRADO'),
+                                            ),
+                                          ],
+                                        )
+                                            : Divider(
+                                          color: Colors.white,
+                                        );
                                       },
                                     )));
+
+                          }
+                        }
+                      } else {
+                        return Column(children: [
+                            Container(
+                              height: 50,
+                            ),
+                            Center(
+                                  child: CircularProgressIndicator(),
+                            ),
+                            Container(
+                              height: 50,
+                            ),
+                            Center(
+                              child: Text("SE DEMORAR, VERIFIQUE SUA CONEXÃO OU SE SEU GPS ESTAR ATIVO!",
+                              style: TextStyle(fontWeight: FontWeight.bold),),
+                            ),
+                        ],);
                       }
-                    }
-                  } else {
-                    return Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
-                },
+                    },
+                  ),
+                ],
               ),
             ],
           ),
-        ],
-      ),
-    );
+        );
+
   }
 }

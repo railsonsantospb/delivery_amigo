@@ -70,7 +70,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
         builder:
             (BuildContext context, AsyncSnapshot<List<RequestX>> snapshot) {
           if (snapshot.hasError) {
-            print(snapshot.error.toString());
+
             return Center(
               child: Stack(
                 children: <Widget>[
@@ -431,7 +431,7 @@ class _HomeRequestXState extends State<HomeRequestX> {
                                                           .createRequestY(ry)
                                                           .then((value) {
                                                         if (value) {
-                                                          print(value);
+//                                                          print(value);
                                                         }
                                                       });
                                                       setState(() {});
