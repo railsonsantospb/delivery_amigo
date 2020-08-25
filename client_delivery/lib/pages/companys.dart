@@ -517,13 +517,12 @@ class _MyHomePageState extends State<MyHomePage> {
                                           );
                                         }
 
-                                        double totalDistance = calculateDistance(
-                                            _currentPosition.latitude,
-                                            _currentPosition.longitude,
-                                            double.parse(items[index]
-                                                .lat),
-                                            double.parse(items[index]
-                                                .lon));
+                                        double totalDistance =
+                                            calculateDistance(
+                                                _currentPosition.latitude,
+                                                _currentPosition.longitude,
+                                                double.parse(items[index].lat),
+                                                double.parse(items[index].lon));
 
                                         return widget.title.toLowerCase() ==
                                                     items[index]
