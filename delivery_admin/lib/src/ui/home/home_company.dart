@@ -107,9 +107,9 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   }
 
   List state = [
-    {'state': 'Restaurante'},
-    {'state': 'SuperMercado'},
-    {'state': 'Loja'},
+    {'state': 'Restaurante ou Lanchonete'},
+    // {'state': 'SuperMercado'},
+    {'state': 'Loja ou Deposito'},
   ];
 
   List valueActive = [
