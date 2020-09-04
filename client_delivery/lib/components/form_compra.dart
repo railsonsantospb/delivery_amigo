@@ -353,7 +353,7 @@ class _MyAppFormState extends State<MyAppForm> {
             controller: myobs,
             decoration: new InputDecoration(
                 hintText:
-                    'Deixe Alguma Observação. Ex: Quente ou Frio, Gelado ou Natural'),
+                    'Deixe Alguma Observação. Ex: Situação, melhor horário para entrega, etc.'),
             keyboardType: TextInputType.multiline,
             maxLines: 4,
             maxLength: 100,
@@ -397,6 +397,11 @@ class _MyAppFormState extends State<MyAppForm> {
                   dc = val;
                 });
               }),
+        ),
+        Divider(),
+        Text(
+          "*O pagamento feito no cartão estará sujeito a cobrança de juros e limite de divisão conforme o que o estabelecimento determinar.",
+          style: TextStyle(fontSize: 15.0, color: Colors.red),
         ),
       ],
     );

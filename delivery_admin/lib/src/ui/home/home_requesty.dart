@@ -305,6 +305,26 @@ class _HomeRequestYState extends State<HomeRequestY> {
                               ),
                             ],
                           ),
+                          Divider(),
+                          new Wrap(
+                            // section the gelada ou natural
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(0.0),
+                                child: new Text(
+                                  "Observação: ",
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: new Text(
+                                  rx.obs,
+                                  style: TextStyle(color: Colors.deepOrange),
+                                ),
+                              ),
+                            ],
+                          ),
                           ButtonBar(children: <Widget>[
 //                            FlatButton(
 //                              onPressed: () {
