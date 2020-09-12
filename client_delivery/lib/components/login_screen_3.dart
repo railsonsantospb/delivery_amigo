@@ -229,7 +229,7 @@ class _LoginScreen3State extends State<LoginScreen3>
         color: Colors.deepOrange,
         image: DecorationImage(
           colorFilter: new ColorFilter.mode(
-              Colors.black.withOpacity(0.1), BlendMode.dstATop),
+              Colors.black.withOpacity(0), BlendMode.dstATop),
           image: AssetImage('images/mountains.jpg'),
           fit: BoxFit.cover,
         ),
@@ -238,7 +238,7 @@ class _LoginScreen3State extends State<LoginScreen3>
           child: Column(
         children: <Widget>[
           Container(
-            padding: EdgeInsets.only(top: 250.0),
+            padding: EdgeInsets.only(top: 220.0),
             child: Center(
               child: Icon(
                 Icons.person_pin,
@@ -248,7 +248,7 @@ class _LoginScreen3State extends State<LoginScreen3>
             ),
           ),
           Container(
-            padding: EdgeInsets.only(top: 20.0),
+            padding: EdgeInsets.only(top: 10.0),
             child: new Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -264,7 +264,45 @@ class _LoginScreen3State extends State<LoginScreen3>
           ),
           new Container(
             width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 100.0),
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 80.0),
+            alignment: Alignment.center,
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                  child: new OutlineButton(
+                    shape: new RoundedRectangleBorder(
+                        borderRadius: new BorderRadius.circular(30.0)),
+                    color: Colors.deepOrange,
+                    highlightedBorderColor: Colors.white,
+                    onPressed: () => gotoPrivacity(),
+                    child: new Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 20.0,
+                        horizontal: 20.0,
+                      ),
+                      child: new Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          new Expanded(
+                            child: Text(
+                              "POLÍTICAS DE PRIVACIDADE",
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          new Container(
+            width: MediaQuery.of(context).size.width,
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
             alignment: Alignment.center,
             child: new Row(
               children: <Widget>[
@@ -302,7 +340,7 @@ class _LoginScreen3State extends State<LoginScreen3>
           ),
           new Container(
             width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 30.0),
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
             alignment: Alignment.center,
             child: new Row(
               children: <Widget>[
@@ -339,7 +377,7 @@ class _LoginScreen3State extends State<LoginScreen3>
           ),
           new Container(
             width: MediaQuery.of(context).size.width,
-            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 30.0),
+            margin: const EdgeInsets.only(left: 30.0, right: 30.0, top: 10.0),
             alignment: Alignment.center,
             child: new Row(
               children: <Widget>[
@@ -392,7 +430,7 @@ class _LoginScreen3State extends State<LoginScreen3>
         color: Colors.white,
         image: DecorationImage(
           colorFilter: new ColorFilter.mode(
-              Colors.black.withOpacity(0.05), BlendMode.dstATop),
+              Colors.black.withOpacity(0), BlendMode.dstATop),
           image: AssetImage('images/mountains.jpg'),
           fit: BoxFit.cover,
         ),
@@ -603,42 +641,39 @@ class _LoginScreen3State extends State<LoginScreen3>
 
                         if (EmailValidator.validate(email)) {
                           pr.show();
-                          _apiServiceUser.getUserEmail(email).then((user) {
-                            pr.hide();
-                            if (this.mounted && user != null) {
-                              if (user.isNotEmpty) {
-                                if (this.mounted && user != null) {
-                                  if (_controllerPasswordLogin.text
-                                          .toString() ==
-                                      user[0].password) {
-                                    Future.delayed(Duration(seconds: 3))
-                                        .then((value) {
-                                      pr.hide().whenComplete(() {
-                                        Navigator.pushAndRemoveUntil(
-                                          context,
-                                          CupertinoPageRoute(
-                                              builder: (context) => new MyAppC(
-                                                  name: user[0].name,
-                                                  email: user[0].email)),
-                                          (Route<dynamic> route) => false,
-                                        );
-                                      });
-                                    });
+                          Future.delayed(const Duration(seconds: 3), () {
+                            _apiServiceUser.getUserEmail(email).then((user) {
+                              if (this.mounted && user != null) {
+                                if (user.isNotEmpty) {
+                                  if (this.mounted && user != null) {
+                                    if (_controllerPasswordLogin.text
+                                            .toString() ==
+                                        user[0].password) {
+                                      pr.hide();
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        CupertinoPageRoute(
+                                            builder: (context) => new MyAppC(
+                                                name: user[0].name,
+                                                email: user[0].email)),
+                                        (Route<dynamic> route) => false,
+                                      );
+                                    } else {
+                                      alertShow("Verifique a Senha");
+                                    }
                                   } else {
-                                    alertShow("Verifique a Senha");
+                                    alertShow(
+                                        "Verifique sua Conexão ou Contate o Suporte!");
                                   }
                                 } else {
                                   alertShow(
-                                      "Verifique sua Conexão ou Contate o Suporte!");
+                                      "Email não Possui Cadastro na Nossa Base de Dados");
                                 }
                               } else {
                                 alertShow(
-                                    "Email não Possui Cadastro na Nossa Base de Dados");
+                                    "Verifique sua Conexão ou Contate o Suporte!");
                               }
-                            } else {
-                              alertShow(
-                                  "Verifique sua Conexão ou Contate o Suporte!");
-                            }
+                            });
                           });
                         } else {
                           alertShow("Email Inválido!");
@@ -819,7 +854,7 @@ class _LoginScreen3State extends State<LoginScreen3>
               color: Colors.white,
               image: DecorationImage(
                 colorFilter: new ColorFilter.mode(
-                    Colors.black.withOpacity(0.05), BlendMode.dstATop),
+                    Colors.black.withOpacity(0), BlendMode.dstATop),
                 image: AssetImage('images/mountains.jpg'),
                 fit: BoxFit.cover,
               ),
@@ -1273,10 +1308,257 @@ class _LoginScreen3State extends State<LoginScreen3>
             )));
   }
 
+  Widget Privacity() {
+    return new Scaffold(
+        body: Container(
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              image: DecorationImage(
+                colorFilter: new ColorFilter.mode(
+                    Colors.black.withOpacity(0), BlendMode.dstATop),
+                image: AssetImage('images/mountains.jpg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: new SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    padding: const EdgeInsets.only(bottom: 10.0, top: 70.0),
+                    child: Center(
+                      child: Icon(
+                        Icons.person_pin,
+                        color: Colors.deepOrange,
+                        size: 50.0,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.only(bottom: 40.0),
+                    child: Center(
+                      child: Text(
+                        "Políticas de Privacidade",
+                        style: TextStyle(
+                            color: Colors.deepOrange,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20),
+                      ),
+                    ),
+                  ),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "Nós, do Amigo Delivery, estamos comprometidos com a proteção da sua privacidade. "
+                                "Antes por favor leia atentamente as seguintes informações importantes, "
+                                "que dizem respeito à proteção dos seus dados pessoais.",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "Processamento de Dados Pessoais e Divulgação",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "Vamos realizar e processar todas as informações pessoais que você fornecer "
+                                "através do aplicativo para os nossos próprios fins comerciais internos, "
+                                "incluindo fins legais. Nós não iremos repassar ou vender informações "
+                                "pessoais on-line a terceiros. Por favor, note que, ao enviar suas informações "
+                                "pessoais para nós, você consente expressamente com o tratamento"
+                                " e a transferência de tais informações desta forma.",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "No aplicativo será possível obter seu dados das seguintes plataformas:",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "- Facebook;",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "- Gmail;",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "- Localização do Celular.",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "Todos os seus dados serão enviado para nossa API "
+                                "endereçada em (https://apibebidas.herokuapp.com) "
+                                "com total sigilo somente para o uso necessário.",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "Os dados presentes no aplicativo assim como sua localização "
+                                "serão armazenadas e excluídas a pedido do usuário, "
+                                "o mesmo pode revogar para fins jurídicos entrando em contato "
+                                "por email (railsonsantospb@gmail.com) ou telefone (083981422402).",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                  new Row(
+                    children: <Widget>[
+                      new Expanded(
+                        child: new Padding(
+                          padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                          child: new Text(
+                            "Dada a natureza global do Amigo Delivery, não vamos transferir seus dados. "
+                                "Por favor, note que, ao enviar suas informações pessoais para nós, "
+                                "você consente explicitamente com a transferência das suas informações "
+                                "que são necessárias para o pleno funcionamento do aplicativo."
+                                " Caso você não concorde com nossa política por favor entrar em contato"
+                                " para indicar uma melhor proteção ou ignorar o uso deste aplicativo.",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.deepOrange,
+                              fontSize: 15.0,
+                            ),textAlign: TextAlign.justify,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Divider(),
+                ],
+              ),
+            )));
+  }
+
   gotoLogin() {
     //controller_0To1.forward(from: 0.0);
     _controller.animateToPage(
       0,
+      duration: Duration(milliseconds: 800),
+      curve: Curves.bounceOut,
+    );
+  }
+
+  gotoPrivacity() {
+    //controller_0To1.forward(from: 0.0);
+    _controller.animateToPage(
+      3,
       duration: Duration(milliseconds: 800),
       curve: Curves.bounceOut,
     );
@@ -1323,7 +1605,7 @@ class _LoginScreen3State extends State<LoginScreen3>
         child: PageView(
           controller: _controller,
           physics: new AlwaysScrollableScrollPhysics(),
-          children: <Widget>[LoginPage(), HomePage(), SignupPage()],
+          children: <Widget>[LoginPage(), HomePage(), SignupPage(), Privacity()],
           scrollDirection: Axis.horizontal,
         ));
   }

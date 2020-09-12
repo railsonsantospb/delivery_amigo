@@ -51,7 +51,7 @@ class ProductCart {
 
   @override
   String toString() {
-    return 'Profile{id: $id, name: $name, mark: $mark, price: $price, info: $info, '
+    return 'ProductCart{id: $id, name: $name, mark: $mark, price: $price, info: $info, '
         'image: $image, email: $email, id_cop: $id_cop, qtd: $qtd}';
   }
 }

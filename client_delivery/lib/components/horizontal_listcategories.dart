@@ -10,7 +10,9 @@ import '../model/category.dart';
 
 class HorizontalList extends StatefulWidget {
   final String cpf;
-  HorizontalList({this.cpf, Key key}) : super(key: key);
+  final email;
+  final id;
+  HorizontalList({this.cpf, this.email, this.id, Key key}) : super(key: key);
 
   @override
   _HorizontalListState createState() => _HorizontalListState();
@@ -136,6 +138,9 @@ class _HorizontalListState extends State<HorizontalList> {
                                   builder: (context) => SearchList(
                                     header: cat[index].name.toUpperCase(),
                                     id: cat[index].id,
+                                    cpf: widget.cpf,
+                                    id_cop: widget.id,
+                                    email: widget.email,
                                   ),
                                 ));
                           },

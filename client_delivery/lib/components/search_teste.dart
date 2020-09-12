@@ -7,9 +7,13 @@ import 'package:amigodelivery/pages/product_detail.dart';
 
 class SearchList extends StatefulWidget {
   final header;
+  final id_cop;
+  final cpf;
   final id;
+  final email;
 
-  SearchList({Key key, this.header, this.id}) : super(key: key);
+  SearchList({Key key, this.header, this.id_cop, this.email, this.cpf, this.id})
+      : super(key: key);
 
   @override
   _SearchListState createState() => _SearchListState();
@@ -24,6 +28,7 @@ class _SearchListState extends State<SearchList> {
 
   List<Product> items;
   List<Product> duplicateItems;
+  var refreshKey = GlobalKey<RefreshIndicatorState>();
 
   @override
   void initState() {
@@ -31,6 +36,11 @@ class _SearchListState extends State<SearchList> {
     items = List<Product>();
     apiService = ApiServiceProd();
     super.initState();
+  }
+
+  Future<Null> refreshList() async {
+    refreshKey.currentState?.show(atTop: false);
+    setState(() {});
   }
 
   void filterSearchResults(String query) {
@@ -202,109 +212,128 @@ class _SearchListState extends State<SearchList> {
                           );
                         } else {
                           return Expanded(
-                              child: ListView.builder(
-                            shrinkWrap: true,
-                            itemCount: items.length,
-                            itemBuilder: (context, index) {
-                              return items.length >= 1
-                                  ? GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ProductDetails(
-                                                name: items[index].name,
-                                                price: items[index].price,
-                                                picture: items[index].image,
-                                                mark: items[index].mark,
-                                                info: items[index].info,
-                                              ),
-                                            ));
-                                      },
-                                      child: Card(
-                                        elevation: 5,
-                                        child: new SingleChildScrollView(
-                                            child: Container(
-                                          height: 180.0,
-                                          child: Row(
-                                            children: <Widget>[
-                                              Container(
-                                                  height: 120.0,
-                                                  width: 80.0,
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.only(
-                                                            bottomLeft: Radius
-                                                                .circular(5),
-                                                            topLeft:
-                                                                Radius.circular(
-                                                                    5)),
-                                                    image: DecorationImage(
-                                                        fit: BoxFit.cover,
-                                                        image: MemoryImage(
-                                                            base64Decode(
-                                                                items[index]
-                                                                    .image))),
-                                                  )),
-                                              Container(
-                                                height: 150,
-                                                child: Padding(
-                                                  padding: EdgeInsets.fromLTRB(
-                                                      10, 10, 0, 0),
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: <Widget>[
-                                                      Text(
-                                                        items[index].name,
-                                                        style: TextStyle(
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .bold),
+                              child: RefreshIndicator(
+                                  onRefresh: refreshList,
+                                  key: refreshKey,
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: items.length,
+                                    itemBuilder: (context, index) {
+                                      return items.length >= 1
+                                          ? GestureDetector(
+                                              onTap: () {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ProductDetails(
+                                                        name: items[index].name,
+                                                        price:
+                                                            items[index].price,
+                                                        picture:
+                                                            items[index].image,
+                                                        mark: items[index].mark,
+                                                        info: items[index].info,
+                                                        email: widget.email,
+                                                        cpf: widget.cpf,
+                                                        id: widget.id_cop,
                                                       ),
-                                                      Divider(),
-                                                      Text(
-                                                          "R\$ " +
-                                                              items[index]
-                                                                  .price,
-                                                          style: TextStyle(
-                                                              color: Colors
-                                                                  .deepOrange)),
-                                                      Padding(
-                                                        padding:
-                                                            EdgeInsets.fromLTRB(
-                                                                0, 5, 0, 2),
+                                                    ));
+                                              },
+                                              child: Card(
+                                                elevation: 5,
+                                                child:
+                                                    new SingleChildScrollView(
                                                         child: Container(
-                                                          width: 260,
-                                                          child: Text(
-                                                            items[index].info,
-                                                            style: TextStyle(
-                                                                fontSize: 15,
-                                                                color: Color
-                                                                    .fromARGB(
-                                                                        255,
-                                                                        48,
-                                                                        48,
-                                                                        54)),
+                                                  height: 130.0,
+                                                  child: Row(
+                                                    children: <Widget>[
+                                                      Container(
+                                                          height: 120.0,
+                                                          width: 80.0,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                            borderRadius: BorderRadius.only(
+                                                                bottomLeft: Radius
+                                                                    .circular(
+                                                                        5),
+                                                                topLeft: Radius
+                                                                    .circular(
+                                                                        5)),
+                                                            image: DecorationImage(
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                                image: MemoryImage(
+                                                                    base64Decode(
+                                                                        items[index]
+                                                                            .image))),
+                                                          )),
+                                                      Container(
+                                                        height: 150,
+                                                        child: Padding(
+                                                          padding: EdgeInsets
+                                                              .fromLTRB(
+                                                                  10, 10, 0, 0),
+                                                          child: Column(
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: <Widget>[
+                                                              Text(
+                                                                items[index]
+                                                                    .name,
+                                                                style: TextStyle(
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                              Divider(),
+                                                              Text(
+                                                                  "R\$ " +
+                                                                      items[index]
+                                                                          .price,
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .deepOrange)),
+                                                              Padding(
+                                                                padding:
+                                                                    EdgeInsets
+                                                                        .fromLTRB(
+                                                                            0,
+                                                                            5,
+                                                                            0,
+                                                                            2),
+                                                                child:
+                                                                    Container(
+                                                                  width: 260,
+                                                                  child: Text(
+                                                                    items[index]
+                                                                        .info,
+                                                                    style: TextStyle(
+                                                                        fontSize:
+                                                                            15,
+                                                                        color: Color.fromARGB(
+                                                                            255,
+                                                                            48,
+                                                                            48,
+                                                                            54)),
+                                                                  ),
+                                                                ),
+                                                              )
+                                                            ],
                                                           ),
                                                         ),
                                                       )
                                                     ],
                                                   ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        )),
-                                      ),
-                                    )
-                                  : Divider(
-                                      color: Colors.white,
-                                    );
-                            },
-                          ));
+                                                )),
+                                              ),
+                                            )
+                                          : Divider(
+                                              color: Colors.white,
+                                            );
+                                    },
+                                  )));
                         }
                       }
                     }

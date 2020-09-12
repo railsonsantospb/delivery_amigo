@@ -27,7 +27,7 @@ class Product {
 
   @override
   String toString() {
-    return 'Profile{id: $id, name: $name, mark: $mark, active: $active, price: $price, info: $info, '
+    return 'Product{id: $id, name: $name, mark: $mark, active: $active, price: $price, info: $info, '
         'image: $image, cat_id: $cat_id}';
   }
 

@@ -232,7 +232,7 @@ class _HomePage1State extends State<HomePage1> {
                 Icons.info,
                 size: 30.0,
               ),
-              title: Text('Sobre')),
+              title: Text('Empresa')),
         ],
         currentIndex: selectedIndex,
         fixedColor: Colors.white,

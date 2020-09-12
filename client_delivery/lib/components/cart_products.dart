@@ -427,7 +427,7 @@ class _Cart_productsState extends State<Cart_products> {
                 title: new Text("Total: "),
                 subtitle: Observer(
                   builder: (_) => Text(
-                    "R\$ ${value.value}",
+                    "R\$ ${value.value.toStringAsFixed(2)}",
                     style: TextStyle(
                         fontSize: 18.0,
                         color: Colors.deepOrange,

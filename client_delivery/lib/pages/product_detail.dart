@@ -159,21 +159,26 @@ class _ProductDetailsState extends State<ProductDetails> {
                           price: widget.price,
                           id: widget.id);
 
+
                       Future.delayed(const Duration(seconds: 2), () {
-                        pr1.hide();
+
                         apiService.createProduct(cart).then((isSuccess) {
+
                           if (isSuccess) {
                             _scaffoldState.currentState.showSnackBar(SnackBar(
                                 backgroundColor: Colors.green,
                                 content: Text(
                                     "O Produto foi Adicionado no Carrinho!")));
+                            pr1.hide();
                           } else {
                             _scaffoldState.currentState.showSnackBar(SnackBar(
                                 backgroundColor: Colors.red,
                                 content: Text(
                                     "Falha ao Adicionar no Carrinho ou Verifique sua Conexão!")));
+                            pr1.hide();
                           }
                         });
+
                       });
                     }
                   },

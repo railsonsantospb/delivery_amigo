@@ -4,7 +4,7 @@ import 'package:amigodelivery/components/products.dart';
 import 'horizontal_listcategories.dart';
 
 class Corpo extends StatefulWidget {
-  final String cpf;
+  final cpf;
   final email;
   final id;
 
@@ -38,6 +38,8 @@ class _CorpoState extends State<Corpo> {
           // Horizontal list view categories
           HorizontalList(
             cpf: widget.cpf,
+            id: widget.id,
+            email: widget.email,
           ),
 
           // padding widget

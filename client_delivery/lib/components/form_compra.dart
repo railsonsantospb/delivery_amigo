@@ -148,7 +148,7 @@ class _MyAppFormState extends State<MyAppForm> {
               child: ListTile(
                 title: new Text("Total: "),
                 subtitle: new Text(
-                  "R\$ ${widget.prices}",
+                  "R\$ ${widget.prices.toStringAsFixed(2)}",
                   style: TextStyle(
                       fontSize: 18.0,
                       color: Colors.deepOrange,
@@ -163,78 +163,78 @@ class _MyAppFormState extends State<MyAppForm> {
                   if (_key.currentState.validate()) {
                     pr.show();
                     Future.delayed(const Duration(seconds: 4), () {
-                      pr.hide().whenComplete(() {
-                        if (_currentPosition == null) {
-                          showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text("Aviso!"),
-                                  content: Text(
-                                      "POR FAVOR ATIVE SEU GPS PARA CONCLUIR O CADASTRO OU TENTE NOVAMENTE!"),
-                                  actions: <Widget>[
-                                    FlatButton(
-                                      child: Text("OK"),
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                    )
-                                  ],
-                                );
-                              });
-                        } else {
-                          String carts = '';
-                          for (final c in widget.cart) {
-                            carts += c.name +
-                                "=" +
-                                c.qtd.toString() +
-                                "=" +
-                                c.mark +
-                                "=" +
-                                c.price +
-                                "=" +
-                                c.info +
-                                "#";
-                          }
-
-                          RequestX rx = RequestX(
-                              client: widget.name,
-                              city: locale,
-                              address: myaddress.text.toString(),
-                              email: myemail.text.toString(),
-                              phone: mynumber.text.toString(),
-                              active: 1,
-                              id_cop: widget.id_cop.toString(),
-                              price_full: widget.prices.toString(),
-                              lat: _currentPosition.latitude.toString(),
-                              lon: _currentPosition.longitude.toString(),
-                              products: carts,
-                              pay: _itemSelecionado + " (de R\$" + dc + ")",
-                              obs: myobs.text.toString());
-
-                          apiService.createRequestX(rx).then((isSuccess) {
-                            if (isSuccess) {
-                              saveDatas(myaddress.text.toString(),
-                                  mynumber.text.toString());
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => SecondScreen(
-                                          name: widget.name,
-                                          email: widget.email,
-                                          cpf: widget.cpf,
-                                          id_cop: widget.id_cop,
-                                        )),
-                                (Route<dynamic> route) => false,
+                      if (_currentPosition == null) {
+                        showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: Text("Aviso!"),
+                                content: Text(
+                                    "POR FAVOR ATIVE SEU GPS PARA CONCLUIR O CADASTRO OU TENTE NOVAMENTE!"),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text("OK"),
+                                    onPressed: () {
+                                      Navigator.pop(context);
+                                    },
+                                  )
+                                ],
                               );
-                            } else {
-                              scaffoldKey.currentState.showSnackBar(SnackBar(
-                                  backgroundColor: Colors.blue,
-                                  content: Text("Falha ao Enviar os Dados")));
-                            }
-                          });
+                            });
+                      } else {
+                        String carts = '';
+                        for (final c in widget.cart) {
+                          carts += c.name +
+                              "=" +
+                              c.qtd.toString() +
+                              "=" +
+                              c.mark +
+                              "=" +
+                              c.price +
+                              "=" +
+                              c.info +
+                              "#";
                         }
-                      });
+
+                        RequestX rx = RequestX(
+                            client: widget.name,
+                            city: locale,
+                            address: myaddress.text.toString(),
+                            email: myemail.text.toString(),
+                            phone: mynumber.text.toString(),
+                            active: 1,
+                            id_cop: widget.id_cop.toString(),
+                            price_full: widget.prices.toStringAsFixed(2).toString(),
+                            lat: _currentPosition.latitude.toString(),
+                            lon: _currentPosition.longitude.toString(),
+                            products: carts,
+                            pay: _itemSelecionado + " (de R\$" + dc + ")",
+                            obs: myobs.text.toString());
+
+                        apiService.createRequestX(rx).then((isSuccess) {
+                          if (isSuccess) {
+                            saveDatas(myaddress.text.toString(),
+                                mynumber.text.toString());
+                            pr.hide();
+                            Navigator.pushAndRemoveUntil(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SecondScreen(
+                                        name: widget.name,
+                                        email: widget.email,
+                                        cpf: widget.cpf,
+                                        id_cop: widget.id_cop,
+                                      )),
+                              (Route<dynamic> route) => false,
+                            );
+                          } else {
+                            scaffoldKey.currentState.showSnackBar(SnackBar(
+                                backgroundColor: Colors.blue,
+                                content: Text("Falha ao Enviar os Dados")));
+                          }
+                        });
+                      }
+
                     });
                   } else {
                     // erro de validação
