@@ -71,7 +71,9 @@ class _SearchListState extends State<SearchList> {
 
   @override
   Widget build(BuildContext context) {
+
     return new Scaffold(
+
       appBar: AppBar(
         centerTitle: true,
         elevation: 10.0,
@@ -303,22 +305,17 @@ class _SearchListState extends State<SearchList> {
                                                                             5,
                                                                             0,
                                                                             2),
-                                                                child:
-                                                                    Container(
+                                                                child: Container(
+
                                                                   width: 260,
                                                                   child: Text(
-                                                                    items[index]
-                                                                        .info,
+                                                                    "CLICK AQUI PARA INFORMAÇÕES",
                                                                     style: TextStyle(
                                                                         fontSize:
-                                                                            15,
-                                                                        color: Color.fromARGB(
-                                                                            255,
-                                                                            48,
-                                                                            48,
-                                                                            54)),
+                                                                        15,
+                                                                        color: Colors.blueAccent),
                                                                   ),
-                                                                ),
+                                                                )
                                                               )
                                                             ],
                                                           ),

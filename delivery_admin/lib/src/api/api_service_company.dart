@@ -67,7 +67,8 @@ class ApiServiceCop {
           "lon": data.lon,
           "password": data.password,
           "hour": data.hour,
-          "week": data.week
+          "week": data.week,
+          "status": data.status
         }),
       );
 
@@ -101,7 +102,8 @@ class ApiServiceCop {
           "lon": data.lon,
           "password": data.password,
           "hour": data.hour,
-          "week": data.week
+          "week": data.week,
+          "status": data.status
         }),
       );
       if (response.statusCode == 200) {

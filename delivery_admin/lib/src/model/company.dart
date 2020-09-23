@@ -16,6 +16,7 @@ class Company {
   String rating;
   String hour;
   String week;
+  String status;
 
   Company(
       {this.id = 0,
@@ -32,7 +33,7 @@ class Company {
       this.password,
       this.rating,
       this.hour,
-      this.week});
+      this.week, this.status});
 
   factory Company.fromJson(Map<String, dynamic> map) {
     return Company(
@@ -50,7 +51,8 @@ class Company {
         password: map['password'],
         rating: map["rating"],
         hour: map["hour"],
-        week: map['week']);
+        week: map['week'],
+        status: map['status']);
   }
 
   Map<String, dynamic> toJson() {
@@ -69,14 +71,16 @@ class Company {
       "password": password,
       "rating": rating,
       "hour": hour,
-      "week": week
+      "week": week,
+      "status": status
     };
   }
 
   @override
   String toString() {
     return 'Company{id: $id, name: $name, image: $image, city: $city, category: $category, '
-        'cpf_cnpj: $cpf_cnpj, phone: $phone, owner: $owner,  address: $address, lat: $lat, lon: $lon password: $password, rating: $rating, hour: $hour, week: $week}';
+        'cpf_cnpj: $cpf_cnpj, phone: $phone, owner: $owner,  address: $address, lat: $lat, '
+        'lon: $lon password: $password, rating: $rating, hour: $hour, week: $week, status: $status}';
   }
 }
 

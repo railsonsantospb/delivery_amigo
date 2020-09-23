@@ -486,6 +486,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                       shrinkWrap: true,
                                       itemCount: items.length,
                                       itemBuilder: (context, index) {
+
                                         _getCurrentLocation();
                                         if (_currentPosition == null &&
                                             index == 0) {
@@ -548,7 +549,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                   elevation: 5,
                                                   child: new Container(
                                                       child: Container(
-                                                    height: 140.0,
+                                                    height: 170.0,
                                                     child: Row(
                                                       children: <Widget>[
                                                         SingleChildScrollView(
@@ -572,7 +573,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                                                               items[index].image))),
                                                                 ))),
                                                         Container(
-                                                          height: 150,
+                                                          height: 170,
                                                           child: Padding(
                                                             padding: EdgeInsets
                                                                 .fromLTRB(10, 2,
@@ -715,6 +716,38 @@ class _MyHomePageState extends State<MyHomePage> {
                                                                               48,
                                                                               48,
                                                                               54)),
+                                                                    ),
+                                                                  ),
+                                                                ),
+                                                                Padding(
+                                                                  padding: EdgeInsets
+                                                                      .fromLTRB(
+                                                                      0,
+                                                                      5,
+                                                                      0,
+                                                                      2),
+                                                                  child:
+                                                                  items[index].status == "Disponível" ? Container(
+                                                                    width: 200,
+                                                                    child: Text(
+
+                                                                      items[index]
+                                                                          .status + " para entregas",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                          15,
+                                                                          color: Colors.green),
+                                                                    ),
+                                                                  ) : Container(
+                                                                    width: 200,
+                                                                    child: Text(
+
+                                                                      items[index]
+                                                                          .status + " para entregas",
+                                                                      style: TextStyle(
+                                                                          fontSize:
+                                                                          15,
+                                                                          color: Colors.red),
                                                                     ),
                                                                   ),
                                                                 )

@@ -222,13 +222,13 @@ class _ProductDetailsState extends State<ProductDetails> {
             ],
           ),
 
-          new Wrap(
+            new Wrap(
             children: <Widget>[
               Padding(
                 padding: const EdgeInsets.fromLTRB(12.0, 5.0, 5.0, 5.0),
                 child: Text(
                   widget.info,
-                  style: TextStyle(fontSize: 18.0),
+                  style: TextStyle(fontSize: 18.0),textAlign: TextAlign.justify,
                 ),
               ),
             ],

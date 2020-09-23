@@ -47,6 +47,7 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   bool _isFieldCityValid;
   bool _isFieldHourValid;
   bool _isFieldWeekValid;
+  bool _isFieldStatusValid;
 
   final Geolocator geolocator = Geolocator()..forceAndroidLocationManager;
   Position _currentPosition;
@@ -66,8 +67,10 @@ class _FormAddCompanyState extends State<FormAddCompany> {
       new MaskedTextController(mask: 'AAA. a AAA.');
   TextEditingController _controllerPassword = TextEditingController();
   TextEditingController _controllerCity = TextEditingController();
+  TextEditingController _controllerStatus = TextEditingController();
 
   String _mySelection2;
+  String _mySelection3;
   String value;
   Future<File> file;
   String status = '';
@@ -115,6 +118,11 @@ class _FormAddCompanyState extends State<FormAddCompany> {
   List valueActive = [
     {'active': 'Habilitada'},
     {'active': 'Desabilitada'},
+  ];
+
+  List valueStatus = [
+    {'status': 'Disponível'},
+    {'status': 'Indisponível'},
   ];
 
   _getCurrentLocation() async {
@@ -258,6 +266,9 @@ class _FormAddCompanyState extends State<FormAddCompany> {
 
                   _isFieldCityValid = true;
                   _controllerCity.text = cops[0].city;
+
+                  _isFieldStatusValid = true;
+                  _controllerStatus.text = cops[0].status;
 
                   _isFieldStateValid = true;
 
@@ -450,30 +461,33 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                           }
                         },
                       ),
+
                       Center(
                         child: new DropdownButtonFormField(
                           hint: cops != null
-                              ? Text(cops[0].category)
-                              : Text('Categoria'),
-                          items: state.map((item) {
+                              ? Text(cops[0].status)
+                              : Text('Status'),
+                          items: valueStatus.map((item) {
                             return new DropdownMenuItem(
-                              child: new Text(item['state']),
-                              value: item['state'].toString(),
+                              child: new Text(item['status']),
+                              value: item['status'].toString(),
                             );
                           }).toList(),
                           onChanged: (newVal) {
                             if (this.mounted) {
                               setState(() {
-                                _mySelection2 = newVal;
-                                setState(() => _isFieldStateValid =
-                                    _mySelection2.isNotEmpty);
+                                 print(newVal);
+                                _mySelection3 = newVal;
+                                setState(() => _isFieldStatusValid =
+                                    _mySelection3.isNotEmpty);
                               });
                             }
                           },
-                          value: _mySelection2,
+                          value: _mySelection3,
                         ),
                       ),
                       Divider(),
+
                       SizedBox(
                         width: double.infinity, // match_parent
                         child: RaisedButton(
@@ -511,7 +525,7 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                               );
                               return;
                             }
-
+                            print(_mySelection3);
                             String name = _controllerName.text.toString();
                             String owner = _controllerOwner.text.toString();
                             String address = _controllerAddress.text.toString();
@@ -538,7 +552,10 @@ class _FormAddCompanyState extends State<FormAddCompany> {
                                 lat: cops[0].lat,
                                 lon: cops[0].lon,
                                 hour: hour,
-                                week: week);
+                                week: week,
+                            status: _mySelection3 == null
+                                ? cops[0].status
+                                : _mySelection3,);
 
                             pr.show();
 

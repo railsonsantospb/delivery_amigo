@@ -1600,7 +1600,7 @@ class _LoginScreen3State extends State<LoginScreen3>
                                           _currentPosition.longitude.toString(),
                                       password: password2,
                                       hour: hour,
-                                      week: week);
+                                      week: week, status: "Indisponível");
 
                                   _apiServiceCop
                                       .createCop(cop)

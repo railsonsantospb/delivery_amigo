@@ -32,6 +32,7 @@ class _ProductsState extends State<Products> {
         builder: (BuildContext context, AsyncSnapshot<List<Product>> snapshot) {
           List<Product> prod = snapshot.data;
 
+
           if (snapshot.hasError) {
             return Center(
               child: Stack(
@@ -117,6 +118,10 @@ class _ProductsState extends State<Products> {
                   ],
                 );
               } else {
+                if(prod != null && prod.isNotEmpty){
+                  prod = prod.reversed.toList();
+                }
+
                 return prod == null || prod.isEmpty
                     ? Column(
                         mainAxisAlignment: MainAxisAlignment.center,
