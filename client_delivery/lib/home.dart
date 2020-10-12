@@ -16,7 +16,7 @@ class HomePage1 extends StatefulWidget {
   final email;
   final cpf;
   final id;
-
+ 
   HomePage1({this.name, this.email, this.cpf, this.id});
 
   @override
