@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:flutter_open_whatsapp/flutter_open_whatsapp.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:amigodelivery/api/api_service_company.dart';
 import 'package:amigodelivery/api/api_service_rx.dart';
@@ -10,6 +11,7 @@ import 'package:amigodelivery/model/requestx.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -105,8 +107,28 @@ class _MyAppFormState extends State<MyAppForm> {
     );
   }
 
+  String url() {
+    // if (Platform.isIOS) {
+    //   return "whatsapp://wa.me/$phone/?text=${Uri.parse(message)}";
+    // } else {
+      return "whatsapp://send?   phone=5583981422402&text=${Uri.parse("olaaa")}";
+    // }
+  }
+
+
+  teste () async {
+    if (await canLaunch(url())) {
+      await launch(url());
+    } else {
+      throw 'Could not launch ${url()}';
+    }
+  }
+
   @override
   void initState() {
+    teste();
+    FlutterOpenWhatsapp.sendSingleMessage("55083981422402", "Hello");
+    print(1);
     _getCurrentLocation();
     getDatas();
     apiService = ApiServiceRX();
@@ -279,6 +301,7 @@ class _MyAppFormState extends State<MyAppForm> {
         pr.show();
         Future.delayed(Duration(seconds: 3)).then((value) {
           pr.hide().whenComplete(() {
+
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => SecondScreen()),

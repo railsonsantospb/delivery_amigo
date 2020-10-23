@@ -460,7 +460,7 @@ class _Cart_productsState extends State<Cart_products> {
                   }
                 },
                 child: new Text(
-                  "COMFIRMAR",
+                  "CONFIRMAR",
                   style: TextStyle(color: Colors.white),
                 ),
                 color: Colors.deepOrange,
