@@ -1,0 +1,66 @@
+name: deliveryadmin
+description: A new Flutter application.
+
+version: 1.0.0+8
+
+environment:
+  sdk: ">=2.1.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # The following adds the Cupertino Icons font to your application.
+  # Use with the CupertinoIcons class for iOS style icons.
+  cupertino_icons: ^0.1.2
+
+  http: ^0.12.0+2
+  mime: ^0.9.6+3
+  async:
+  dio: ^3.0.9
+  image_picker:
+  dbcrypt: ^1.0.0
+  mobx:
+  flutter_mobx:
+  badges: ^1.1.1
+  connectivity:
+  google_maps_flutter:
+  flutter_polyline_points:
+  geolocator:
+  progress_dialog: ^1.2.1
+  cpfcnpj: ^1.0.3
+  brasil_fields: ^0.1.0
+  flutter_masked_text: ^0.8.0
+  flutter_cache_manager: ^1.1.3
+  shared_preferences:
+  flutter_rating_bar: ^1.1.0
+  flutter_local_notifications: ^0.6.0
+  path_provider: ^0.5.0+1
+  ringtone: ^0.0.2
+  vibration: ^1.4.0
+
+
+dev_dependencies:
+  mobx_codegen:
+  build_runner:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.7.4
+
+flutter_icons:
+  image_path_ios: 'images/AMIGO_ADMIN.png'
+  image_path_android: 'images/AMIGO_ADMIN.png'
+  android: true
+  ios: true
+
+# The following section is specific to Flutter.
+flutter:
+
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  assets:
+    - images/mountains.jpeg
+    - images/mountains.jpg
